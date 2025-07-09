@@ -5,5 +5,8 @@
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1"
+  },
+  "dependencies": {
+    "highlight.js": "^11.11.1"
   }
 }

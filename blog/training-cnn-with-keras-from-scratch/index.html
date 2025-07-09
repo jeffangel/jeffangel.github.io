@@ -2,89 +2,188 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>El Blog de JeffAngel</title>
-  <link href="../../output.css" rel="stylesheet">
-  <link rel="icon" href="../../assets/favicon.png" type="image/png">
-  <link rel="icon" href="../../assets/logo-imagen.svg" type="image/svg+xml">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>El Blog de JeffAngel</title>
+    <link href="../../output.css" rel="stylesheet">
+    <link rel="icon" href="../../assets/favicon.png" type="image/png">
+    <link rel="icon" href="../../assets/logo-imagen.svg" type="image/svg+xml">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github-dark-dimmed.min.css">
 </head>
 
 <body class="bg-gray-100 text-gray-800 font-sans">
 
-  <!-- Navbar -->
-  <nav class="bg-white/70 backdrop-blur-sm shadow mb-8 sticky top-0 z-50 transition duration-300 ease-in-out">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <!-- Navbar -->
+    <nav class="bg-white/70 backdrop-blur-sm shadow mb-8 sticky top-0 z-50 transition duration-300 ease-in-out">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
 
-      <div class="grid grid-cols-[auto,1fr] items-center gap-2">
-        <a href="/">
-          <img src="../../assets/logo-imagen.svg" alt="JeffAngel Logo Icon" class="h-14 w-auto">
-        </a>
-        <a href="/" class="hidden md:flex flex-col justify-center">
-          <img href="/" src="../../assets/logo-text.svg" alt="JeffAngel.AR Text" class="h-8 w-auto mb-1">
-          <span class="text-[12px] text-gray-500 leading-none">
-            Data · AI · ML · MLOps · Cloud
-          </span>
-        </a>
-      </div>
+            <div class="grid grid-cols-[auto,1fr] items-center gap-2">
+                <a href="/">
+                    <img src="../../assets/logo-imagen.svg" alt="JeffAngel Logo Icon" class="h-14 w-auto">
+                </a>
+                <a href="/" class="hidden md:flex flex-col justify-center">
+                    <img href="/" src="../../assets/logo-text.svg" alt="JeffAngel.AR Text" class="h-8 w-auto mb-1">
+                    <span class="text-[12px] text-gray-500 leading-none">
+                        Data · AI · ML · MLOps · Cloud
+                    </span>
+                </a>
+            </div>
 
-      <div class="space-x-4 text-sm">
-        <a href="/" class="text-gray-600 hover:text-blue-600">Portfolio</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Contenido principal -->
-  <main id="inicio" class="max-w-4xl mx-auto px-6 mt-8">
-    <article class="bg-white rounded-2xl shadow-md p-8 space-y-10">
-
-      <!-- Encabezado del artículo -->
-      <header>
-        <h1 class="text-4xl font-bold text-slate-800 mb-2 tracking-tight">Train a CNN model from scratch</h1>
-        <p class="text-lg text-slate-600 mb-6">
-          Un ejemplo paso a paso para entender cómo entrenar y evaluar un modelo de clasificación binaria.
-        </p>
-        <hr class="my-6 border-slate-200" />
-      </header>
-
-      <!-- Sección 1 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">1. Generación de datos</h2>
-        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto shadow-inner">
-<code>from sklearn.datasets import make_classification
-import matplotlib.pyplot as plt
-
-X, y = make_classification(n_samples=200, n_features=2, n_redundant=0, n_informative=2,
-                           random_state=42, n_clusters_per_class=1)
-plt.scatter(X[:,0], X[:,1], c=y)
-plt.show()</code>
-        </pre>
-      </section>
-
-      <!-- Botón de simulación -->
-      <section>
-        <div>
-          <button id="startBtn"
-            class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-5 rounded-lg shadow transition">
-            ▶ Iniciar simulación
-          </button>
-          <p id="startStatus" class="mt-2 text-sm text-slate-500 italic"></p>
+            <div class="space-x-4 text-sm">
+                <a href="/" class="text-gray-600 hover:text-blue-600">Portfolio</a>
+            </div>
         </div>
-      </section>
-      <!-- Sección 2 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">2. Entrenamiento</h2>
-        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto shadow-inner">
-<code>from sklearn.linear_model import LogisticRegression
+    </nav>
+
+    <!-- Contenido principal -->
+    <main id="inicio" class="max-w-4xl mx-auto px-6 mt-8">
+        <article class="bg-white rounded-2xl shadow-md p-8 space-y-10">
+
+            <!-- Encabezado del artículo -->
+            <header>
+                <h1 class="text-4xl font-bold text-slate-800 mb-2 tracking-tight">Train a CNN model from scratch
+                    using Keras API</h1>
+                <p class="text-lg text-slate-600 mb-6">
+                    En este post, te mostraré uno de los flujos a seguir para entrenar un modelo CNN desde cero a
+                    fin de estimar la edad de una persona y predecir su sexo a partir de imágenes faciales.
+                    <br>
+                    Como fuente de datos se utiliza un subconjunto de datos de imágenes de rostros extraídos del
+                    dataset de Kaggle
+                    <a href="https://www.kaggle.com/datasets/jangedoo/utkface-new" target="_blank"
+                        class="text-blue-600 underline hover:text-blue-800">UTKFace</a>,
+                    sin embargo, el enfoque es aplicable a cualquier conjunto de datos de imágenes.
+                    <br>
+                    Para la creación de esta red neuronal convolucional utilizaremos la API de Keras v3, ahora
+                    integrado a Tensorflow a partir de la versión 2.0.
+                    <br>
+                    Considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos, puedes consultar
+                    el detalle completo en el sitio web de
+                    <a href="https://keras.io/api/models/" target="_blank"
+                        class="text-blue-600 underline hover:text-blue-800">Keras</a>.
+                    De igual forma, te comento brevemente la diferencia entre estas:
+                <ol class="list-decimal list-inside text-slate-700 space-y-1">
+                    <li>Secuencial: Forma simple de apilar capas, soporta una sola entrada y salida.</li>
+                    <li>API funcional: Permite arquitecturas más personalizables con múltiples entradas y salidas.
+                    </li>
+                    <li>Sub-clase de modelo: Permite crear capas personalizadas para proyectos complejos.</li>
+                </ol>
+                <br>
+                Debido a que la arquitectura a crear generará dos predicciones de salida (edad y genero),
+                utilizaremos la API funcional.
+                Puedes seguir el notebook disponible en
+                <a href="https://colab.research.google.com/drive/1KFUeehzOaWZYCwpD0yH0Spa0o099hkb_#scrollTo=-GRYwLR3vqLz"
+                    target="_blank" class="text-blue-600 underline hover:text-blue-800">Google Colab</a>.
+                </p>
+                <hr class="my-6 border-slate-200" />
+            </header>
+
+            <!-- Sección 1 -->
+            <section>
+                <h2 class="text-2xl font-semibold text-slate-800 mb-2">1. Importación de librerías requeridas</h2>
+                <pre>
+<code class="language-python block p-4 rounded-lg overflow-x-auto">from google.colab import drive
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.regularizers import l2
+import matplotlib.pyplot as plt
+from tensorflow.keras.utils import plot_model
+import os
+import random
+import cv2
+import numpy as np</code></pre>
+            </section>
+
+            <!-- Sección 2 -->
+            <section>
+                <h2 class="text-2xl font-semibold text-slate-800 mb-2">2. Definir variables</h2>
+                <pre>
+<code class="language-python block p-4 rounded-lg overflow-x-auto">IMAGES_TO_DISPLAY = 20
+DATASET_PATH = "/content/drive/MyDrive/train_val"</code></pre>
+            </section>
+
+            <!-- Sección 3 -->
+            <section>
+                <h2 class="text-2xl font-semibold text-slate-800 mb-2">3. Montar Google Drive</h2>
+                <pre>
+<code class="language-python block p-4 rounded-lg overflow-x-auto">mount_point = "/content/drive"
+drive.mount(mount_point)</code></pre>
+            </section>
+
+            <!-- Sección 4 -->
+            <section>
+                <h2 class="text-2xl font-semibold text-slate-800 mb-2">4. Visualización de una muestra</h2>
+                <pre>
+<code class="language-python block p-4 rounded-lg overflow-x-auto">file_names = os.listdir(DATASET_PATH)
+random_images = random.sample(file_names, IMAGES_TO_DISPLAY)
+images_list, age_list, gender_list = [], [], []
+
+# We create the random code to read the files using opencv
+for image in random_images:
+    labels = image.split('_')
+    img = cv2.imread(os.path.join(DATASET_PATH, image))
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    age_label = int(labels[0])
+    gender_label = int(labels[1])
+    age_list.append(age_label)
+    gender_list.append(gender_label)
+    images_list.append(img_rgb)
+
+age_arr = np.array(age_list, dtype=np.int32)
+gender_arr = np.array(gender_list, dtype=np.int32)
+images_arr = np.array(images_list, dtype=np.int32)
+
+# Load the data into a tensorflow dataset
+batch_size = 32
+train_ds = tf.data.Dataset.from_tensor_slices((images_arr, age_arr, gender_arr))
+train_ds = train_ds.shuffle(len(images_arr)).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+
+# Show some images and prin them out
+plt.figure(figsize=(15, 12))
+for image, age, gender in train_ds.take(1):
+    for i in range(images_to_display):
+        ax = plt.subplot(4, 5, i + 1)
+        plt.imshow(np.array(image[i]).astype("uint8"))
+        plt.title(f"Age: {int(age[i])} // Gender: {int(gender[i])}")
+        plt.axis("off")</code></pre>
+            </section>
+
+            <!-- Botón de simulación -->
+            <section>
+                <div>
+                    <button id="startBtn"
+                        class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-5 rounded-lg shadow transition">
+                        ▶ Iniciar simulación
+                    </button>
+                    <p id="startStatus" class="mt-2 text-sm text-slate-500 italic"></p>
+                </div>
+            </section>
+            <!-- Sección 2 -->
+            <section>
+                <h2 class="text-2xl font-semibold text-slate-800 mb-2">2. Entrenamiento</h2>
+                <pre>
+<code class="language-python block p-4 rounded-lg overflow-x-auto">from sklearn.linear_model import LogisticRegression
 model = LogisticRegression()
 model.fit(X, y)</code>
         </pre>
-      </section>
+            </section>
+            <section>
+                <h2>
+                    <pre>
+                        <code class="language-python block p-4 rounded-lg overflow-x-auto">from sklearn.linear_model import LogisticRegression
+mount_point = "/content/drive"
+drive.mount(mount_point)</code>
+                    </pre>
+                </h2>
+            </section>
+        </article>
+    </main>
 
-    </article>
-  </main>
-
-  <script src="main.js"></script>
+    <script src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 </body>
 
 </html>
