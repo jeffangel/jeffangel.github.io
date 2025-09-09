@@ -38,55 +38,52 @@
 
   <!-- Contenido principal -->
   <main id="inicio" class="max-w-4xl mx-auto px-6 mt-8">
-    <article class="bg-white rounded-2xl shadow-lg p-8 md:px-10 lg:px-12 space-y-10 prose prose-slate">
+    <article class="bg-white rounded-2xl shadow-md p-8 space-y-10">
 
       <!-- Encabezado del artículo -->
       <header>
-        <h1 class="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight mb-4">Train a CNN model from scratch
+        <h1 class="text-4xl font-bold text-slate-800 mb-2 tracking-tight">Train a CNN model from scratch
           using Keras API</h1>
         <p class="text-lg text-slate-600 mb-6">
           En este post, te mostraré uno de los flujos a seguir para entrenar un modelo CNN desde cero donde
           construiremos una red neuronal convolucional que sea capaz de estimar la edad y sexo de una persona
           a partir de su imagen facial.
-        </p>
-        <p class="text-lg text-slate-600 mb-6">
+          <br>
           Como fuente de datos utilizaremos un subconjunto de datos de imágenes de rostros extraídos del
           dataset de Kaggle
           <a href="https://www.kaggle.com/datasets/jangedoo/utkface-new" target="_blank"
-            class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">UTKFace</a>,
+            class="text-blue-600 underline hover:text-blue-800">UTKFace</a>,
           sin embargo, el enfoque es aplicable a cualquier conjunto de datos de imágenes.
-        </p>
-        <p class="text-lg text-slate-600 mb-6">
+          <br>
           Para la creación de esta red neuronal convolucional utilizaremos la API de Keras versión 3, ahora
           integrado a Tensorflow a partir de la versión 2.0.
-        </p>
-        <p class="text-lg text-slate-600 mb-6">
+          <br>
           Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
           puedes consultar el detalle completo en el sitio web de
           <a href="https://keras.io/api/models/" target="_blank"
-            class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Keras</a>.
+            class="text-blue-600 underline hover:text-blue-800">Keras</a>.
           Sin embargo, a manera de resumen te comento brevemente la diferencia entre estas:
+        <ol class="list-decimal list-inside text-slate-700 space-y-1">
+          <li>Secuencial: Forma simple de apilar capas, soporta una sola entrada y salida.</li>
+          <li>API funcional: Permite arquitecturas más personalizables con múltiples entradas y salidas.
+          </li>
+          <li>Sub-clase de modelo: Permite crear capas personalizadas, donde se redefine la lógica de la capa original
+            de la librería, aplicado a problemas específicos de alta complejidad también abordados con Pytorch.</li>
+        </ol>
+        <br>
+        Debido a que vamos a crear una arquitectura que generará dos predicciones de salida (edad y sexo), harémos uso
+        de la API funcional.
+        Puedes seguir el notebook disponible en
+        <a href="https://colab.research.google.com/drive/1KFUeehzOaWZYCwpD0yH0Spa0o099hkb_#scrollTo=-GRYwLR3vqLz"
+          target="_blank" class="text-blue-600 underline hover:text-blue-800">Google Colab</a>.
         </p>
-          <ol class="list-decimal list-inside text-slate-700 space-y-1 ml-4 mb-6">
-            <li>Secuencial: Forma simple de apilar capas, soporta una sola entrada y salida.</li>
-            <li>API funcional: Permite arquitecturas más personalizables con múltiples entradas y salidas.
-            </li>
-            <li>Sub-clase de modelo: Permite crear capas personalizadas, donde se redefine la lógica de la capa original
-              de la librería, aplicado a problemas específicos de alta complejidad también abordados con Pytorch.</li>
-            </ol>
-        <p class="text-lg text-slate-600 mb-6">
-          Debido a que vamos a crear una arquitectura que generará dos predicciones de salida (edad y sexo), harémos uso
-          de la API funcional. Puedes seguir el notebook disponible en
-          <a href="https://colab.research.google.com/drive/1KFUeehzOaWZYCwpD0yH0Spa0o099hkb_#scrollTo=-GRYwLR3vqLz"
-          target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Google Colab</a>.
-        </p>
-        
+        <hr class="my-6 border-slate-200" />
       </header>
 
       <!-- Sección 1 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">1. Importación de librerías requeridas</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">from google.colab import drive
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">from google.colab import drive
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -102,7 +99,7 @@ import numpy as np</code></pre>
       <!-- Sección 2 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">2. Definir variables</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">MOUNT_POINT = "/content/drive"
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">MOUNT_POINT = "/content/drive"
 IMAGES_TO_DISPLAY = 20
 DATASET_PATH = "/content/drive/MyDrive/train_val"
 BATCH_SIZE = 32
@@ -112,16 +109,17 @@ IMAGE_SIZE = 128</code></pre>
       <!-- Sección 3 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">3. Montar Google Drive</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">drive.mount(mount_point)</code></pre>
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">drive.mount(mount_point)</code></pre>
       </section>
 
       <!-- Sección 4 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">4. Carga de una muestra de imágenes</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">file_names = os.listdir(DATASET_PATH)
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">file_names = os.listdir(DATASET_PATH)
 random_images = random.sample(file_names, IMAGES_TO_DISPLAY)
 images_list, age_list, gender_list = [], [], []
 
+# We create the random code to read the files using opencv
 for image in random_images:
     labels = image.split('_')
     img = cv2.imread(os.path.join(DATASET_PATH, image))
@@ -137,6 +135,7 @@ images_arr = np.array(images_list, dtype=np.int32)
 age_arr = np.array(age_list, dtype=np.int32)
 gender_arr = np.array(gender_list, dtype=np.int32)
 
+# Load the data into a tensorflow dataset
 train_ds = tf.data.Dataset.from_tensor_slices((images_arr, age_arr, gender_arr))
 train_ds = train_ds.shuffle(len(images_arr)).batch(batch_size).prefetch(tf.data.AUTOTUNE)</code></pre>
       </section>
@@ -144,7 +143,7 @@ train_ds = train_ds.shuffle(len(images_arr)).batch(batch_size).prefetch(tf.data.
       <!-- Sección 5 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">5. Visualización de imágenes cargadas</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">plt.figure(figsize=(15, 12))
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">plt.figure(figsize=(15, 12))
 for image, age, gender in train_ds.take(1):
     for i in range(images_to_display):
         ax = plt.subplot(4, 5, i + 1)
@@ -160,7 +159,7 @@ for image, age, gender in train_ds.take(1):
       <!-- Sección 6 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">6. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">all_image_files = [file for file in os.listdir(DATASET_PATH) if file.lower().endswith(('.jpg'))]
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">all_image_files = [file for file in os.listdir(DATASET_PATH) if file.lower().endswith(('.jpg'))]
 # Shuffle the dataset to ensure random distribution
 random.seed(0)
 random.shuffle(all_image_files)
@@ -177,7 +176,7 @@ val_image_files = all_image_files[train_end:]</code></pre>
       <!-- Sección 7 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">7. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">def load_imgs_lables(dataset_path,filenames):
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">def load_imgs_lables(dataset_path,filenames):
   print('load all image data, age and gender labels...')
   images = []
   age_labels = []
@@ -202,7 +201,7 @@ val_image_files = all_image_files[train_end:]</code></pre>
       <!-- Sección 8 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono"># load data from the training set
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto"># load data from the training set
 train_images, train_age, train_gender = load_imgs_lables(folder_train_val,train_image_files)
 
 # load data from the validation set
@@ -212,7 +211,7 @@ val_images, val_age, val_gender = load_imgs_lables(folder_train_val,val_image_fi
       <!-- Sección 9 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">train_images = train_images[..., ::-1]
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">train_images = train_images[..., ::-1]
 val_images = val_images[..., ::-1]
 
 train_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": train_images}, {"age_output":train_age, "gender_output":train_gender}))
@@ -225,7 +224,7 @@ val_ds = val_ds.shuffle(len(val_images)).batch(batch_size).prefetch(tf.data.AUTO
       <!-- Sección 10 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">def data_augmentation(images):
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">def data_augmentation(images):
     for layer in data_augmentation_layers:
         images = layer(images)
     return images
@@ -240,7 +239,7 @@ data_augmentation_layers = [
       <!-- Sección 11 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">image_inputs = keras.Input(shape=(IMG_SIZE, IMG_SIZE, 3), name="my_images_input")
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">image_inputs = keras.Input(shape=(IMG_SIZE, IMG_SIZE, 3), name="my_images_input")
 x = data_augmentation(image_inputs)
 
 # Backbone (Main branch)
@@ -264,7 +263,7 @@ x = layers.MaxPooling2D((2, 2))(x)</code></pre>
       <!-- Sección 12 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(x)
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(x)
 branch_age = layers.BatchNormalization()(branch_age)
 branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(branch_age)
 branch_age = layers.BatchNormalization()(branch_age)
@@ -278,7 +277,7 @@ age_output = layers.Dense(1, activation="linear", name="age_output")(branch_age)
       <!-- Sección 13 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x)
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x)
 branch_gender = layers.BatchNormalization()(branch_gender)
 branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(branch_gender)
 branch_gender = layers.BatchNormalization()(branch_gender)
@@ -292,7 +291,7 @@ gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(bran
       <!-- Sección 14 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">modelA = keras.Model(
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">modelA = keras.Model(
     inputs=[image_inputs],
     outputs=[age_output, gender_output]
 )</code></pre>
@@ -301,13 +300,13 @@ gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(bran
       <!-- Sección 15 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">modelA.summary()</code></pre>
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">modelA.summary()</code></pre>
       </section>
 
       <!-- Sección 16 -->
       <section>
         <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">plot_model(modelA, show_shapes=True, dpi=100)</code></pre>
+        <pre><code class="language-python block p-4 rounded-lg overflow-x-auto">plot_model(modelA, show_shapes=True, dpi=100)</code></pre>
       </section>
     </article>
   </main>
