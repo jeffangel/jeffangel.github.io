@@ -36,57 +36,175 @@
     </div>
   </nav>
 
-  <!-- Contenido principal -->
-  <main id="inicio" class="max-w-4xl mx-auto px-6 mt-8">
-    <article class="bg-white rounded-2xl shadow-lg p-8 md:px-10 lg:px-12 space-y-10 prose prose-slate">
+  <div class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem] gap-8">
+    <!-- Contenido principal -->
+    <main id="inicio" class="prose max-w-none">
+      <article class="bg-white rounded-2xl shadow-lg p-8 md:px-10 lg:px-12 space-y-10 prose prose-slate">
 
-      <!-- Encabezado del artículo -->
-      <header>
-        <h1 class="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight mb-4">Train a CNN model from scratch
-          using Keras API</h1>
-        <p class="text-lg text-slate-600 mb-6">
-          En este post, te mostraré uno de los flujos a seguir para entrenar un modelo CNN desde cero donde
-          construiremos una red neuronal convolucional que sea capaz de estimar la edad y sexo de una persona
-          a partir de su imagen facial.
-        </p>
-        <p class="text-lg text-slate-600 mb-6">
-          Como fuente de datos utilizaremos un subconjunto de datos de imágenes de rostros extraídos del
-          dataset de Kaggle
-          <a href="https://www.kaggle.com/datasets/jangedoo/utkface-new" target="_blank"
-            class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">UTKFace</a>,
-          sin embargo, el enfoque es aplicable a cualquier conjunto de datos de imágenes.
-        </p>
-        <p class="text-lg text-slate-600 mb-6">
-          Para la creación de esta red neuronal convolucional utilizaremos la API de Keras versión 3, ahora
-          integrado a Tensorflow a partir de la versión 2.0.
-        </p>
-        <p class="text-lg text-slate-600 mb-6">
-          Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
-          puedes consultar el detalle completo en el sitio web de
-          <a href="https://keras.io/api/models/" target="_blank"
-            class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Keras</a>.
-          Sin embargo, a manera de resumen te comento brevemente la diferencia entre estas:
-        </p>
+        <!-- Encabezado del artículo -->
+        <header>
+          <h1 class="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight mb-4">Entrenando una red
+            CNN desde cero</h1>
+          <div class="text-sm text-gray-500 flex items-center space-x-3">
+            <!-- Fecha -->
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 
+                 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <time datetime="2025-09-16">16 de septiembre de 2025</time>
+            </span>
+
+            <span>·</span>
+
+            <!-- Tiempo de lectura -->
+            <span id="reading-time" class="flex items-center">
+              <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Tiempo de lectura: 5 min
+            </span>
+          </div>
+        </header>
+
+        <!-- Sección 1 -->
+        <section id="overview">
+          <h2 class="text-2xl font-semibold text-slate-800 mb-2">¿Qué haremos hoy?</h2>
+          <p class="text-lg text-slate-600 mb-6">
+            En este post, te mostraré uno de los flujos a seguir para entrenar un modelo CNN desde cero donde
+            construiremos una red neuronal convolucional que sea capaz de estimar la edad y sexo de una persona
+            a partir de su imagen facial.
+          </p>
+          <div class="mt-8 flex justify-center mb-5">
+            <img src="../../assets/blog/training-cnn-with-keras-from-scratch/overview-diagram.svg"
+              alt="Overview Diagram">
+          </div>
+          <p class="text-lg text-slate-600 mb-6">
+            Como fuente de datos utilizaremos un subconjunto de datos de imágenes de rostros extraídos del
+            dataset de Kaggle
+            <a href="https://www.kaggle.com/datasets/jangedoo/utkface-new" target="_blank"
+              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">UTKFace</a>,
+            sin embargo, el enfoque es aplicable a cualquier conjunto de datos de imágenes.
+          </p>
+          <p class="text-lg text-slate-600 mb-6">
+            Para la creación de esta red neuronal convolucional utilizaremos la API de Keras versión 3, ahora
+            integrado a Tensorflow a partir de la versión 2.0.
+          </p>
+
+        </section>
+
+        <!-- Sección 2 -->
+        <section id="theory">
+          <h2 class="text-2xl font-semibold text-slate-800 mb-2">Un poco de información...</h2>
+          <p class="text-lg text-slate-600 mb-6">
+            En esta sección te compartiré algunos conceptos básicos que te ayudarán a entender mejor el
+            desarrollo del modelo.
+          </p>
+
+          <h3 class="text-xl font-semibold text-slate-800 mb-2">Red neuronal artificial (ANN)</h3>
+          <p class="text-lg text-slate-600 mb-2">Una <strong>red neuronal artificial</strong> es un modelo de
+            inteligencia artificial
+            inspirado en cómo funciona el cerebro humano. Aprende de datos para reconocer patrones y tomar decisiones:
+            desde clasificar imágenes hasta predecir tendencias.</p>
+          <p class="text-lg text-slate-600 mb-6">Dependiendo del problema, existen diferentes
+            <strong>arquitecturas</strong> (topologías).
+            Aquí están las más usadas y una explicación simple de cuándo aplicarlas.
+          </p>
+
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal directa (FeedForward)</h4>
+          <p class="text-lg text-slate-600 mb-2">Las redes directas procesan los datos en un solo sentido: entrada →
+            capas ocultas → salida. No mantienen memoria del pasado, por lo que son ideales para tareas de
+            <em>clasificación</em> y <em>regresión</em> con datos tabulares.
+          </p>
+          <p class="text-sm text-gray-600 mb-6"><strong>Ejemplo:</strong> Predecir el precio de una casa usando
+            características (m², habitaciones, ubicación).</p>
+
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal recurrente (RNN)</h4>
+          <p class="text-lg text-slate-600 mb-2">Las RNNs procesa los datos de manera iterativa a través de la misma
+            red, es decir, luego de procesar los datos y obtener la predicción en la capa de salida, esta predicción se
+            envía a la capa de entrada para que la nueva predicción no sea solo influenciada por los nuevos datos, sino
+            también además por el estado anterior de la última predicción.</p>
+          <p class="text-sm text-gray-600 mb-6"><strong>Ejemplo:</strong> Previsión de series temporales (ventas
+            diarias) donde el pasado reciente influye en la predicción futura.</p>
+
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal convolucional (CNN)</h4>
+          <p class="text-lg text-slate-600 mb-2">Las CNNs están diseñadas para procesar datos con estructura espacial,
+            sobre todo imágenes. Usan filtros (convoluciones) que detectan patrones locales como bordes, texturas y
+            formas, combinando estos datos en capas profundas para reconocer objetos.</p>
+          <p class="text-sm text-gray-600 mb-6"><strong>Ejemplo:</strong> Clasificar imágenes (perro vs. gato) o
+            detectar objetos en una fotografía.</p>
+
+          <p class="text-lg text-slate-600 mb-4">En esta publicación nos enfocaremos en entender y aplicar la red
+            neuronal convolucional a través de un ejemplo práctico que incluye el código basado en Python.</p>
+          <p class="text-lg text-slate-600 mb-4">Existen arquitecturas más avanzadas como las Redes Generativas
+            Adversariales (GANs) y los Transformers, ampliamente usados en generación de imágenes y en modelos de
+            lenguaje como ChatGPT. No las veremos a detalle aquí, pero si quieres profundizar te recomiendo este
+            artículo de <a
+              href="https://learn.microsoft.com/es-es/azure/machine-learning/concept-deep-learning-vs-machine-learning?view=azureml-api-2#artificial-neural-networks"
+              target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Microsoft</a>.</p>
+
+
+          <h3 class="text-xl font-semibold text-slate-800 mb-2">Desentrañando las CNN</h3>
+          <p class="text-lg text-slate-600 mb-4">Las redes neuronales convolucionales (CNN) son una clase especial de
+            redes neuronales diseñadas para procesar datos con una estructura de cuadrícula, como imágenes. A diferencia
+            de las redes neuronales tradicionales, que son completamente conectadas, las CNN utilizan capas de
+            convolución para extraer características jerárquicas de los datos de entrada.</p>
+          <p class="text-lg text-slate-600 mb-4">Las CNN se componen de varios tipos de capas:</p>
+          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-6">
+            <li><strong>Capas de convolución:</strong> Aplican filtros a la entrada para crear mapas de características.</li>
+            <li><strong>Capas de activación:</strong> Introducen no linealidades en el modelo (ReLU es la más común).</li>
+            <li><strong>Capas de agrupamiento (pooling):</strong> Reducen la dimensionalidad de los mapas de
+              características.</li>
+            <li><strong>Capas completamente conectadas:</strong> Realizan la clasificación final basándose en las
+              características extraídas.</li>
+          </ul>
+          <p class="text-lg text-slate-600 mb-4">En el siguiente ejemplo, desglosaremos una CNN simple para la
+            clasificación de imágenes:</p>
+
+
+
+
+
+          <h3 class="text-xl font-semibold text-slate-800 mb-4">Keras</h3>
+          <p class="text-lg text-slate-600 mb-6">
+            Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
+            puedes consultar el detalle completo en el sitio web de
+            <a href="https://keras.io/api/models/" target="_blank"
+              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Keras</a>.
+            Sin embargo, a manera de resumen te comento brevemente la diferencia entre estas:
+          </p>
           <ol class="list-decimal list-inside text-slate-700 space-y-1 ml-4 mb-6">
             <li>Secuencial: Forma simple de apilar capas, soporta una sola entrada y salida.</li>
-            <li>API funcional: Permite arquitecturas más personalizables con múltiples entradas y salidas.
-            </li>
-            <li>Sub-clase de modelo: Permite crear capas personalizadas, donde se redefine la lógica de la capa original
+            <div class="mt-8">
+              <img src="../../assets/blog/training-cnn-with-keras-from-scratch/sequential_diagram.png"
+                alt="Muestra de imágenes">
+            </div>
+            <li>API funcional: Permite arquitecturas más personalizables con múltiples entradas y salidas.</li>
+            <div class="mt-8">
+              <img src="../../assets/blog/training-cnn-with-keras-from-scratch/api-functional_diagram.png"
+                alt="Muestra de imágenes">
+            </div>
+            <li>Sub-clase de modelo: Permite crear capas personalizadas, donde se redefine la lógica de la capa
+              original
               de la librería, aplicado a problemas específicos de alta complejidad también abordados con Pytorch.</li>
-            </ol>
-        <p class="text-lg text-slate-600 mb-6">
-          Debido a que vamos a crear una arquitectura que generará dos predicciones de salida (edad y sexo), harémos uso
-          de la API funcional. Puedes seguir el notebook disponible en
-          <a href="https://colab.research.google.com/drive/1KFUeehzOaWZYCwpD0yH0Spa0o099hkb_#scrollTo=-GRYwLR3vqLz"
-          target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Google Colab</a>.
-        </p>
-        
-      </header>
+          </ol>
+          <p class="text-lg text-slate-600 mb-6">
+            Debido a que vamos a crear una arquitectura que generará dos predicciones de salida (edad y sexo), harémos
+            uso
+            de la API funcional. Puedes seguir el notebook disponible en
+            <a href="https://colab.research.google.com/drive/1KFUeehzOaWZYCwpD0yH0Spa0o099hkb_#scrollTo=-GRYwLR3vqLz"
+              target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Google
+              Colab</a>.
+          </p>
+        </section>
 
-      <!-- Sección 1 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">1. Importación de librerías requeridas</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">from google.colab import drive
+        <!-- Sección 3 -->
+        <section id="implementing-1">
+          <h2 class="text-2xl font-semibold text-slate-800 mb-2">Hora del hands-on</h2>
+          <h3 class="text-2xl font-semibold text-slate-800 mb-2">Importación de librerías requeridas</h3>
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">from google.colab import drive
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -97,28 +215,29 @@ import os
 import random
 import cv2
 import numpy as np</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 2 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">2. Definir variables</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">MOUNT_POINT = "/content/drive"
+        <!-- Sección 4 -->
+        <section id="implementing-2">
+          <h3 class="text-2xl font-semibold text-slate-800 mb-2">Definir variables</h3>
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">MOUNT_POINT = "/content/drive"
 IMAGES_TO_DISPLAY = 20
 DATASET_PATH = "/content/drive/MyDrive/train_val"
 BATCH_SIZE = 32
 IMAGE_SIZE = 128</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 3 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">3. Montar Google Drive</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">drive.mount(mount_point)</code></pre>
-      </section>
+        <!-- Sección 5 -->
+        <section id="implementing-3">
+          <h3 class="text-2xl font-semibold text-slate-800 mb-2">Montar Google Drive</h3>
+          <pre
+            class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">drive.mount(mount_point)</code></pre>
+        </section>
 
-      <!-- Sección 4 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">4. Carga de una muestra de imágenes</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">file_names = os.listdir(DATASET_PATH)
+        <!-- Sección 6 -->
+        <section id="implementing-4">
+          <h3 class="text-2xl font-semibold text-slate-800 mb-2">Carga de una muestra de imágenes</h3>
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">file_names = os.listdir(DATASET_PATH)
 random_images = random.sample(file_names, IMAGES_TO_DISPLAY)
 images_list, age_list, gender_list = [], [], []
 
@@ -139,12 +258,12 @@ gender_arr = np.array(gender_list, dtype=np.int32)
 
 train_ds = tf.data.Dataset.from_tensor_slices((images_arr, age_arr, gender_arr))
 train_ds = train_ds.shuffle(len(images_arr)).batch(batch_size).prefetch(tf.data.AUTOTUNE)</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 5 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">5. Visualización de imágenes cargadas</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">plt.figure(figsize=(15, 12))
+        <!-- Sección 7 -->
+        <section id="implementing-5">
+          <h3 class="text-2xl font-semibold text-slate-800 mb-2">Visualización de imágenes cargadas</h3>
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">plt.figure(figsize=(15, 12))
 for image, age, gender in train_ds.take(1):
     for i in range(images_to_display):
         ax = plt.subplot(4, 5, i + 1)
@@ -152,15 +271,15 @@ for image, age, gender in train_ds.take(1):
         plt.title(f"Age: {int(age[i])} // Gender: {int(gender[i])}")
         plt.axis("off")</code></pre>
 
-        <div class="mt-8">
-          <img src="../../assets/blog/training-cnn-with-keras-from-scratch/faces.png" alt="Muestra de imágenes"
-            class="w-full rounded-lg shadow-md">
-      </section>
+          <div class="mt-8">
+            <img src="../../assets/blog/training-cnn-with-keras-from-scratch/faces.png" alt="Muestra de imágenes"
+              class="w-full rounded-lg shadow-md">
+        </section>
 
-      <!-- Sección 6 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">6. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">all_image_files = [file for file in os.listdir(DATASET_PATH) if file.lower().endswith(('.jpg'))]
+        <!-- Sección 8 -->
+        <section id="implementing-6">
+          <h3 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h3>
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">all_image_files = [file for file in os.listdir(DATASET_PATH) if file.lower().endswith(('.jpg'))]
 # Shuffle the dataset to ensure random distribution
 random.seed(0)
 random.shuffle(all_image_files)
@@ -172,12 +291,12 @@ train_end = int(n_train_val * 0.8)
 # Split the dataset
 train_image_files = all_image_files[:train_end]
 val_image_files = all_image_files[train_end:]</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 7 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">7. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">def load_imgs_lables(dataset_path,filenames):
+        <!-- Sección 9 -->
+        <section id="implementing-7">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">def load_imgs_lables(dataset_path,filenames):
   print('load all image data, age and gender labels...')
   images = []
   age_labels = []
@@ -197,22 +316,22 @@ val_image_files = all_image_files[train_end:]</code></pre>
   age_labels = np.array(age_labels)
   gender_labels = np.array(gender_labels)
   return images, age_labels, gender_labels</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 8 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono"># load data from the training set
+        <!-- Sección 10 -->
+        <section id="implementing-8">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono"># load data from the training set
 train_images, train_age, train_gender = load_imgs_lables(folder_train_val,train_image_files)
 
 # load data from the validation set
 val_images, val_age, val_gender = load_imgs_lables(folder_train_val,val_image_files)</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 9 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">train_images = train_images[..., ::-1]
+        <!-- Sección 11 -->
+        <section id="implementing-9">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">train_images = train_images[..., ::-1]
 val_images = val_images[..., ::-1]
 
 train_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": train_images}, {"age_output":train_age, "gender_output":train_gender}))
@@ -220,12 +339,12 @@ train_ds = train_ds.shuffle(len(train_images)).batch(batch_size).prefetch(tf.dat
 
 val_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": val_images}, {"age_output":val_age, "gender_output":val_gender}))
 val_ds = val_ds.shuffle(len(val_images)).batch(batch_size).prefetch(tf.data.AUTOTUNE)</code></pre>
-      </section>
-      
-      <!-- Sección 10 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">def data_augmentation(images):
+        </section>
+
+        <!-- Sección 12 -->
+        <section id="implementing-10">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">def data_augmentation(images):
     for layer in data_augmentation_layers:
         images = layer(images)
     return images
@@ -235,12 +354,12 @@ data_augmentation_layers = [
     layers.RandomRotation(0.1),
     layers.RandomZoom(0.14)
 ]</code></pre>
-      </section>
-      
-      <!-- Sección 11 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">image_inputs = keras.Input(shape=(IMG_SIZE, IMG_SIZE, 3), name="my_images_input")
+        </section>
+
+        <!-- Sección 13 -->
+        <section id="implementing-11">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">image_inputs = keras.Input(shape=(IMG_SIZE, IMG_SIZE, 3), name="my_images_input")
 x = data_augmentation(image_inputs)
 
 # Backbone (Main branch)
@@ -259,12 +378,12 @@ x = layers.MaxPooling2D((2, 2))(x)
 x = layers.Conv2D(512, (3, 3), activation="relu", padding="same")(x)
 x = layers.BatchNormalization()(x)
 x = layers.MaxPooling2D((2, 2))(x)</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 12 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(x)
+        <!-- Sección 14 -->
+        <section id="implementing-12">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(x)
 branch_age = layers.BatchNormalization()(branch_age)
 branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(branch_age)
 branch_age = layers.BatchNormalization()(branch_age)
@@ -273,12 +392,12 @@ branch_age = layers.Flatten()(branch_age)
 branch_age = layers.Dense(128, activation="relu")(branch_age)
 branch_age = layers.Dropout(0.45)(branch_age)
 age_output = layers.Dense(1, activation="linear", name="age_output")(branch_age)</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 13 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x)
+        <!-- Sección 15 -->
+        <section id="implementing-13">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x)
 branch_gender = layers.BatchNormalization()(branch_gender)
 branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(branch_gender)
 branch_gender = layers.BatchNormalization()(branch_gender)
@@ -287,32 +406,54 @@ branch_gender = layers.Flatten()(branch_gender)
 branch_gender = layers.Dense(128, activation="relu")(branch_gender)
 branch_gender = layers.Dropout(0.26871378401366075)(branch_gender)
 gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(branch_gender)</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 14 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">modelA = keras.Model(
+        <!-- Sección 16 -->
+        <section id="implementing-14">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">modelA = keras.Model(
     inputs=[image_inputs],
     outputs=[age_output, gender_output]
 )</code></pre>
-      </section>
+        </section>
 
-      <!-- Sección 15 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">modelA.summary()</code></pre>
-      </section>
+        <!-- Sección 17 -->
+        <section id="implementing-15">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre
+            class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">modelA.summary()</code></pre>
+        </section>
 
-      <!-- Sección 16 -->
-      <section>
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">8. Segmentación de imagenes para entrenamiento</h2>
-        <pre class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">plot_model(modelA, show_shapes=True, dpi=100)</code></pre>
-      </section>
-    </article>
-  </main>
+        <!-- Sección 18 -->
+        <section id="implementing-16">
+          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <pre
+            class="not-prose"><code class="block p-4 rounded-lg overflow-x-auto font-mono">plot_model(modelA, show_shapes=True, dpi=100)</code></pre>
+        </section>
 
-  <script src="main.js"></script>
+        <footer class="mt-8 border-t pt-4">
+          <p>¿Quieres que incluya un <em>ejemplo paso a paso</em> de una CNN con código en PyTorch o TensorFlow? Dime
+            cuál prefieres y lo preparo.</p>
+        </footer>
+      </article>
+    </main>
+
+    <!-- Slider de navegación -->
+    <aside id="sidebar-toc"
+      class="hidden lg:block h-fit sticky top-28 bg-white shadow-md rounded-lg border border-gray-200">
+      <div class="bg-black text-white font-semibold px-4 py-2 rounded-t-lg flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z" />
+        </svg>
+        <span>En esta página</span>
+      </div>
+      <nav id="toc-list" class="list-none m-0 space-y-1 divide-y divide-gray-200"></nav>
+    </aside>
+
+  </div>
+
+  <script src="toc.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
 </body>
