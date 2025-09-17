@@ -104,66 +104,154 @@
           </p>
 
           <h3 class="text-xl font-semibold text-slate-800 mb-2">Red neuronal artificial (ANN)</h3>
-          <p class="text-lg text-slate-600 mb-2">Una <strong>red neuronal artificial</strong> es un modelo de
-            inteligencia artificial
-            inspirado en cómo funciona el cerebro humano. Aprende de datos para reconocer patrones y tomar decisiones:
-            desde clasificar imágenes hasta predecir tendencias.</p>
-          <p class="text-lg text-slate-600 mb-6">Dependiendo del problema, existen diferentes
-            <strong>arquitecturas</strong> (topologías).
-            Aquí están las más usadas y una explicación simple de cuándo aplicarlas.
+          <p class="text-lg text-slate-600 mb-2">
+            Una <strong>red neuronal artificial</strong> es un modelo de inteligencia artificial inspirado en cómo
+            funciona el cerebro humano. Aprende de datos para reconocer patrones y tomar decisiones: desde clasificar
+            imágenes hasta predecir tendencias.
+          </p>
+          <p class="text-lg text-slate-600 mb-6">
+            Dependiendo del problema, existen diferentes <strong>arquitecturas</strong> (topologías). Aquí están las más
+            usadas y una explicación simple de cuándo aplicarlas.
           </p>
 
           <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal directa (FeedForward)</h4>
-          <p class="text-lg text-slate-600 mb-2">Las redes directas procesan los datos en un solo sentido: entrada →
-            capas ocultas → salida. No mantienen memoria del pasado, por lo que son ideales para tareas de
-            <em>clasificación</em> y <em>regresión</em> con datos tabulares.
+          <p class="text-lg text-slate-600 mb-2">
+            Las redes directas procesan los datos en un solo sentido: entrada → capas ocultas → salida. No mantienen
+            memoria del pasado, por lo que son ideales para tareas de <em>clasificación</em> y <em>regresión</em> con
+            datos tabulares.
           </p>
           <p class="text-sm text-gray-600 mb-6"><strong>Ejemplo:</strong> Predecir el precio de una casa usando
             características (m², habitaciones, ubicación).</p>
 
           <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal recurrente (RNN)</h4>
-          <p class="text-lg text-slate-600 mb-2">Las RNNs procesa los datos de manera iterativa a través de la misma
-            red, es decir, luego de procesar los datos y obtener la predicción en la capa de salida, esta predicción se
-            envía a la capa de entrada para que la nueva predicción no sea solo influenciada por los nuevos datos, sino
-            también además por el estado anterior de la última predicción.</p>
-          <p class="text-sm text-gray-600 mb-6"><strong>Ejemplo:</strong> Previsión de series temporales (ventas
-            diarias) donde el pasado reciente influye en la predicción futura.</p>
+          <p class="text-lg text-slate-600 mb-2">
+            Las RNNs procesa los datos de manera iterativa a través de la misma red, es decir, luego de procesar los
+            datos y obtener la predicción en la capa de salida, esta predicción se envía a la capa de entrada para que
+            la nueva predicción no sea solo influenciada por los nuevos datos, sino también además por el estado
+            anterior de la última predicción.
+          </p>
+          <p class="text-sm text-gray-600 mb-6">
+            <strong>Ejemplo:</strong> Previsión de series temporales (ventas diarias) donde el pasado reciente influye
+            en la predicción futura.
+          </p>
 
           <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal convolucional (CNN)</h4>
-          <p class="text-lg text-slate-600 mb-2">Las CNNs están diseñadas para procesar datos con estructura espacial,
-            sobre todo imágenes. Usan filtros (convoluciones) que detectan patrones locales como bordes, texturas y
-            formas, combinando estos datos en capas profundas para reconocer objetos.</p>
+          <p class="text-lg text-slate-600 mb-2">
+            Las CNNs están diseñadas para procesar datos con estructura espacial, sobre todo imágenes. Usan filtros
+            (convoluciones) que detectan patrones locales como bordes, texturas y formas, combinando estos datos en
+            capas profundas para reconocer objetos.
+          </p>
           <p class="text-sm text-gray-600 mb-6"><strong>Ejemplo:</strong> Clasificar imágenes (perro vs. gato) o
-            detectar objetos en una fotografía.</p>
+            detectar objetos en una fotografía.
+          </p>
 
-          <p class="text-lg text-slate-600 mb-4">En esta publicación nos enfocaremos en entender y aplicar la red
-            neuronal convolucional a través de un ejemplo práctico que incluye el código basado en Python.</p>
-          <p class="text-lg text-slate-600 mb-4">Existen arquitecturas más avanzadas como las Redes Generativas
-            Adversariales (GANs) y los Transformers, ampliamente usados en generación de imágenes y en modelos de
-            lenguaje como ChatGPT. No las veremos a detalle aquí, pero si quieres profundizar te recomiendo este
-            artículo de <a
+          <p class="text-lg text-slate-600 mb-4">
+            En esta publicación nos enfocaremos en entender y aplicar la red neuronal convolucional a través de un
+            ejemplo práctico que incluye el código basado en Python.
+          </p>
+          <p class="text-lg text-slate-600 mb-4">
+            Existen arquitecturas más avanzadas como las Redes Generativas Adversariales (GANs) y los Transformers,
+            ampliamente usados en generación de imágenes y en modelos de lenguaje como ChatGPT. No las veremos a detalle
+            aquí, pero si quieres profundizar te recomiendo este artículo de <a
               href="https://learn.microsoft.com/es-es/azure/machine-learning/concept-deep-learning-vs-machine-learning?view=azureml-api-2#artificial-neural-networks"
-              target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Microsoft</a>.</p>
-
+              target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Microsoft</a>.
+          </p>
 
           <h3 class="text-xl font-semibold text-slate-800 mb-2">Desentrañando las CNN</h3>
-          <p class="text-lg text-slate-600 mb-4">Las redes neuronales convolucionales (CNN) son una clase especial de
-            redes neuronales diseñadas para procesar datos con una estructura de cuadrícula, como imágenes. A diferencia
-            de las redes neuronales tradicionales, que son completamente conectadas, las CNN utilizan capas de
-            convolución para extraer características jerárquicas de los datos de entrada.</p>
-          <p class="text-lg text-slate-600 mb-4">Las CNN se componen de varios tipos de capas:</p>
-          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-6">
-            <li><strong>Capas de convolución:</strong> Aplican filtros a la entrada para crear mapas de características.</li>
-            <li><strong>Capas de activación:</strong> Introducen no linealidades en el modelo (ReLU es la más común).</li>
-            <li><strong>Capas de agrupamiento (pooling):</strong> Reducen la dimensionalidad de los mapas de
-              características.</li>
-            <li><strong>Capas completamente conectadas:</strong> Realizan la clasificación final basándose en las
-              características extraídas.</li>
+          <p class="text-lg text-slate-600 mb-4">
+            Las redes neuronales convolucionales (CNN) son una clase especial de redes neuronales diseñadas para
+            procesar datos con una estructura de cuadrícula, como imágenes. A diferencia de las redes neuronales
+            tradicionales, que son completamente conectadas, las CNN utilizan capas de convolución para extraer
+            características jerárquicas de los datos de entrada.
+          </p>
+          <p class="text-lg text-slate-600 mb-4">
+            Las CNN se componen de varios tipos de capas conectados secuencialmente:
+          </p>
+          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-4">
+            <li>
+              <strong>Capas de convolución:</strong> Aplican filtros a la entrada para crear mapas de características.
+            </li>
+            <li>
+              <strong>Capas de activación:</strong> Introducen no linealidades en el modelo (ReLU es la más común).
+            </li>
+            <li>
+              <strong>Capas de agrupamiento (pooling):</strong> Reducen la dimensionalidad de los mapas de
+              características.
+            </li>
+            <li>
+              <strong>Capas completamente conectadas:</strong> Realizan la clasificación final basándose en las
+              características extraídas.
+            </li>
           </ul>
-          <p class="text-lg text-slate-600 mb-4">En el siguiente ejemplo, desglosaremos una CNN simple para la
-            clasificación de imágenes:</p>
 
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas de convolución</h4>
+          <p class="text-lg text-slate-600 mb-2">
+            Estas capas aplican <strong>filtros</strong> o también llamado kernels que se deslizan sobre la imagen de
+            entrada para detectar patrones locales como bordes, texturas y formas.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Para comprender plenamente como funcionan estos filtros debemos mencionar a los hiperparametros
+            <strong>kernel size</strong>, <strong>padding</strong> y <strong>stride</strong>.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Además, dado que el filtro se define como una matríz, podemos imaginarnos al filtro como una grilla (un
+            tablero de ajedrez pequeño), donde el ancho y alto tienen el mismo tamaño. Aquí entra el primer
+            hiperparámetro: el <strong>kernel size</strong>, el cual define el tamaño del filtro.</p>
+          <p class="text-lg text-slate-600 mb-2">
+            Por otro lado, como el filtro se desplaza recorriendo la imagen paso a paso, el <strong>padding</strong>
+            hace referencia a la adición de píxeles en los bordes de la imagen. Esto permite que el filtro también pueda
+            analizar las zonas cercanas al borde y que el tamaño de la imagen procesada no se reduzca.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Finalmente, el <strong>stride</strong> indica de cuánto en cuánto se mueve el filtro al recorrer la imagen.
+            Si el paso es pequeño, el filtro analiza con más detalle pero genera un resultado más grande; si el paso es
+            mayor, avanza más rápido, resumiendo la información pero con menos precisión. En otras palabras, el stride
+            controla el “ritmo” con el que la red examina la imagen.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Todo esto puede sonar quizás un tanto abstracto, por ello, veámoslo con un par de ejemplos prácticos:
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            En este primer ejemplo podemos ver como trabajaría la capa de convolución con los siguientes hiperparametros:
+          </p>
+          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+            <li>
+              <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
+            </li>
+            <li>
+              <strong>padding</strong>: same, lo que significa que no se agregaron píxeles extra alrededor de la imagen
+              original.
+            </li>
+            <li>
+              <strong>stride</strong>: 1, lo que indica que el filtro avanza de un píxel en un píxel al recorrer la
+              imagen.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer-3x3.mp4" type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
 
+          <p class="text-lg text-slate-600 mb-2">
+            En este segundo ejemplo podemos ver como trabajaría la capa de convolución con los siguientes hiperparametros:
+          </p>
+          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+            <li>
+              <strong>kernel size</strong>: 2x2, es decir, una grilla de 2 unidades de ancho por 2 de alto.
+            </li>
+            <li>
+              <strong>padding</strong>: same, lo que significa que no se agregaron píxeles extra alrededor de la imagen
+              original.
+            </li>
+            <li>
+              <strong>stride</strong>: 1, lo que indica que el filtro avanza de un píxel en un píxel al recorrer
+              la imagen.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer-2x2.mp4" type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
 
 
 
