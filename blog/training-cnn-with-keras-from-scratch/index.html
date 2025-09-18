@@ -209,10 +209,14 @@
             controla el “ritmo” con el que la red examina la imagen.
           </p>
           <p class="text-lg text-slate-600 mb-2">
-            Todo esto puede sonar quizás un tanto abstracto, por ello, veámoslo con un par de ejemplos prácticos:
+            Todo esto puede sonar quizás un tanto abstracto, por ello, veámoslo con unos ejemplos prácticos.
           </p>
+
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
           <p class="text-lg text-slate-600 mb-2">
-            En este primer ejemplo podemos ver como trabajaría la capa de convolución con los siguientes hiperparametros:
+            En este primer ejemplo podemos ver como trabajaría la capa de convolución con los siguientes
+            hiperparametros:
           </p>
           <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
             <li>
@@ -228,12 +232,15 @@
             </li>
           </ul>
           <video autoplay loop muted playsinline class="block mx-auto border border-white">
-            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer-3x3.mp4" type="video/mp4">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-3x3.mp4"
+              type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
 
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
           <p class="text-lg text-slate-600 mb-2">
-            En este segundo ejemplo podemos ver como trabajaría la capa de convolución con los siguientes hiperparametros:
+            Bien... ¿y qué pasa si probamos con un <strong>kernel size</strong> más pequeño?
           </p>
           <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
             <li>
@@ -249,13 +256,160 @@
             </li>
           </ul>
           <video autoplay loop muted playsinline class="block mx-auto border border-white">
-            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer-2x2.mp4" type="video/mp4">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-2x2.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+          <p class="text-lg text-slate-600 mb-2">
+            En este caso, el <strong>kernel size</strong> se ha reducido a <strong>2x2</strong>, lo que permite capturar
+            características más finas en la imagen. Sin embargo, esto también significa que la capa de convolución
+            tendrá menos información contextual para trabajar, lo que podría afectar la calidad de las características
+            extraídas.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Si no está del todo claro hasta ahora, aquí te comparto una analogía rápida: imagina que estás viendo una
+            foto tipo selfie de tu abuela, con un kernel size más grande (de 3x3 o más grande) podrías enfocarte
+            visualizar la frente y los ojos a la vez (y luego otras partes de la foto como la nariz y la boca); mientras
+            que con un kernel size más pequeño (de 2x2) podrías enfocarte en visualizar en algo más concreto como solo
+            el ojo izquierdo del selfie.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            ¿Notaste la diferencia? Con un kernel size más pequeño es posible ver los detalles de un sector más
+            específico dentro de la imagen, como notar incluso poros o las arrugas alrededor del ojo. Sin embargo, al
+            reducir el tamaño del kernel se pierde información contextual, como notar si el color de ambos ojos son
+            iguales, con un kernel más grande podrías notar esto directamente en una observación.
+          </p>
+
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-2">
+            Ahora que entendemos la importancia del <strong>kernel size</strong>, veamos qué ocurre al modificar los
+            valores de <strong>padding</strong> y <strong>stride</strong>, y cómo estos hiperparámetros influyen en el
+            funcionamiento de la capa de convolución.
+          </p>
+          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+            <li>
+              <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
+            </li>
+            <li>
+              <strong>padding</strong>: 1, lo que significa que se agrega 1 píxel extra alrededor de la imagen
+              original.
+            </li>
+            <li>
+              <strong>stride</strong>: 2, lo que indica que el filtro avanza de 2 píxeles en 2 píxeles al recorrer
+              la imagen.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+            <source
+              src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-3x3_stride_padding.mp4"
+              type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
 
+          <p class="text-lg text-slate-600 mb-2">
+            En este caso, un <strong>padding</strong> de 1 píxel permite que el filtro también analice las zonas
+            cercanas a los bordes de la imagen. Por otro lado, un <strong>stride</strong> de 2 píxeles hace que el
+            filtro avance más rápido al recorrerla, resumiendo la información obtenida pero sacrificando algo de
+            precisión en los detalles.
+          </p>
 
+          <p class="text-lg text-slate-600 mb-2">
+            ¿Entonces cuál es la mejor configuración de estos hiperparámetros? La respuesta es que depende del problema
+            que estés tratando de resolver y de la naturaleza de los datos con los que estás trabajando.
+            Experimentar con diferentes configuraciones y evaluar su impacto en el rendimiento del modelo es clave para
+            encontrar la mejor solución.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Puedes explorar con herramientas de exploración de hiperparametros para encontrar el mejor valor para cada
+            uno de tus hiperparámetros, hoy existen muchas alternativas, pero mi favorita es <a
+              href="https://optuna.org/" target="_blank"
+              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Optuna</a> por su
+            flexibilidad y facilidad de uso. Se integra con múltiples frameworks/librerías tanto de Machine Learning
+            como de Deep Learning, además de su integración
+            con soluciones de logging y tracking como <a href="https://mlflow.org/" target="_blank"
+              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">MLFlow</a> y <a
+              href="https://wandb.ai/" target="_blank"
+              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Weights & Biases</a>.
+          </p>
 
-          <h3 class="text-xl font-semibold text-slate-800 mb-4">Keras</h3>
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-6">
+            Hasta ahora sabemos como estos hiperparametros afectan la forma en la que la imagen es analizada, pero qué
+            obtenemos como resultado?
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            El resultado de aplicar una capa de convolución es un conjunto de <strong>mapas de características</strong>
+            (feature maps), que son representaciones simplificadas de la imagen original, destacando las características
+            más relevantes detectadas por los filtros.
+          </p>
+          <p class="text-lg text-slate-600 mb-4">
+            Sí, leíste bien, <strong>mapas de características</strong>, en plural. Esto se debe a que en una capa de
+            convolución se aplican múltiples filtros (obteniendo un mapa de características por cada filtro), cada uno
+            diseñado para detectar diferentes patrones en la imagen.
+            Por ejemplo, un filtro puede estar enfocado en detectar bordes horizontales, otro en bordes verticales, y
+            así sucesivamente.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Cada uno de estos filtros genera su propio mapa de características, pero como la red sabe qué patrones
+            buscar y cuantos filtros usar?
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Bueno, la búsqueda de patrones se realiza mediante el entrenamiento de la red neuronal y sigue el proceso
+            ya conocido como <strong>backpropagation</strong> a fin de encontrar los pesos de cada mapa de
+            características, no voy a entrar en detalle de esto porque es un capitulo completo explicar su flujo
+            matemático, pero en un próximo video y publicación lo abordaré a detalle; mientras tanto te puedo recomendar
+            <a href="https://www.youtube.com/watch?v=0e0z28wAWfg" target="_blank"
+              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">este recurso</a> que me
+            ayudó a entender mejor este proceso.
+          </p>
+          <p class="text-lg text-slate-600 mb-6">
+            Por otro lado, la <strong>cantidad de filtros</strong> a usar en cada capa de convolución es otro
+            <strong>hiperparámetro</strong> que debe ser
+            definido por nosotros al momento de crear la arquitectura de la red neuronal. Sí, otro hiperparámetro a
+            definir, pero nada que el amigo Optuna no pueda ayudarnos a optimizar.
+          </p>
+
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas de activación</h4>
+          <p class="text-lg text-slate-600 mb-2">
+            Estas capas aplican <strong>funciones de activación</strong> a los mapas de características generados por
+            las
+            capas de convolución. Su objetivo es introducir no linealidades en el modelo, permitiendo que la red aprenda
+            patrones más complejos.
+          </p>
+          <p class="text-lg text-slate-600 mb-4">
+            La función de activación más comúnmente utilizada en las capas de activación es <strong>ReLU</strong>
+            (Rectified Linear Unit), que convierte todos los valores negativos a cero, manteniendo los positivos sin
+            cambios. Esto ayuda a acelerar el proceso de entrenamiento y a mitigar el problema del desvanecimiento del
+            gradiente durante el backpropagation.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            ¿Valores positivos y negativos? ¿De dónde sale eso y qué significa? 😲
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Debemos recordar que los pixeles de cada imagen se traducen en valores numéricos que representan la
+            intensidad de la luz en diferentes canales de color (por ejemplo, rojo, verde y azul). Estos valores
+            pueden ser positivos o negativos dependiendo de cómo se procesen a través de las capas de la red
+            neuronal. Para entender esto, veamos cómo se visualiza un mapa de características obtenido por la capa
+            de convolución y su equivalente rectificado mediante la función de activación ReLU.
+          </p>
+
+          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/relu_activation-layer.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+
+          <p class="text-lg text-slate-600 mb-2">
+            En este ejemplo, podemos observar cómo la capa de activación ReLU transforma el mapa de características
+            original al eliminar los valores negativos, lo que resulta en una representación más clara y enfocada de las
+            características detectadas en la imagen.
+          </p>
+
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas de agrupamiento</h4>
+
+          <!-- <h3 class="text-xl font-semibold text-slate-800 mb-4">Keras</h3> -->
           <p class="text-lg text-slate-600 mb-6">
             Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
             puedes consultar el detalle completo en el sitio web de
