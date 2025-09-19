@@ -395,6 +395,13 @@
             de convolución y su equivalente rectificado mediante la función de activación ReLU.
           </p>
 
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-2">
+            A continuación, vemos un ejemplo de un mapa de características representado como una <strong>matriz de
+              5x5</strong> obtenida después de una convolución. Luego, aplicamos la función de activación
+            <strong>ReLU</strong>, que revisa cada valor de la matriz.
+          </p>
           <video autoplay loop muted playsinline class="block mx-auto border border-white">
             <source src="../../assets/blog/training-cnn-with-keras-from-scratch/relu_activation-layer.mp4"
               type="video/mp4">
@@ -402,12 +409,138 @@
           </video>
 
           <p class="text-lg text-slate-600 mb-2">
-            En este ejemplo, podemos observar cómo la capa de activación ReLU transforma el mapa de características
-            original al eliminar los valores negativos, lo que resulta en una representación más clara y enfocada de las
-            características detectadas en la imagen.
+            En este ejemplo, la función de activación <strong>ReLU</strong> (Rectified Linear Unit) toma el mapa de
+            características y convierte todos los valores negativos en <code>0</code>. Esto ayuda a que la red se
+            enfoque solo en la información más importante, mostrando una representación más clara de lo que la imagen
+            contiene.
           </p>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas de agrupamiento</h4>
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-2">
+            ¿ReLU es la única función de activación? 😲
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            ¡No! Existen otras funciones de activación como <strong>Sigmoid</strong>, <strong>Tanh</strong> y variantes
+            de ReLU como <strong>SeLU</strong> o <strong>GeLU</strong>, pero ReLU es la más popular en las CNN debido a
+            su simplicidad y eficacia (brinda buenos resultados solo al convertir valores negativos en <code>0</code>).
+            Sin embargo, la elección de la función de activación puede depender del problema específico que se esté
+            abordando. Puedes explorar más sobre estas funciones en este articulo de <a
+              href="https://developers.google.com/machine-learning/crash-course/neural-networks/activation-functions?hl=es-419"
+              target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Google
+              Developers</a>.
+          </p>
+          <p class="text-lg text-slate-600 mb-6">
+            En resumen, las capas de activación son cruciales en las CNN porque permiten que la red aprenda patrones
+            complejos y no lineales en los datos, mejorando significativamente su capacidad para reconocer y clasificar
+            imágenes, y además siempre van después de una capa de convolución.
+          </p>
+
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas de agrupamiento (pooling)</h4>
+
+          <p class="text-lg text-slate-600 mb-2">
+            Estas capas sirven para <strong>reducir el tamaño</strong> de los mapas de características (rectificados),
+            resumiendo la información más importante. De esta forma, la red necesita menos parámetros y cálculos, es
+            decir, menos cómputo requerido para ejecutar el modelo (hacer predicciones en un entorno real). Por otro
+            lado, estas capas también ayudan a evitar el <strong>overfitting</strong> o <strong>sobreajuste</strong>, si
+            estos términos no son familiares para ti, checa este <a
+              href="https://developers.google.com/machine-learning/crash-course/overfitting/overfitting?hl=es-419"
+              target="_blank"
+              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">blog</a>.
+          </p>
+
+          <p class="text-sm text-gray-600 mb-2">
+            <strong>Overfitting</strong> se refiere a la creación de un modelo que coincida (memorice) con el conjunto
+            de entrenamiento de tal manera que no pueda realizar predicciones correctas con datos nuevos. Un modelo
+            sobreajustado es análogo a un invento que funciona bien en el laboratorio, pero que no tiene valor en el
+            mundo real <span class="italic">(Fuente:
+              <a href="https://developers.google.com/machine-learning/crash-course/regularization-for-simplicity/overfitting"
+                target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">
+                Google Developers</a>)
+            </span>
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            ¿Entonces el overfitting es negociable?
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            ¡No, en todo modelo de Machine Learning o Deep Learning se tiene que evitar!
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Los mapas de caracteristicas son representaciones simplificadas de la imagen original altamente sensibles,
+            esta sensibilidad se puede traducir en que si intentas predecir una imagen facial donde la nariz ocupa tres
+            pixeles más que la imagen con la que entrenaste el modelo, la predicción puede fallar. ¡Pero son 3 pixeles!
+            ajá, por ello, es importante reducir esta sensibilidad y hacer que el modelo sea más robusto, y las capas de
+            agrupamiento ayudan a lograr esto.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Dicho esto, debo mencionarte que las capas de agrupamiento también requieren hiperparametros (similar a la
+            capas de convolución). Además, existen diferentes tipos de capas de agrupamiento, pero las más comunes son
+            <strong>Max Pooling</strong> y <strong>Average Pooling</strong>, entendamos su diferencia con un par de
+            ejemplos.
+          </p>
+
+          <p class="text-sm text-gray-600 mb-2">
+            Los hiperparámetros <strong>kernel size</strong> y <strong>stride</strong> se definen de la misma forma que
+            en la <em>capa de convolución</em>, por lo que podemos aprovechar de ese conocimiento directamente.
+          </p>
+
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-2">
+            En este primer ejemplo podemos ver como trabajaría la capa de agrupamiento con los siguientes
+            hiperparametros:
+          </p>
+          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+            <li>
+              <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
+            </li>
+            <li>
+              <strong>stride</strong>: 1, lo que indica que el filtro avanza de 1 píxel en 1 píxel al recorrer
+              la imagen.
+            </li>
+            <li>
+              <strong>tipo de pooling</strong>: max pooling, que selecciona el valor máximo dentro de la región
+              cubierta por el filtro.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer_max-pooling.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-2">
+            Ahora veamos qué ocurre si cambiamos el tipo de pooling a average pooling, manteniendo los mismos
+            hiperparámetros que en el ejemplo anterior:
+          </p>
+          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+            <li>
+              <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
+            </li>
+            <li>
+              <strong>stride</strong>: 1, lo que indica que el filtro avanza de 1 píxel en 1 píxel al recorrer
+              la imagen.
+            </li>
+            <li>
+              <strong>tipo de pooling</strong>: average pooling, que calcula el valor promedio dentro de la región
+              cubierta por el filtro.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer_average-pooling.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-6">
+            Close
+          </p>
+
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas completamente conectadas</h4>
 
           <!-- <h3 class="text-xl font-semibold text-slate-800 mb-4">Keras</h3> -->
           <p class="text-lg text-slate-600 mb-6">
