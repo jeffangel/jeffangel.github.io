@@ -10,6 +10,20 @@
   <link rel="icon" href="../../assets/logo-imagen.svg" type="image/svg+xml">
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github-dark-dimmed.min.css">
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],   // para inline
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]  // para bloque
+      },
+      svg: { fontCache: 'global' }  // render en SVG nítido
+    };
+  </script>
+
+  <!-- Script MathJax desde CDN -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 </head>
 
 <body class="bg-gray-100 text-gray-800 font-sans">
@@ -167,7 +181,7 @@
           <p class="text-lg text-slate-600 mb-4">
             Las CNN se componen de varios tipos de capas conectados secuencialmente:
           </p>
-          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-4">
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-4">
             <li>
               <strong>Capas de convolución:</strong> Aplican filtros a la entrada para crear mapas de características.
             </li>
@@ -218,7 +232,7 @@
             En este primer ejemplo podemos ver como trabajaría la capa de convolución con los siguientes
             hiperparametros:
           </p>
-          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
             <li>
               <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
             </li>
@@ -242,7 +256,7 @@
           <p class="text-lg text-slate-600 mb-2">
             Bien... ¿y qué pasa si probamos con un <strong>kernel size</strong> más pequeño?
           </p>
-          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
             <li>
               <strong>kernel size</strong>: 2x2, es decir, una grilla de 2 unidades de ancho por 2 de alto.
             </li>
@@ -287,7 +301,7 @@
             valores de <strong>padding</strong> y <strong>stride</strong>, y cómo estos hiperparámetros influyen en el
             funcionamiento de la capa de convolución.
           </p>
-          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
             <li>
               <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
             </li>
@@ -454,7 +468,7 @@
             de entrenamiento de tal manera que no pueda realizar predicciones correctas con datos nuevos. Un modelo
             sobreajustado es análogo a un invento que funciona bien en el laboratorio, pero que no tiene valor en el
             mundo real <span class="italic">(Fuente:
-              <a href="https://developers.google.com/machine-learning/crash-course/regularization-for-simplicity/overfitting"
+              <a href="https://developers.google.com/machine-learning/crash-course/overfitting/overfitting?hl=es-419"
                 target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">
                 Google Developers</a>)
             </span>
@@ -481,7 +495,7 @@
 
           <p class="text-sm text-gray-600 mb-2">
             Los hiperparámetros <strong>kernel size</strong> y <strong>stride</strong> se definen de la misma forma que
-            en la <em>capa de convolución</em>, por lo que podemos aprovechar de ese conocimiento directamente.
+            en la <em>capa de convolución</em>, por lo que podemos aprovechar de ese conocimiento directamente .
           </p>
 
           <hr class="my-6 border-t border-gray-500 opacity-50">
@@ -490,7 +504,7 @@
             En este primer ejemplo podemos ver como trabajaría la capa de agrupamiento con los siguientes
             hiperparametros:
           </p>
-          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
             <li>
               <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
             </li>
@@ -515,7 +529,7 @@
             Ahora veamos qué ocurre si cambiamos el tipo de pooling a average pooling, manteniendo los mismos
             hiperparámetros que en el ejemplo anterior:
           </p>
-          <ul class="list-disc list-inside text-slate-700 space-y-1 mb-2">
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
             <li>
               <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
             </li>
@@ -540,9 +554,139 @@
             Close
           </p>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas completamente conectadas</h4>
+          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas completamente conectadas (fully connected layers)
+          </h4>
 
-          <!-- <h3 class="text-xl font-semibold text-slate-800 mb-4">Keras</h3> -->
+          <p class="text-lg text-slate-600 mb-2">
+            Estas capas sirven para tomar todas las características extraídas por las capas anteriores y combinarlas
+            para decidir la clase final de la imagen (por ejemplo: perro o gato).
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Pero... ¿Cómo funciona?
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Recordemos que las capas de convolución y de agrupamiento ya se encargaron de extraer y resumir
+            características de la imagen: bordes, texturas, colores, formas, y cualquier otra característica visual.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Entonces, imagina que tienes una lista de características detectadas, como “pistas” que describen la imagen
+            (valores numéricos como los que aparecen en la animación inferior).
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Cada característica (X) se conecta con todas las clases posibles mediante un peso (W):
+          </p>
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+            <li>
+              <strong>Si la característica es relevante para una clase</strong>, el peso será alto (positivo).
+            </li>
+            <li>
+              <strong>Si la característica no es relevante</strong>, el peso será bajo (cercano a cero o negativo).
+            </li>
+          </ul>
+          <p class="text-lg text-slate-600 mb-2">
+            De esta forma, cada característica (pista) emite un “voto” con distinta importancia (peso) para cada
+            categoría.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Finalmente, la capa completamente conectada suma todos estos votos ponderados para cada clase y aplica
+            una función de activación (como sigmoide o softmax) para convertir estas sumas en probabilidades. La clase
+            con la
+            probabilidad más alta es la predicción final del modelo.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Matemáticamente (pero simple):
+          </p>
+          $$
+          p(X) = \sigma \Big(\sum_i x_i w_i + b\Big), \quad
+          \text{donde } \sigma(z) = \frac{1}{1+e^{-z}}
+          $$
+          <p class="text-lg text-slate-600 mb-2">
+            El cálculo se hace como una suma ponderada de todas las características. Cada característica \(x_i\)
+            se multiplica por su peso \(w_i\), se suman todas junto con un sesgo \(b\), y finalmente se aplica la
+            función sigmoide para convertir el resultado en una probabilidad.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Donde:
+          </p>
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+            <li>
+              \(p(X)\) es la probabilidad de que la imagen pertenezca a una clase específica (por ejemplo, gato).
+            </li>
+            <li>
+              \(x_i\) son las características extraídas por las capas anteriores.
+            </li>
+            <li>
+              \(w_i\) son los pesos que indican la importancia de cada característica para la clase.
+            </li>
+            <li>
+              \(b\) es un sesgo que ayuda a ajustar la salida.
+            </li>
+            <li>
+              \(\sigma(z)\) es la función sigmoide que convierte el resultado en una probabilidad entre 0 y 1 (para más
+              de 2 clases se utiliza la función softmax).
+            </li>
+          </ul>
+
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-2">
+            En este ejemplo se muestra cómo una capa completamente conectada toma las características extraídas por las
+            capas
+            anteriores, las aplana y las conecta a todas las posibles clases (en este caso, 2 clases: gato y perro).
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Las conexiones más fuertes (líneas más remarcadas) indican que esas características son más relevantes para
+            esa clase en particular.
+          </p>
+          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/fc-layer.mp4" type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+          <p class="text-lg text-slate-600 mb-2">
+            En este ejemplo hemos aplicado la función de activación sigmoide, que es adecuada para problemas de
+            clasificación binaria (dos clases).
+            Si estuviéramos trabajando con múltiples clases (por ejemplo, gato, perro, pájaro), utilizaríamos la función
+            softmax en su lugar.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Como se puede observar, la clase con la probabilidad <strong>0.81</strong> más alta (en este caso, perro) es la predicción
+            final
+            del modelo.
+          </p>
+
+          <hr class="my-6 border-t border-gray-500 opacity-50">
+
+          <p class="text-lg text-slate-600 mb-2">
+            En las capas anteriores hemos hablado de varios hiperparámetros, y las capas completamente conectadas no son
+            la excepción, aquí los más importantes:
+          </p>
+          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+            <li>
+              <strong>Número de neuronas:</strong> Define cuántas unidades (neuronas) tendrá la capa. Más neuronas
+              pueden capturar patrones más complejos, pero también aumentan el riesgo de sobreajuste.
+            </li>
+            <li>
+              <strong>Función de activación:</strong> La elección de la función de activación (ReLU, sigmoide, softmax,
+              etc.) afecta cómo se procesan las señales dentro de la capa y puede influir en el rendimiento del modelo.
+            </li>
+            <li>
+              <strong>Regularización:</strong> Técnicas como Dropout o L2 regularization ayudan a prevenir el
+              sobreajuste al agregar ruido o penalizar pesos grandes durante el entrenamiento.
+            </li>
+            <li>
+              <strong>Dropout:</strong> Esta técnica consiste en "apagar" aleatoriamente un porcentaje de neuronas
+              durante el entrenamiento, lo que ayuda a prevenir el sobreajuste.
+            </li>
+          </ul>
+          <p class="text-lg text-slate-600 mb-2">
+            Y ya como anteriormente vimos, estos hiperparámetros pueden ser optimizados usando herramientas como Optuna.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            En resumen, las capas completamente conectadas son cruciales en las CNN porque combinan todas las
+            características extraídas para tomar una decisión final sobre la clase de la imagen, permitiendo que el
+            modelo realice predicciones precisas basadas en la información visual procesada.
+          </p>
+          <h3 class="text-xl font-semibold text-slate-800 mb-4">Keras</h3>
           <p class="text-lg text-slate-600 mb-6">
             Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
             puedes consultar el detalle completo en el sitio web de
@@ -550,7 +694,7 @@
               class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Keras</a>.
             Sin embargo, a manera de resumen te comento brevemente la diferencia entre estas:
           </p>
-          <ol class="list-decimal list-inside text-slate-700 space-y-1 ml-4 mb-6">
+          <ol class="list-decimal list-inside text-slate-600 space-y-1 ml-4 mb-6">
             <li>Secuencial: Forma simple de apilar capas, soporta una sola entrada y salida.</li>
             <div class="mt-8">
               <img src="../../assets/blog/training-cnn-with-keras-from-scratch/sequential_diagram.png"
