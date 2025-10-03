@@ -327,12 +327,13 @@
             filtro avance más rápido al recorrerla, resumiendo la información obtenida pero sacrificando algo de
             precisión en los detalles.
           </p>
-
           <p class="text-lg text-slate-600 mb-2">
-            ¿Entonces cuál es la mejor configuración de estos hiperparámetros? La respuesta es que depende del problema
-            que estés tratando de resolver y de la naturaleza de los datos con los que estás trabajando.
-            Experimentar con diferentes configuraciones y evaluar su impacto en el rendimiento del modelo es clave para
-            encontrar la mejor solución.
+            ¿Entonces cuál es la mejor configuración de estos hiperparámetros? 😲
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            La respuesta es que depende del problema que estés tratando de resolver y de la naturaleza de los datos con
+            los que estás trabajando. Experimentar con diferentes configuraciones y evaluar su impacto en el rendimiento
+            del modelo es clave para encontrar la mejor solución.
           </p>
           <p class="text-lg text-slate-600 mb-2">
             Puedes explorar con herramientas de exploración de hiperparametros para encontrar el mejor valor para cada
@@ -350,8 +351,8 @@
           <hr class="my-6 border-t border-gray-500 opacity-50">
 
           <p class="text-lg text-slate-600 mb-6">
-            Hasta ahora sabemos como estos hiperparametros afectan la forma en la que la imagen es analizada, pero qué
-            obtenemos como resultado?
+            Hasta ahora sabemos como estos hiperparametros afectan la forma en la que la imagen es analizada, pero ¿Qué
+            obtenemos como resultado? 😲
           </p>
           <p class="text-lg text-slate-600 mb-2">
             El resultado de aplicar una capa de convolución es un conjunto de <strong>mapas de características</strong>
@@ -366,8 +367,8 @@
             así sucesivamente.
           </p>
           <p class="text-lg text-slate-600 mb-2">
-            Cada uno de estos filtros genera su propio mapa de características, pero como la red sabe qué patrones
-            buscar y cuantos filtros usar?
+            Cada uno de estos filtros genera su propio mapa de características, pero ¿Cómo la red sabe qué patrones
+            buscar y cuantos filtros usar? 😲
           </p>
           <p class="text-lg text-slate-600 mb-2">
             Bueno, la búsqueda de patrones se realiza mediante el entrenamiento de la red neuronal y sigue el proceso
@@ -474,7 +475,7 @@
             </span>
           </p>
           <p class="text-lg text-slate-600 mb-2">
-            ¿Entonces el overfitting es negociable?
+            ¿Entonces el overfitting es negociable? 😲
           </p>
           <p class="text-lg text-slate-600 mb-2">
             ¡No, en todo modelo de Machine Learning o Deep Learning se tiene que evitar!
@@ -551,7 +552,9 @@
           <hr class="my-6 border-t border-gray-500 opacity-50">
 
           <p class="text-lg text-slate-600 mb-6">
-            Close
+            En resumen, las capas de agrupamiento (pooling) son esenciales en las CNN porque reducen el tamaño de los
+            mapas de características, simplifican la información más relevante y ayudan a que el modelo sea más
+            eficiente y robusto, evitando la sensibilidad excesiva a pequeños cambios en la imagen.
           </p>
 
           <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas completamente conectadas (fully connected layers)
@@ -562,7 +565,7 @@
             para decidir la clase final de la imagen (por ejemplo: perro o gato).
           </p>
           <p class="text-lg text-slate-600 mb-2">
-            Pero... ¿Cómo funciona?
+            Pero... ¿Cómo funciona? 😲
           </p>
           <p class="text-lg text-slate-600 mb-2">
             Recordemos que las capas de convolución y de agrupamiento ya se encargaron de extraer y resumir
@@ -573,7 +576,7 @@
             (valores numéricos como los que aparecen en la animación inferior).
           </p>
           <p class="text-lg text-slate-600 mb-2">
-            Cada característica (X) se conecta con todas las clases posibles mediante un peso (W):
+            Cada característica (\(x_i\)) se conecta con todas las clases posibles mediante un peso (\(w_i\)):
           </p>
           <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
             <li>
@@ -638,7 +641,7 @@
             Las conexiones más fuertes (líneas más remarcadas) indican que esas características son más relevantes para
             esa clase en particular.
           </p>
-          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+          <video autoplay loop muted playsinline class="block mx-auto border border-white mb-8 mt-4">
             <source src="../../assets/blog/training-cnn-with-keras-from-scratch/fc-layer.mp4" type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
@@ -649,7 +652,8 @@
             softmax en su lugar.
           </p>
           <p class="text-lg text-slate-600 mb-2">
-            Como se puede observar, la clase con la probabilidad <strong>0.81</strong> más alta (en este caso, perro) es la predicción
+            Como se puede observar, la clase con la probabilidad <strong>0.81</strong> más alta (en este caso, perro) es
+            la predicción
             final
             del modelo.
           </p>
@@ -666,29 +670,82 @@
               pueden capturar patrones más complejos, pero también aumentan el riesgo de sobreajuste.
             </li>
             <li>
-              <strong>Función de activación:</strong> La elección de la función de activación (ReLU, sigmoide, softmax,
+              <strong>Función de activación:</strong> La elección de la función de activación (ReLU, lineal, sigmoide,
+              softmax,
               etc.) afecta cómo se procesan las señales dentro de la capa y puede influir en el rendimiento del modelo.
             </li>
             <li>
               <strong>Regularización:</strong> Técnicas como Dropout o L2 regularization ayudan a prevenir el
-              sobreajuste al agregar ruido o penalizar pesos grandes durante el entrenamiento.
+              sobreajuste al agregar ruido o penalizar pesos grandes durante el entrenamiento. Puedes leer más sobre
+              esto
+              en este <a
+                href="https://developers.google.com/machine-learning/crash-course/overfitting/regularization?hl=es-419"
+                target="_blank"
+                class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">recurso</a> de Google
+              Developers.
             </li>
             <li>
               <strong>Dropout:</strong> Esta técnica consiste en "apagar" aleatoriamente un porcentaje de neuronas
-              durante el entrenamiento, lo que ayuda a prevenir el sobreajuste.
+              durante el entrenamiento, lo que ayuda a prevenir el sobreajuste. Puedes entender más sobre Dropout en
+              este <a href="https://www.ultralytics.com/es/glossary/dropout-layer" target="_blank"
+                class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">recurso</a> de
+              Ultralytics.
             </li>
           </ul>
           <p class="text-lg text-slate-600 mb-2">
             Y ya como anteriormente vimos, estos hiperparámetros pueden ser optimizados usando herramientas como Optuna.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="text-lg text-slate-600 mb-8">
             En resumen, las capas completamente conectadas son cruciales en las CNN porque combinan todas las
             características extraídas para tomar una decisión final sobre la clase de la imagen, permitiendo que el
             modelo realice predicciones precisas basadas en la información visual procesada.
           </p>
+
+          <h3 class="text-xl font-semibold text-slate-800 mb-4">Visión global de la CNN</h3>
+
+          <p class="text-lg text-slate-600 mb-2">
+            Hasta ahora hemos visto las capas principales que componen una CNN, pero ¿Cómo se integran todas estas
+            capas para formar una red completa? Veamos un diagrama general de la arquitectura típica de una CNN.
+          </p>
+          <div class="mt-8 flex justify-center mb-2">
+            <img src="../../assets/blog/training-cnn-with-keras-from-scratch/cnn-architecture.png"
+              alt="Overview Diagram">
+          </div>
+          <p class="text-lg text-slate-600 mb-2">
+            Como muestra la imagen anterior, el flujo de datos comienza con la imagen de entrada, que pasa por
+            varias capas de convolución y activación para extraer características, seguido de capas de agrupamiento para
+            reducir la dimensionalidad. Finalmente, las características extraídas se aplanan y se pasan a través de
+            capas completamente conectadas para realizar la clasificación final.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            Pero, ¿Todas las redes CNN deben seguir el esquema especifico mostrado? 😲
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            ¡No, no hay una única receta fija!
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            La arquitectura específica puede variar dependiendo del problema que se esté abordando, la naturaleza de los
+            datos y los objetivos del modelo. Algunas CNN pueden incluir capas adicionales como capas de normalización
+            (Batch Normalization), capas de abandono (Dropout) para prevenir el sobreajuste, o incluso estructuras más
+            complejas como bloques residuales (ResNet) o módulos Inception.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            La clave está en experimentar con diferentes arquitecturas y evaluar su rendimiento en el conjunto de datos
+            específico para encontrar la configuración que funcione mejor para el problema en cuestión.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            ¿Y adivina qué? Optuna puede ayudarte con esto también, simplemente tratando cada una de las capas como un
+            hiperparámetro más a optimizar, en la sección del hands-on te mostraré un breve ejemplo de ello.
+          </p>
+          <p class="text-lg text-slate-600 mb-2">
+            En resumen, una CNN transforma una imagen en una decisión, pasando de píxeles a características y de
+            características a predicciones. Para entender mejor cómo se construyen y entrenan estas redes, en la
+            siguiente sección veremos un ejemplo práctico con Keras
+          </p>
+
           <h3 class="text-xl font-semibold text-slate-800 mb-4">Keras</h3>
           <p class="text-lg text-slate-600 mb-6">
-            Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
+            Keras es un marco de trabajo (framework) de alto nivel para construir y entrenar modelos de aprendizaje profundo. Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
             puedes consultar el detalle completo en el sitio web de
             <a href="https://keras.io/api/models/" target="_blank"
               class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Keras</a>.
