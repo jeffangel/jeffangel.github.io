@@ -1,3 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* === Custom reusable components === */
+@layer components {
+    .blog-quote {
+        @apply border-l-4 border-gray-300 bg-gray-50 text-gray-700 italic rounded-md px-5 py-3 my-6 leading-relaxed shadow-sm;
+    }
+
+    .blog-quote code {
+        @apply bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-gray-800;
+    }
+
+    .blog-paragraph {
+        @apply text-lg text-slate-600 mb-2 leading-relaxed;
+    }
+
+    .blog-paragraph-end {
+        @apply text-lg text-slate-600 mb-8 leading-relaxed;
+    }
+
+    .blog-example-separator {
+        @apply my-6 border-t border-gray-500 opacity-50;
+    }
+
+    .blog-paragraph-list {
+        @apply list-disc list-inside text-slate-600 space-y-1 mb-4;
+    }
+
+    .blog-paragraph-h1 {
+        @apply text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight mb-4;
+    }
+
+    .blog-paragraph-h2 {
+        @apply text-2xl font-semibold text-slate-800 mb-2;
+    }
+
+    .blog-paragraph-h3 {
+        @apply text-xl font-semibold text-slate-800 mb-2;
+    }
+
+    .blog-paragraph-h4 {
+        @apply text-lg font-semibold text-slate-800 mb-2;
+    }
+
+    .blog-video {
+        @apply block mx-auto border border-white;
+    }
+
+    .blog-paragraph-link {
+        @apply text-blue-600 underline hover:text-blue-800 transition-colors duration-200;
+    }
+
+    .blog-div-image {
+        @apply mt-8 flex justify-center mb-5;
+    }
+}

@@ -57,7 +57,7 @@
 
         <!-- Encabezado del artículo -->
         <header>
-          <h1 class="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight mb-4">Entrenando una red
+          <h1 class="blog-paragraph-h1">Entrenando una red
             CNN desde cero</h1>
           <div class="text-sm text-gray-500 flex items-center space-x-3">
             <!-- Fecha -->
@@ -85,8 +85,8 @@
 
         <!-- Sección 1 -->
         <section id="overview">
-          <h2 class="text-2xl font-semibold text-slate-800 mb-2">¿Qué haremos hoy?</h2>
-          <p class="text-lg text-slate-600 mb-6">
+          <h2 class="blog-paragraph-h2">¿Qué haremos hoy?</h2>
+          <p class="blog-paragraph">
             En este post, te mostraré uno de los flujos a seguir para entrenar un modelo CNN desde cero donde
             construiremos una red neuronal convolucional que sea capaz de estimar la edad y sexo de una persona
             a partir de su imagen facial.
@@ -95,14 +95,14 @@
             <img src="../../assets/blog/training-cnn-with-keras-from-scratch/overview-diagram.svg"
               alt="Overview Diagram">
           </div>
-          <p class="text-lg text-slate-600 mb-6">
+          <p class="blog-paragraph">
             Como fuente de datos utilizaremos un subconjunto de datos de imágenes de rostros extraídos del
             dataset de Kaggle
             <a href="https://www.kaggle.com/datasets/jangedoo/utkface-new" target="_blank"
-              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">UTKFace</a>,
+              class="blog-paragraph-link">UTKFace</a>,
             sin embargo, el enfoque es aplicable a cualquier conjunto de datos de imágenes.
           </p>
-          <p class="text-lg text-slate-600 mb-6">
+          <p class="blog-paragraph-end">
             Para la creación de esta red neuronal convolucional utilizaremos la API de Keras versión 3, ahora
             integrado a Tensorflow a partir de la versión 2.0.
           </p>
@@ -111,59 +111,59 @@
 
         <!-- Sección 2 -->
         <section id="theory">
-          <h2 class="text-2xl font-semibold text-slate-800 mb-2">Un poco de información...</h2>
-          <p class="text-lg text-slate-600 mb-6">
+          <h2 class="blog-paragraph-h2">Un poco de información...</h2>
+          <p class="blog-paragraph">
             En esta sección te compartiré algunos conceptos básicos que te ayudarán a entender mejor el
             desarrollo del modelo.
           </p>
 
-          <h3 class="text-xl font-semibold text-slate-800 mb-2">Red neuronal artificial (ANN)</h3>
-          <p class="text-lg text-slate-600 mb-2">
+          <h3 class="blog-paragraph-h3">Red neuronal artificial (ANN)</h3>
+          <p class="blog-paragraph">
             Una <strong>red neuronal artificial</strong> es un modelo de inteligencia artificial inspirado en cómo
             funciona el cerebro humano. Aprende de datos para reconocer patrones y tomar decisiones: desde clasificar
             imágenes hasta predecir tendencias.
           </p>
-          <p class="text-lg text-slate-600 mb-6">
+          <p class="blog-paragraph">
             Dependiendo del problema, existen diferentes <strong>arquitecturas</strong> (topologías). Aquí están las más
             usadas y una explicación simple de cuándo aplicarlas.
           </p>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal directa (FeedForward)</h4>
-          <p class="text-lg text-slate-600 mb-2">
+          <h4 class="blog-paragraph-h4">Red neuronal directa (FeedForward)</h4>
+          <p class="blog-paragraph">
             Las redes directas procesan los datos en un solo sentido: entrada → capas ocultas → salida. No mantienen
             memoria del pasado, por lo que son ideales para tareas de <em>clasificación</em> y <em>regresión</em> con
             datos tabulares.
           </p>
-          <p class="text-sm text-gray-600 mb-6"><strong>Ejemplo:</strong> Predecir el precio de una casa usando
+          <p class="blog-quote"><strong>Ejemplo:</strong> Predecir el precio de una casa usando
             características (m², habitaciones, ubicación).</p>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal recurrente (RNN)</h4>
-          <p class="text-lg text-slate-600 mb-2">
+          <h4 class="blog-paragraph-h4">Red neuronal recurrente (RNN)</h4>
+          <p class="blog-paragraph">
             Las RNNs procesa los datos de manera iterativa a través de la misma red, es decir, luego de procesar los
             datos y obtener la predicción en la capa de salida, esta predicción se envía a la capa de entrada para que
             la nueva predicción no sea solo influenciada por los nuevos datos, sino también además por el estado
             anterior de la última predicción.
           </p>
-          <p class="text-sm text-gray-600 mb-6">
+          <p class="blog-quote">
             <strong>Ejemplo:</strong> Previsión de series temporales (ventas diarias) donde el pasado reciente influye
             en la predicción futura.
           </p>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Red neuronal convolucional (CNN)</h4>
-          <p class="text-lg text-slate-600 mb-2">
+          <h4 class="blog-paragraph-h4">Red neuronal convolucional (CNN)</h4>
+          <p class="blog-paragraph">
             Las CNNs están diseñadas para procesar datos con estructura espacial, sobre todo imágenes. Usan filtros
             (convoluciones) que detectan patrones locales como bordes, texturas y formas, combinando estos datos en
             capas profundas para reconocer objetos.
           </p>
-          <p class="text-sm text-gray-600 mb-6"><strong>Ejemplo:</strong> Clasificar imágenes (perro vs. gato) o
+          <p class="blog-quote"><strong>Ejemplo:</strong> Clasificar imágenes (perro vs. gato) o
             detectar objetos en una fotografía.
           </p>
 
-          <p class="text-lg text-slate-600 mb-4">
+          <p class="blog-paragraph">
             En esta publicación nos enfocaremos en entender y aplicar la red neuronal convolucional a través de un
             ejemplo práctico que incluye el código basado en Python.
           </p>
-          <p class="text-lg text-slate-600 mb-4">
+          <p class="blog-paragraph-end">
             Existen arquitecturas más avanzadas como las Redes Generativas Adversariales (GANs) y los Transformers,
             ampliamente usados en generación de imágenes y en modelos de lenguaje como ChatGPT. No las veremos a detalle
             aquí, pero si quieres profundizar te recomiendo este artículo de <a
@@ -171,17 +171,17 @@
               target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Microsoft</a>.
           </p>
 
-          <h3 class="text-xl font-semibold text-slate-800 mb-2">Desentrañando las CNN</h3>
-          <p class="text-lg text-slate-600 mb-4">
+          <h3 class="blog-paragraph-h3">Desentrañando las CNN</h3>
+          <p class="blog-paragraph">
             Las redes neuronales convolucionales (CNN) son una clase especial de redes neuronales diseñadas para
             procesar datos con una estructura de cuadrícula, como imágenes. A diferencia de las redes neuronales
             tradicionales, que son completamente conectadas, las CNN utilizan capas de convolución para extraer
             características jerárquicas de los datos de entrada.
           </p>
-          <p class="text-lg text-slate-600 mb-4">
+          <p class="blog-paragraph">
             Las CNN se componen de varios tipos de capas conectados secuencialmente:
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-4">
+          <ul class="blog-paragraph-list">
             <li>
               <strong>Capas de convolución:</strong> Aplican filtros a la entrada para crear mapas de características.
             </li>
@@ -198,41 +198,41 @@
             </li>
           </ul>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas de convolución</h4>
-          <p class="text-lg text-slate-600 mb-2">
+          <h4 class="blog-paragraph-h4">Capas de convolución</h4>
+          <p class="blog-paragraph">
             Estas capas aplican <strong>filtros</strong> o también llamado kernels que se deslizan sobre la imagen de
             entrada para detectar patrones locales como bordes, texturas y formas.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Para comprender plenamente como funcionan estos filtros debemos mencionar a los hiperparametros
             <strong>kernel size</strong>, <strong>padding</strong> y <strong>stride</strong>.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Además, dado que el filtro se define como una matríz, podemos imaginarnos al filtro como una grilla (un
             tablero de ajedrez pequeño), donde el ancho y alto tienen el mismo tamaño. Aquí entra el primer
             hiperparámetro: el <strong>kernel size</strong>, el cual define el tamaño del filtro.</p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Por otro lado, como el filtro se desplaza recorriendo la imagen paso a paso, el <strong>padding</strong>
             hace referencia a la adición de píxeles en los bordes de la imagen. Esto permite que el filtro también pueda
             analizar las zonas cercanas al borde y que el tamaño de la imagen procesada no se reduzca.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Finalmente, el <strong>stride</strong> indica de cuánto en cuánto se mueve el filtro al recorrer la imagen.
             Si el paso es pequeño, el filtro analiza con más detalle pero genera un resultado más grande; si el paso es
             mayor, avanza más rápido, resumiendo la información pero con menos precisión. En otras palabras, el stride
             controla el “ritmo” con el que la red examina la imagen.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Todo esto puede sonar quizás un tanto abstracto, por ello, veámoslo con unos ejemplos prácticos.
           </p>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En este primer ejemplo podemos ver como trabajaría la capa de convolución con los siguientes
             hiperparametros:
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+          <ul class="blog-paragraph-list">
             <li>
               <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
             </li>
@@ -245,18 +245,18 @@
               imagen.
             </li>
           </ul>
-          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+          <video autoplay loop muted playsinline class="blog-video">
             <source src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-3x3.mp4"
               type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Bien... ¿y qué pasa si probamos con un <strong>kernel size</strong> más pequeño?
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+          <ul class="blog-paragraph-list">
             <li>
               <strong>kernel size</strong>: 2x2, es decir, una grilla de 2 unidades de ancho por 2 de alto.
             </li>
@@ -269,39 +269,39 @@
               la imagen.
             </li>
           </ul>
-          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+          <video autoplay loop muted playsinline class="blog-video">
             <source src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-2x2.mp4"
               type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En este caso, el <strong>kernel size</strong> se ha reducido a <strong>2x2</strong>, lo que permite capturar
             características más finas en la imagen. Sin embargo, esto también significa que la capa de convolución
             tendrá menos información contextual para trabajar, lo que podría afectar la calidad de las características
             extraídas.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Si no está del todo claro hasta ahora, aquí te comparto una analogía rápida: imagina que estás viendo una
             foto tipo selfie de tu abuela, con un kernel size más grande (de 3x3 o más grande) podrías enfocarte
             visualizar la frente y los ojos a la vez (y luego otras partes de la foto como la nariz y la boca); mientras
             que con un kernel size más pequeño (de 2x2) podrías enfocarte en visualizar en algo más concreto como solo
             el ojo izquierdo del selfie.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¿Notaste la diferencia? Con un kernel size más pequeño es posible ver los detalles de un sector más
             específico dentro de la imagen, como notar incluso poros o las arrugas alrededor del ojo. Sin embargo, al
             reducir el tamaño del kernel se pierde información contextual, como notar si el color de ambos ojos son
             iguales, con un kernel más grande podrías notar esto directamente en una observación.
           </p>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Ahora que entendemos la importancia del <strong>kernel size</strong>, veamos qué ocurre al modificar los
             valores de <strong>padding</strong> y <strong>stride</strong>, y cómo estos hiperparámetros influyen en el
             funcionamiento de la capa de convolución.
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+          <ul class="blog-paragraph-list">
             <li>
               <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
             </li>
@@ -314,95 +314,93 @@
               la imagen.
             </li>
           </ul>
-          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+          <video autoplay loop muted playsinline class="blog-video">
             <source
               src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-3x3_stride_padding.mp4"
               type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En este caso, un <strong>padding</strong> de 1 píxel permite que el filtro también analice las zonas
             cercanas a los bordes de la imagen. Por otro lado, un <strong>stride</strong> de 2 píxeles hace que el
             filtro avance más rápido al recorrerla, resumiendo la información obtenida pero sacrificando algo de
             precisión en los detalles.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¿Entonces cuál es la mejor configuración de estos hiperparámetros? 😲
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             La respuesta es que depende del problema que estés tratando de resolver y de la naturaleza de los datos con
             los que estás trabajando. Experimentar con diferentes configuraciones y evaluar su impacto en el rendimiento
             del modelo es clave para encontrar la mejor solución.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Puedes explorar con herramientas de exploración de hiperparametros para encontrar el mejor valor para cada
             uno de tus hiperparámetros, hoy existen muchas alternativas, pero mi favorita es <a
-              href="https://optuna.org/" target="_blank"
-              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Optuna</a> por su
+              href="https://optuna.org/" target="_blank" class="blog-paragraph-link">Optuna</a> por su
             flexibilidad y facilidad de uso. Se integra con múltiples frameworks/librerías tanto de Machine Learning
             como de Deep Learning, además de su integración
             con soluciones de logging y tracking como <a href="https://mlflow.org/" target="_blank"
-              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">MLFlow</a> y <a
-              href="https://wandb.ai/" target="_blank"
-              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Weights & Biases</a>.
+              class="blog-paragraph-link">MLFlow</a> y <a href="https://wandb.ai/" target="_blank"
+              class="blog-paragraph-link">Weights & Biases</a>.
           </p>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-6">
+          <p class="blog-paragraph">
             Hasta ahora sabemos como estos hiperparametros afectan la forma en la que la imagen es analizada, pero ¿Qué
             obtenemos como resultado? 😲
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             El resultado de aplicar una capa de convolución es un conjunto de <strong>mapas de características</strong>
             (feature maps), que son representaciones simplificadas de la imagen original, destacando las características
             más relevantes detectadas por los filtros.
           </p>
-          <p class="text-lg text-slate-600 mb-4">
+          <p class="blog-paragraph">
             Sí, leíste bien, <strong>mapas de características</strong>, en plural. Esto se debe a que en una capa de
             convolución se aplican múltiples filtros (obteniendo un mapa de características por cada filtro), cada uno
             diseñado para detectar diferentes patrones en la imagen.
             Por ejemplo, un filtro puede estar enfocado en detectar bordes horizontales, otro en bordes verticales, y
             así sucesivamente.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Cada uno de estos filtros genera su propio mapa de características, pero ¿Cómo la red sabe qué patrones
             buscar y cuantos filtros usar? 😲
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Bueno, la búsqueda de patrones se realiza mediante el entrenamiento de la red neuronal y sigue el proceso
             ya conocido como <strong>backpropagation</strong> a fin de encontrar los pesos de cada mapa de
             características, no voy a entrar en detalle de esto porque es un capitulo completo explicar su flujo
             matemático, pero en un próximo video y publicación lo abordaré a detalle; mientras tanto te puedo recomendar
-            <a href="https://www.youtube.com/watch?v=0e0z28wAWfg" target="_blank"
-              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">este recurso</a> que me
+            <a href="https://www.youtube.com/watch?v=0e0z28wAWfg" target="_blank" class="blog-paragraph-link">este
+              recurso</a> que me
             ayudó a entender mejor este proceso.
           </p>
-          <p class="text-lg text-slate-600 mb-6">
+          <p class="blog-paragraph-end">
             Por otro lado, la <strong>cantidad de filtros</strong> a usar en cada capa de convolución es otro
             <strong>hiperparámetro</strong> que debe ser
             definido por nosotros al momento de crear la arquitectura de la red neuronal. Sí, otro hiperparámetro a
             definir, pero nada que el amigo Optuna no pueda ayudarnos a optimizar.
           </p>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas de activación</h4>
-          <p class="text-lg text-slate-600 mb-2">
+          <h4 class="blog-paragraph-h4">Capas de activación</h4>
+          <p class="blog-paragraph">
             Estas capas aplican <strong>funciones de activación</strong> a los mapas de características generados por
             las
             capas de convolución. Su objetivo es introducir no linealidades en el modelo, permitiendo que la red aprenda
             patrones más complejos.
           </p>
-          <p class="text-lg text-slate-600 mb-4">
+          <p class="blog-paragraph">
             La función de activación más comúnmente utilizada en las capas de activación es <strong>ReLU</strong>
             (Rectified Linear Unit), que convierte todos los valores negativos a cero, manteniendo los positivos sin
             cambios. Esto ayuda a acelerar el proceso de entrenamiento y a mitigar el problema del desvanecimiento del
             gradiente durante el backpropagation.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¿Valores positivos y negativos? ¿De dónde sale eso y qué significa? 😲
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Debemos recordar que los pixeles de cada imagen se traducen en valores numéricos que representan la
             intensidad de la luz en diferentes canales de color (por ejemplo, rojo, verde y azul). Estos valores
             pueden ser positivos o negativos dependiendo de cómo se procesen a través de las capas de la red
@@ -410,102 +408,101 @@
             de convolución y su equivalente rectificado mediante la función de activación ReLU.
           </p>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             A continuación, vemos un ejemplo de un mapa de características representado como una <strong>matriz de
               5x5</strong> obtenida después de una convolución. Luego, aplicamos la función de activación
             <strong>ReLU</strong>, que revisa cada valor de la matriz.
           </p>
-          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+          <video autoplay loop muted playsinline class="blog-video">
             <source src="../../assets/blog/training-cnn-with-keras-from-scratch/relu_activation-layer.mp4"
               type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En este ejemplo, la función de activación <strong>ReLU</strong> (Rectified Linear Unit) toma el mapa de
             características y convierte todos los valores negativos en <code>0</code>. Esto ayuda a que la red se
             enfoque solo en la información más importante, mostrando una representación más clara de lo que la imagen
             contiene.
           </p>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¿ReLU es la única función de activación? 😲
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¡No! Existen otras funciones de activación como <strong>Sigmoid</strong>, <strong>Tanh</strong> y variantes
             de ReLU como <strong>SeLU</strong> o <strong>GeLU</strong>, pero ReLU es la más popular en las CNN debido a
             su simplicidad y eficacia (brinda buenos resultados solo al convertir valores negativos en <code>0</code>).
             Sin embargo, la elección de la función de activación puede depender del problema específico que se esté
             abordando. Puedes explorar más sobre estas funciones en este articulo de <a
               href="https://developers.google.com/machine-learning/crash-course/neural-networks/activation-functions?hl=es-419"
-              target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Google
+              target="_blank" class="blog-paragraph-link">Google
               Developers</a>.
           </p>
-          <p class="text-lg text-slate-600 mb-6">
+          <p class="blog-paragraph-end">
             En resumen, las capas de activación son cruciales en las CNN porque permiten que la red aprenda patrones
             complejos y no lineales en los datos, mejorando significativamente su capacidad para reconocer y clasificar
             imágenes, y además siempre van después de una capa de convolución.
           </p>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas de agrupamiento (pooling)</h4>
+          <h4 class="blog-paragraph-h4">Capas de agrupamiento (pooling)</h4>
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Estas capas sirven para <strong>reducir el tamaño</strong> de los mapas de características (rectificados),
             resumiendo la información más importante. De esta forma, la red necesita menos parámetros y cálculos, es
             decir, menos cómputo requerido para ejecutar el modelo (hacer predicciones en un entorno real). Por otro
             lado, estas capas también ayudan a evitar el <strong>overfitting</strong> o <strong>sobreajuste</strong>, si
             estos términos no son familiares para ti, checa este <a
               href="https://developers.google.com/machine-learning/crash-course/overfitting/overfitting?hl=es-419"
-              target="_blank"
-              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">blog</a>.
+              target="_blank" class="blog-paragraph-link">blog</a>.
           </p>
 
-          <p class="text-sm text-gray-600 mb-2">
+          <p class="blog-quote">
             <strong>Overfitting</strong> se refiere a la creación de un modelo que coincida (memorice) con el conjunto
             de entrenamiento de tal manera que no pueda realizar predicciones correctas con datos nuevos. Un modelo
             sobreajustado es análogo a un invento que funciona bien en el laboratorio, pero que no tiene valor en el
             mundo real <span class="italic">(Fuente:
               <a href="https://developers.google.com/machine-learning/crash-course/overfitting/overfitting?hl=es-419"
-                target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">
+                target="_blank" class="blog-paragraph-link">
                 Google Developers</a>)
             </span>
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¿Entonces el overfitting es negociable? 😲
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¡No, en todo modelo de Machine Learning o Deep Learning se tiene que evitar!
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Los mapas de caracteristicas son representaciones simplificadas de la imagen original altamente sensibles,
             esta sensibilidad se puede traducir en que si intentas predecir una imagen facial donde la nariz ocupa tres
             pixeles más que la imagen con la que entrenaste el modelo, la predicción puede fallar. ¡Pero son 3 pixeles!
             ajá, por ello, es importante reducir esta sensibilidad y hacer que el modelo sea más robusto, y las capas de
             agrupamiento ayudan a lograr esto.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Dicho esto, debo mencionarte que las capas de agrupamiento también requieren hiperparametros (similar a la
             capas de convolución). Además, existen diferentes tipos de capas de agrupamiento, pero las más comunes son
             <strong>Max Pooling</strong> y <strong>Average Pooling</strong>, entendamos su diferencia con un par de
             ejemplos.
           </p>
 
-          <p class="text-sm text-gray-600 mb-2">
+          <p class="blog-quote">
             Los hiperparámetros <strong>kernel size</strong> y <strong>stride</strong> se definen de la misma forma que
-            en la <em>capa de convolución</em>, por lo que podemos aprovechar de ese conocimiento directamente .
+            en la <em>capa de convolución</em>, por lo que podemos aprovechar de ese conocimiento directamente.
           </p>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En este primer ejemplo podemos ver como trabajaría la capa de agrupamiento con los siguientes
             hiperparametros:
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+          <ul class="blog-paragraph-list">
             <li>
               <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
             </li>
@@ -518,19 +515,19 @@
               cubierta por el filtro.
             </li>
           </ul>
-          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+          <video autoplay loop muted playsinline class="blog-video">
             <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer_max-pooling.mp4"
               type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Ahora veamos qué ocurre si cambiamos el tipo de pooling a average pooling, manteniendo los mismos
             hiperparámetros que en el ejemplo anterior:
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+          <ul class="blog-paragraph-list">
             <li>
               <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
             </li>
@@ -543,42 +540,42 @@
               cubierta por el filtro.
             </li>
           </ul>
-          <video autoplay loop muted playsinline class="block mx-auto border border-white">
+          <video autoplay loop muted playsinline class="blog-video">
             <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer_average-pooling.mp4"
               type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-6">
+          <p class="blog-paragraph-end">
             En resumen, las capas de agrupamiento (pooling) son esenciales en las CNN porque reducen el tamaño de los
             mapas de características, simplifican la información más relevante y ayudan a que el modelo sea más
             eficiente y robusto, evitando la sensibilidad excesiva a pequeños cambios en la imagen.
           </p>
 
-          <h4 class="text-lg font-semibold text-slate-800 mb-2">Capas completamente conectadas (fully connected layers)
+          <h4 class="blog-paragraph-h4">Capas completamente conectadas (fully connected layers)
           </h4>
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Estas capas sirven para tomar todas las características extraídas por las capas anteriores y combinarlas
             para decidir la clase final de la imagen (por ejemplo: perro o gato).
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Pero... ¿Cómo funciona? 😲
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Recordemos que las capas de convolución y de agrupamiento ya se encargaron de extraer y resumir
             características de la imagen: bordes, texturas, colores, formas, y cualquier otra característica visual.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Entonces, imagina que tienes una lista de características detectadas, como “pistas” que describen la imagen
             (valores numéricos como los que aparecen en la animación inferior).
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Cada característica (\(x_i\)) se conecta con todas las clases posibles mediante un peso (\(w_i\)):
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+          <ul class="blog-paragraph-list">
             <li>
               <strong>Si la característica es relevante para una clase</strong>, el peso será alto (positivo).
             </li>
@@ -586,32 +583,32 @@
               <strong>Si la característica no es relevante</strong>, el peso será bajo (cercano a cero o negativo).
             </li>
           </ul>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             De esta forma, cada característica (pista) emite un “voto” con distinta importancia (peso) para cada
             categoría.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Finalmente, la capa completamente conectada suma todos estos votos ponderados para cada clase y aplica
             una función de activación (como sigmoide o softmax) para convertir estas sumas en probabilidades. La clase
             con la
             probabilidad más alta es la predicción final del modelo.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Matemáticamente (pero simple):
           </p>
           $$
           p(X) = \sigma \Big(\sum_i x_i w_i + b\Big), \quad
           \text{donde } \sigma(z) = \frac{1}{1+e^{-z}}
           $$
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             El cálculo se hace como una suma ponderada de todas las características. Cada característica \(x_i\)
             se multiplica por su peso \(w_i\), se suman todas junto con un sesgo \(b\), y finalmente se aplica la
             función sigmoide para convertir el resultado en una probabilidad.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Donde:
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+          <ul class="blog-paragraph-list">
             <li>
               \(p(X)\) es la probabilidad de que la imagen pertenezca a una clase específica (por ejemplo, gato).
             </li>
@@ -630,41 +627,41 @@
             </li>
           </ul>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En este ejemplo se muestra cómo una capa completamente conectada toma las características extraídas por las
             capas
             anteriores, las aplana y las conecta a todas las posibles clases (en este caso, 2 clases: gato y perro).
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Las conexiones más fuertes (líneas más remarcadas) indican que esas características son más relevantes para
             esa clase en particular.
           </p>
-          <video autoplay loop muted playsinline class="block mx-auto border border-white mb-8 mt-4">
+          <video autoplay loop muted playsinline class="blog-video mb-8 mt-4">
             <source src="../../assets/blog/training-cnn-with-keras-from-scratch/fc-layer.mp4" type="video/mp4">
             Tu navegador no soporta el elemento de video.
           </video>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En este ejemplo hemos aplicado la función de activación sigmoide, que es adecuada para problemas de
             clasificación binaria (dos clases).
             Si estuviéramos trabajando con múltiples clases (por ejemplo, gato, perro, pájaro), utilizaríamos la función
             softmax en su lugar.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Como se puede observar, la clase con la probabilidad <strong>0.81</strong> más alta (en este caso, perro) es
             la predicción
             final
             del modelo.
           </p>
 
-          <hr class="my-6 border-t border-gray-500 opacity-50">
+          <hr class="blog-example-separator">
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En las capas anteriores hemos hablado de varios hiperparámetros, y las capas completamente conectadas no son
             la excepción, aquí los más importantes:
           </p>
-          <ul class="list-disc list-inside text-slate-600 space-y-1 mb-2">
+          <ul class="blog-paragraph-list">
             <li>
               <strong>Número de neuronas:</strong> Define cuántas unidades (neuronas) tendrá la capa. Más neuronas
               pueden capturar patrones más complejos, pero también aumentan el riesgo de sobreajuste.
@@ -680,75 +677,113 @@
               esto
               en este <a
                 href="https://developers.google.com/machine-learning/crash-course/overfitting/regularization?hl=es-419"
-                target="_blank"
-                class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">recurso</a> de Google
-              Developers.
+                target="_blank" class="blog-paragraph-link">recurso</a> de Google Developers.
             </li>
             <li>
               <strong>Dropout:</strong> Esta técnica consiste en "apagar" aleatoriamente un porcentaje de neuronas
               durante el entrenamiento, lo que ayuda a prevenir el sobreajuste. Puedes entender más sobre Dropout en
               este <a href="https://www.ultralytics.com/es/glossary/dropout-layer" target="_blank"
-                class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">recurso</a> de
+                class="blog-paragraph-link">recurso</a> de
               Ultralytics.
             </li>
           </ul>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Y ya como anteriormente vimos, estos hiperparámetros pueden ser optimizados usando herramientas como Optuna.
           </p>
-          <p class="text-lg text-slate-600 mb-8">
+          <p class="blog-paragraph-end">
             En resumen, las capas completamente conectadas son cruciales en las CNN porque combinan todas las
             características extraídas para tomar una decisión final sobre la clase de la imagen, permitiendo que el
             modelo realice predicciones precisas basadas en la información visual procesada.
           </p>
 
-          <h3 class="text-xl font-semibold text-slate-800 mb-4">Visión global de la CNN</h3>
+          <h3 class="blog-paragraph-h3">Visión global de la CNN</h3>
 
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Hasta ahora hemos visto las capas principales que componen una CNN, pero ¿Cómo se integran todas estas
             capas para formar una red completa? Veamos un diagrama general de la arquitectura típica de una CNN.
           </p>
-          <div class="mt-8 flex justify-center mb-2">
+          <div class="blog-div-image">
             <img src="../../assets/blog/training-cnn-with-keras-from-scratch/cnn-architecture.png"
               alt="Overview Diagram">
           </div>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Como muestra la imagen anterior, el flujo de datos comienza con la imagen de entrada, que pasa por
             varias capas de convolución y activación para extraer características, seguido de capas de agrupamiento para
             reducir la dimensionalidad. Finalmente, las características extraídas se aplanan y se pasan a través de
             capas completamente conectadas para realizar la clasificación final.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             Pero, ¿Todas las redes CNN deben seguir el esquema especifico mostrado? 😲
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¡No, no hay una única receta fija!
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             La arquitectura específica puede variar dependiendo del problema que se esté abordando, la naturaleza de los
             datos y los objetivos del modelo. Algunas CNN pueden incluir capas adicionales como capas de normalización
             (Batch Normalization), capas de abandono (Dropout) para prevenir el sobreajuste, o incluso estructuras más
             complejas como bloques residuales (ResNet) o módulos Inception.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             La clave está en experimentar con diferentes arquitecturas y evaluar su rendimiento en el conjunto de datos
             específico para encontrar la configuración que funcione mejor para el problema en cuestión.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             ¿Y adivina qué? Optuna puede ayudarte con esto también, simplemente tratando cada una de las capas como un
             hiperparámetro más a optimizar, en la sección del hands-on te mostraré un breve ejemplo de ello.
           </p>
-          <p class="text-lg text-slate-600 mb-2">
+          <p class="blog-paragraph">
             En resumen, una CNN transforma una imagen en una decisión, pasando de píxeles a características y de
             características a predicciones. Para entender mejor cómo se construyen y entrenan estas redes, en la
             siguiente sección veremos un ejemplo práctico con Keras
           </p>
 
+          <blockquote class="blog-quote">
+            The key insight is that MLflow’s evaluate function with SHAP configuration
+            handles the complexity for us.
+          </blockquote>
+
+
+          <blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-700 bg-gray-50 rounded-md py-3 my-6">
+            The key insight is that MLflow’s <code class="bg-gray-100 px-1 rounded text-sm">evaluate()</code>
+            function with SHAP configuration handles the complexity for us,
+            while custom explainer wrappers give us the flexibility we need for production deployment.
+          </blockquote>
+
+          <blockquote
+            class="border-l-4 border-blue-500 bg-blue-50 text-blue-900 pl-5 pr-4 py-3 my-6 rounded-lg italic shadow-sm">
+            The key insight is that MLflow’s <code class="bg-blue-100 px-1 rounded text-sm">evaluate()</code>
+            function with SHAP configuration handles the complexity for us.
+          </blockquote>
+
+          <blockquote class="border-l-4 border-gray-400 pl-4 my-6 text-gray-800 italic">
+            The key insight is that MLflow’s <code class="bg-gray-100 px-1 rounded text-sm">evaluate()</code>
+            function with SHAP configuration handles the complexity for us.
+          </blockquote>
+
+          <blockquote class="border-l-4 border-gray-300 dark:border-gray-600 
+                   pl-4 italic text-gray-700 dark:text-gray-200 
+                   bg-gray-50 dark:bg-gray-800 
+                   rounded-md py-3 my-6">
+            The key insight is that MLflow’s <code
+              class="bg-gray-100 dark:bg-gray-700 px-1 rounded text-sm">evaluate()</code>
+            function with SHAP configuration handles the complexity for us,
+            while custom explainer wrappers give us the flexibility we need for production deployment.
+          </blockquote>
+
+
+          <p class="text-lg text-gray-800">
+            Let’s create <code class="bg-gray-100 text-gray-800 px-1 rounded font-mono text-sm">requirements.txt</code>
+            first:
+          </p>
+
+
           <h3 class="text-xl font-semibold text-slate-800 mb-4">Keras</h3>
-          <p class="text-lg text-slate-600 mb-6">
-            Keras es un marco de trabajo (framework) de alto nivel para construir y entrenar modelos de aprendizaje profundo. Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
+          <p class="blog-paragraph">
+            Keras es un marco de trabajo (framework) de alto nivel para construir y entrenar modelos de aprendizaje
+            profundo. Antes de continuar, considero importante mencionar que Keras v3 ofrece 3 formas de crear modelos,
             puedes consultar el detalle completo en el sitio web de
-            <a href="https://keras.io/api/models/" target="_blank"
-              class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Keras</a>.
+            <a href="https://keras.io/api/models/" target="_blank" class="blog-paragraph-link">Keras</a>.
             Sin embargo, a manera de resumen te comento brevemente la diferencia entre estas:
           </p>
           <ol class="list-decimal list-inside text-slate-600 space-y-1 ml-4 mb-6">
@@ -766,12 +801,12 @@
               original
               de la librería, aplicado a problemas específicos de alta complejidad también abordados con Pytorch.</li>
           </ol>
-          <p class="text-lg text-slate-600 mb-6">
+          <p class="blog-paragraph-end">
             Debido a que vamos a crear una arquitectura que generará dos predicciones de salida (edad y sexo), harémos
             uso
             de la API funcional. Puedes seguir el notebook disponible en
             <a href="https://colab.research.google.com/drive/1KFUeehzOaWZYCwpD0yH0Spa0o099hkb_#scrollTo=-GRYwLR3vqLz"
-              target="_blank" class="text-blue-600 underline hover:text-blue-800 transition-colors duration-200">Google
+              target="_blank" class="blog-paragraph-link">Google
               Colab</a>.
           </p>
         </section>
