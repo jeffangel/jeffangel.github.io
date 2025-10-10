@@ -825,17 +825,24 @@
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">from google.colab import drive
+            <pre class="blog-code-block"><code class="language-python"> # Librerias de sistema
+import os
+import random
+
+# Librerias para procesamiento
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.regularizers import l2
-import matplotlib.pyplot as plt
 from tensorflow.keras.utils import plot_model
-import os
-import random
+
+# Librerias para visualización
 import cv2
-import numpy as np  </code></pre>
+import matplotlib.pyplot as plt
+
+# Libreria para montar Google Drive (solo en Google Colab)
+from google.colab import drive</code></pre>
           </div>
           <p class="blog-paragraph">
             Con estas dependencias listas, ya tenemos todo lo necesario para definir el entorno de trabajo.
@@ -847,8 +854,9 @@ import numpy as np  </code></pre>
           <h3 class="blog-paragraph-h3">Definir variables</h3>
           <p class="blog-paragraph">
             A continuación, definimos algunas variables que utilizaremos a lo largo del notebook. Estas incluyen la
-            ruta de montaje de Google Drive, la cantidad de imágenes a mostrar, la ruta del conjunto de datos, el tamaño
-            del lote, el tamaño de las imágenes y el porcentaje de datos a utilizar para entrenamiento.
+            ruta de montaje de Google Drive, la cantidad de imágenes a mostrar, la ruta del conjunto de datos, la ruta
+            para guardar los modelos entrenados, el tamaño del lote, el tamaño de las imágenes y el porcentaje de datos
+            a utilizar para entrenamiento.
           </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
@@ -857,11 +865,13 @@ import numpy as np  </code></pre>
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">MOUNT_POINT = "/content/drive"
+            <pre class="blog-code-block"><code class="language-python">MOUNT_POINT = "/content/drive" # Punto de montaje de Google Drive
+DATASET_PATH = "/content/drive/MyDrive/train_val" # Ruta para acceder al conjunto de datos
+FOLDER_MODELS = "/content/drive/MyDrive/models" # Ruta para guardar los modelos entrenados
 IMAGES_TO_DISPLAY = 20 # Número de imágenes a mostrar en la visualización
-DATASET_PATH = "/content/drive/MyDrive/train_val" # Ruta al conjunto de datos
 BATCH_SIZE = 32 # Tamaño del lote para el entrenamiento
 IMAGE_SIZE = 128 # Tamaño al que se redimensionarán las imágenes
+EPOCHS = 10 # Número de épocas para el entrenamiento
 TRAINING_PERCENTAGE = 0.8 # Porcentaje de datos a utilizar para entrenamiento</code></pre>
           </div>
           <p class="blog-paragraph">
@@ -911,40 +921,44 @@ TRAINING_PERCENTAGE = 0.8 # Porcentaje de datos a utilizar para entrenamiento</c
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre
-              class="blog-code-block"><code class="language-python">file_names = os.listdir(DATASET_PATH) # Listar todos los archivos en el directorio del conjunto de datos
-random_images = random.sample(file_names, IMAGES_TO_DISPLAY) # Seleccionar aleatoriamente un conjunto de imágenes
-images_list, age_list, gender_list = [], [], [] # Inicializar listas para imágenes y etiquetas
+            <pre class="blog-code-block"><code class="language-python">file_names = os.listdir(DATASET_PATH) # Listamos todos los archivos en el directorio del conjunto de datos
+random_images = random.sample(file_names, IMAGES_TO_DISPLAY) # Seleccionamos aleatoriamente 20 imágenes
+images, age_labels, gender_labels = [], [], [] # Creamos listas para imágenes y etiquetas
 
-for image in random_images: # Iterar sobre las imágenes seleccionadas
-    labels = image.split('_') # Extraer etiquetas de edad y género del nombre del archivo
-    img = cv2.imread(os.path.join(DATASET_PATH, image)) # Leer la imagen usando OpenCV
-    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # Convertir de BGR a RGB
+for image in random_images: # Se itera sobre las imágenes seleccionadas
+    labels = image.split('_') # Extraemos etiquetas de edad y género del nombre del archivo delimitados por '_'
+    image = cv2.imread(os.path.join(DATASET_PATH, image)) # Leemos la imagen usando OpenCV
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # Convertimos de BGR a RGB
 
     age_label = int(labels[0]) # La edad es la primera parte del nombre del archivo
     gender_label = int(labels[1]) # El género es la segunda parte del nombre del archivo
-    age_list.append(age_label) # Agregar la etiqueta de edad a la lista
-    gender_list.append(gender_label) # Agregar la etiqueta de género a la lista
-    images_list.append(img_rgb) # Agregar la imagen a la lista
 
-images_arr = np.array(images_list, dtype=np.int32) # Convertir listas a arreglos de NumPy
-age_arr = np.array(age_list, dtype=np.int32) # Convertir listas a arreglos de NumPy
-gender_arr = np.array(gender_list, dtype=np.int32) # Convertir listas a arreglos de NumPy
+    age_labels.append(age_label) # Agregamos la etiqueta de edad a la lista
+    gender_labels.append(gender_label) # Agregamos la etiqueta de género a la lista
+    images.append(image) # Agregamos la imagen a la lista
 
-train_ds = tf.data.Dataset.from_tensor_slices((images_arr, age_arr, gender_arr)) # Crear un tf.data.Dataset
-train_ds = train_ds.shuffle(len(images_arr)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE) # Optimización del rendimiento</code></pre>
+# Convertimos las listas a arreglos de NumPy para cargarlos en tensorflow dataset
+images_sample = np.array(images, dtype=np.int32)
+age_sample = np.array(age_labels, dtype=np.int32)
+gender_sample = np.array(gender_labels, dtype=np.int32)
+
+# Creamos un objeto de dataset de tensorflow en base a las muestras
+sample_ds = tf.data.Dataset.from_tensor_slices((images_sample, age_sample, gender_sample))
+sample_ds = sample_ds.shuffle(len(images_sample)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)</code></pre>
           </div>
           <p class="blog-paragraph">
             Aquí, seleccionamos aleatoriamente un conjunto de imágenes del directorio del conjunto de datos, las
             leemos y convertimos a formato RGB (ya que OpenCV las lee en formato BGR por defecto). Además, extraemos
             las etiquetas de edad y género de los nombres de los archivos, ya que sabemos que el formato del nombre es
-            <code class="blog-paragraph-code">edad_genero_id-unico.jpg</code>.
+            <code class="blog-paragraph-code">edad_genero_raza_id-unico.jpg</code>.
           </p>
 
           <p class="blog-quote">
-            Por ejemplo, un archivo llamado <code class="blog-paragraph-code">25_0_12345.jpg</code> indica que la
+            Por ejemplo, un archivo llamado <code class="blog-paragraph-code">25_0_3_123432323235.jpg</code> indica que
+            la
             persona en la imagen tiene 25 años y es de género femenino (1). De igual forma, un archivo llamado
-            <code class="blog-paragraph-code">30_1_67890.jpg</code> indica que la persona tiene 30 años y es de género
+            <code class="blog-paragraph-code">30_1_4_23231267890.jpg</code> indica que la persona tiene 30 años y es de
+            género
             masculino (0).
           </p>
           <p class="blog-paragraph-end">
@@ -964,12 +978,12 @@ train_ds = train_ds.shuffle(len(images_arr)).batch(BATCH_SIZE).prefetch(tf.data.
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">plt.figure(figsize=(15, 12)) # Configurar el tamaño de la figura
-for image, age, gender in train_ds.take(1):  # Tomar un lote del dataset
-    for i in range(images_to_display): # Iterar sobre las imágenes en el lote
-        ax = plt.subplot(4, 5, i + 1) # Crear un subplot para cada imagen
-        plt.imshow(np.array(image[i]).astype("uint8")) # Mostrar la imagen
-        plt.title(f"Age: {int(age[i])} // Gender: {int(gender[i])}") # Título con edad y género
+            <pre class="blog-code-block"><code class="language-python">plt.figure(figsize=(15, 12)) # Configuramos el tamaño de la figura
+for image, age, gender in sample_ds.take(1):  # Tomamos un lote del dataset
+    for i in range(IMAGES_TO_DISPLAY): # Iteramos sobre las imágenes del lote
+        ax = plt.subplot(4, 5, i + 1) # Creamos un subplot para cada imagen
+        plt.imshow(np.array(image[i]).astype("uint8")) # Mostramos la imagen
+        plt.title(f"Age: {int(age[i])} // Gender: {int(gender[i])}") # Imprimimos el título con edad y género
         plt.axis("off")</code></pre>
           </div>
           <p class="blog-paragraph">
@@ -985,7 +999,7 @@ for image, age, gender in train_ds.take(1):  # Tomar un lote del dataset
 
         <!-- Sección 8 -->
         <section id="implementing-6">
-          <h3 class="blog-paragraph-h3">Segmentación de imagenes para entrenamiento</h3>
+          <h3 class="blog-paragraph-h3">Particionar el conjunto de datos</h3>
           <p class="blog-paragraph">
             Ahora que hemos visualizado una muestra de las imágenes, el siguiente paso es dividir el conjunto de datos
             en conjuntos de entrenamiento y validación. Esto es crucial para evaluar el rendimiento del modelo durante
@@ -998,13 +1012,14 @@ for image, age, gender in train_ds.take(1):  # Tomar un lote del dataset
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">all_image_files = [file for file in os.listdir(DATASET_PATH) if file.lower().endswith(('.jpg'))] # Listar todos los archivos de imagen en el directorio del conjunto de datos
-random.seed(0) # Fijar la semilla para reproducibilidad
-random.shuffle(all_image_files) # Mezclar aleatoriamente los archivos de imagen
+            <pre class="blog-code-block"><code class="language-python">all_image_files = [file for file in os.listdir(DATASET_PATH) if file.lower().endswith(('.jpg'))] # Listamos todos los archivos de imagen en el directorio del conjunto de datos
+random.seed(0) # Fijamos una semilla para reproducibilidad del shuffle
+random.shuffle(all_image_files) # Mezclamos aleatoriamente los archivos de imagen
 
-n_train_val = len(all_image_files) # Número total de imágenes
-train_end = int(n_train_val * TRAINING_PERCENTAGE) # Índice para dividir el conjunto de datos
+total_images = len(all_image_files) # Contamos el número total de imágenes
+train_end = int(total_images * TRAINING_PERCENTAGE) # Calculamos el índice para dividir el conjunto de datos
 
+# Separamos los archivos en conjuntos de entrenamiento y validación
 train_image_files = all_image_files[:train_end] # Archivos de imagen para entrenamiento
 val_image_files = all_image_files[train_end:] # Archivos de imagen para validación </code></pre>
           </div>
@@ -1019,7 +1034,8 @@ val_image_files = all_image_files[train_end:] # Archivos de imagen para validaci
 
         <!-- Sección 9 -->
         <section id="implementing-7">
-          <h3 class="blog-paragraph-h3">Segmentación de imagenes para entrenamiento</h3>
+          <h3 class="blog-paragraph-h3">Segmentación de imagenes para entrenamiento y validación</h3>
+          <h4 class="blog-paragraph-h4">Leer y procesar imagenes y etiquetas</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1027,23 +1043,23 @@ val_image_files = all_image_files[train_end:] # Archivos de imagen para validaci
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python"># Se define la función para cargar imágenes y sus etiquetas (edad y género) desde los nombres de archivo
-def load_imgs_lables(dataset_path,filenames):
-  images = []
-  age_labels = []
-  gender_labels = []
+            <pre class="blog-code-block"><code class="language-python"># Definimos una función para cargar imágenes y sus etiquetas (edad y género) desde los nombres de archivo
+def load_images_labels(dataset_path, filenames):
+  images, age_labels, gender_labels = [], [], [] # Creamos listas para imágenes y etiquetas
 
-  for current_file_name in filenames:
-    img = cv2.imread(os.path.join(dataset_path, current_file_name)) # Leemos la imagen usando OpenCV
-    img = img / 255.0  # Normalizamos la imagen a [0, 1]
+  for current_file_name in filenames: # Se itera sobre los nombres de archivo proporcionados
+    image = cv2.imread(os.path.join(dataset_path, current_file_name)) # Leemos la imagen usando OpenCV
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # Convertimos de BGR a RGB
+    image = image / 255.0  # Normalizamos la imagen a [0, 1] como práctica recomendada
     labels = current_file_name.split('_') # Extraemos las etiquetas de edad y género del nombre del archivo
     age_label = int(labels[0]) # La edad es la primera parte del nombre del archivo
     gender_label = int(labels[1]) # El género es la segunda parte del nombre del archivo
+
     age_labels.append(age_label) # Agregamos la etiqueta de edad a la lista
     gender_labels.append(gender_label) # Agregamos la etiqueta de género a la lista
-    images.append(img) # Agregamos la imagen a la lista
+    images.append(image) # Agregamos la imagen a la lista
 
-  # Convertimos las listas a arreglos de NumPy
+  # Convertimos las listas a arreglos de NumPy para cargarlos en tensorflow dataset
   images = np.array(images) 
   age_labels = np.array(age_labels)
   gender_labels = np.array(gender_labels)
@@ -1059,7 +1075,7 @@ def load_imgs_lables(dataset_path,filenames):
 
         <!-- Sección 10 -->
         <section id="implementing-8">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h4 class="blog-paragraph-h4">Cargar datos a memoria</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1067,11 +1083,11 @@ def load_imgs_lables(dataset_path,filenames):
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python"># Llamamos a la función para cargar imágenes y etiquetas de entrenamiento
-train_images, train_age, train_gender = load_imgs_lables(folder_train_val, train_image_files)
+            <pre class="blog-code-block"><code class="language-python"># Llamamos a la función para cargar imágenes y etiquetas de entrenamiento en memoria
+train_images, train_age, train_gender = load_images_labels(DATASET_PATH, train_image_files)
 
-# Llamamos a la función para cargar imágenes y etiquetas de validación
-val_images, val_age, val_gender = load_imgs_lables(folder_train_val, val_image_files)</code></pre>
+# Llamamos a la función para cargar imágenes y etiquetas de validación en memoria
+val_images, val_age, val_gender = load_images_labels(DATASET_PATH, val_image_files)</code></pre>
           </div>
           <p class="blog-paragraph-end">
             Aquí, utilizamos la función definida anteriormente para cargar las imágenes y sus etiquetas tanto para el
@@ -1081,7 +1097,7 @@ val_images, val_age, val_gender = load_imgs_lables(folder_train_val, val_image_f
 
         <!-- Sección 11 -->
         <section id="implementing-9">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h4 class="blog-paragraph-h4">Crear objetos de TensorFlow dataset</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1090,22 +1106,22 @@ val_images, val_age, val_gender = load_imgs_lables(folder_train_val, val_image_f
               <span class="blog-code-windows-header">python</span>
             </div>
             <pre class="blog-code-block"><code class="language-python"># Convertimos las imágenes de BGR a RGB (OpenCV carga las imágenes en formato BGR por defecto)
-train_images = train_images[..., ::-1]
-val_images = val_images[..., ::-1]
+# train_images = train_images[..., ::-1]
+# val_images = val_images[..., ::-1]
 
-# Creamos el dataset de TensorFlow para entrenamiento
+# Creamos un objeto de dataset de tensorflow en base a las imágenes y etiquetas de entrenamiento
 train_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": train_images}, {"age_output":train_age, "gender_output":train_gender}))
-train_ds = train_ds.shuffle(len(train_images)).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+train_ds = train_ds.shuffle(len(train_images)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 
-# Creamos el dataset de TensorFlow para validación
+# Creamos un objeto de dataset de tensorflow en base a las imágenes y etiquetas de validación
 val_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": val_images}, {"age_output":val_age, "gender_output":val_gender}))
-val_ds = val_ds.shuffle(len(val_images)).batch(batch_size).prefetch(tf.data.AUTOTUNE)</code></pre>
+val_ds = val_ds.shuffle(len(val_images)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)</code></pre>
           </div>
         </section>
 
         <!-- Sección 12 -->
         <section id="implementing-10">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h3 class="blog-paragraph-h3">Aumentación de datos</h3>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1130,7 +1146,8 @@ data_augmentation_layers = [
 
         <!-- Sección 13 -->
         <section id="implementing-11">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h3 class="blog-paragraph-h3">Definición de la arquitectura del modelo</h3>
+          <h4 class="blog-paragraph-h4">Capas de la rama principal del modelo</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1138,31 +1155,34 @@ data_augmentation_layers = [
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">image_inputs = keras.Input(shape=(IMG_SIZE, IMG_SIZE, 3), name="my_images_input")
-x = data_augmentation(image_inputs)
+            <pre class="blog-code-block"><code class="language-python">image_inputs = keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, 3), name="my_images_input") # Definimos la entrada del modelo
+x = data_augmentation(image_inputs) # Aplicamos aumentos de datos
 
-# Backbone (Main branch)
-x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x)
-x = layers.BatchNormalization()(x)
-x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x)
-x = layers.BatchNormalization()(x)
-x = layers.MaxPooling2D((2, 2))(x)
+# Definimos la arquitectura principal de la CNN
+## Bloque de extracción de características 1
+x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Primera capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Segunda capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)
 
-x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x)
-x = layers.BatchNormalization()(x)
-x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x)
-x = layers.BatchNormalization()(x)
-x = layers.MaxPooling2D((2, 2))(x)
+## Bloque de extracción de características 2
+x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Tercera capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Cuarta capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)
 
-x = layers.Conv2D(512, (3, 3), activation="relu", padding="same")(x)
-x = layers.BatchNormalization()(x)
-x = layers.MaxPooling2D((2, 2))(x)</code></pre>
+## Bloque de extracción de características 3
+x = layers.Conv2D(512, (3, 3), activation="relu", padding="same")(x) # Quinta capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)</code></pre>
           </div>
         </section>
 
         <!-- Sección 14 -->
         <section id="implementing-12">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h4 class="blog-paragraph-h4">Capas de la rama de edad</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1170,21 +1190,26 @@ x = layers.MaxPooling2D((2, 2))(x)</code></pre>
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(x)
-branch_age = layers.BatchNormalization()(branch_age)
-branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(branch_age)
-branch_age = layers.BatchNormalization()(branch_age)
-branch_age = layers.MaxPooling2D((2, 2))(branch_age)
-branch_age = layers.Flatten()(branch_age)
-branch_age = layers.Dense(128, activation="relu")(branch_age)
-branch_age = layers.Dropout(0.45)(branch_age)
-age_output = layers.Dense(1, activation="linear", name="age_output")(branch_age)</code></pre>
+            <pre
+              class="blog-code-block"><code class="language-python"># Rama para predicción de edad
+## Bloque de extracción de características para edad
+branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(x) # Primera capa convolucional
+branch_age = layers.BatchNormalization()(branch_age) # Normalización por lotes
+branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(branch_age) # Segunda capa convolucional
+branch_age = layers.BatchNormalization()(branch_age) # Normalización por lotes
+branch_age = layers.MaxPooling2D((2, 2))(branch_age) # Capa de agrupamiento (pooling)
+
+## Bloque para predicción de edad
+branch_age = layers.Flatten()(branch_age) # Aplanamiento
+branch_age = layers.Dense(128, activation="relu")(branch_age) # Capa completamente conectada
+branch_age = layers.Dropout(0.45)(branch_age) # Capa de abandono (dropout) para prevenir sobreajuste
+age_output = layers.Dense(1, activation="linear", name="age_output")(branch_age) # Salida para la predicción de edad</code></pre>
           </div>
         </section>
 
         <!-- Sección 15 -->
         <section id="implementing-13">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h4 class="blog-paragraph-h4">Capas de la rama de género</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1192,21 +1217,26 @@ age_output = layers.Dense(1, activation="linear", name="age_output")(branch_age)
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x)
-branch_gender = layers.BatchNormalization()(branch_gender)
-branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(branch_gender)
-branch_gender = layers.BatchNormalization()(branch_gender)
-branch_gender = layers.MaxPooling2D((2, 2))(branch_gender)
-branch_gender = layers.Flatten()(branch_gender)
-branch_gender = layers.Dense(128, activation="relu")(branch_gender)
-branch_gender = layers.Dropout(0.26871378401366075)(branch_gender)
-gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(branch_gender)</code></pre>
+            <pre
+              class="blog-code-block"><code class="language-python"># Rama para predicción de género
+## Bloque de extracción de características para género
+branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x) # Primera capa convolucional
+branch_gender = layers.BatchNormalization()(branch_gender) # Normalización por lotes
+branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(branch_gender) # Segunda capa convolucional
+branch_gender = layers.BatchNormalization()(branch_gender) # Normalización por lotes
+branch_gender = layers.MaxPooling2D((2, 2))(branch_gender) # Capa de agrupamiento (pooling)
+
+## Bloque para predicción de género
+branch_gender = layers.Flatten()(branch_gender) # Aplanamiento
+branch_gender = layers.Dense(128, activation="relu")(branch_gender) # Capa completamente conectada
+branch_gender = layers.Dropout(0.26871378401366075)(branch_gender) # Capa de abandono (dropout) para prevenir sobreajuste
+gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(branch_gender) # Salida para la predicción de género</code></pre>
           </div>
         </section>
 
         <!-- Sección 16 -->
         <section id="implementing-14">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h4 class="blog-paragraph-h4">Entradas y salidas del modelo</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1214,7 +1244,8 @@ gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(bran
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">modelA = keras.Model(
+            <pre class="blog-code-block"><code class="language-python"># Definimos el modelo con entradas y salidas múltiples
+model = keras.Model(
     inputs=[image_inputs],
     outputs=[age_output, gender_output]
 )</code></pre>
@@ -1223,7 +1254,7 @@ gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(bran
 
         <!-- Sección 17 -->
         <section id="implementing-15">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h4 class="blog-paragraph-h4">Resumen de la arquitectura del modelo</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1231,13 +1262,14 @@ gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(bran
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">modelA.summary()</code></pre>
+            <pre
+              class="blog-code-block"><code class="language-python">model.summary() # Imprimimos el resumen del modelo</code></pre>
           </div>
         </section>
 
         <!-- Sección 18 -->
         <section id="implementing-16">
-          <!-- <h2 class="text-2xl font-semibold text-slate-800 mb-2">Segmentación de imagenes para entrenamiento</h2> -->
+          <h4 class="blog-paragraph-h4">Grafo del modelo</h4>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1245,7 +1277,152 @@ gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(bran
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">plot_model(modelA, show_shapes=True, dpi=100)</code></pre>
+            <pre
+              class="blog-code-block"><code class="language-python">plot_model(model, show_shapes=True, dpi=100) # Visualizamos la arquitectura del modelo</code></pre>
+          </div>
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Definición de hiperparámetros</h3>
+          <h4 class="blog-paragraph-h4">Pesos de las pérdidas de edad y género</h4>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">loss_weight_gender = 0.6940071116394927 # Peso para la pérdida de género
+loss_weight_age = 1.0 - loss_weight_gender # Peso para la pérdida de edad
+loss_weights = {
+    "age_output": loss_weight_age,
+    "gender_output": loss_weight_gender
+}</code></pre>
+          </div>
+        </section>
+
+        <section id="implementing-16">
+          <h4 class="blog-paragraph-h4">Optimizador, métricas y callbacks de entrenamiento</h4>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">optimizer = keras.optimizers.Adam(learning_rate=1e-4) # Definimos el optimizador Adam con una tasa de aprendizaje de 0.0001
+
+# Compilamos el modelo con múltiples pérdidas y métricas
+model.compile(
+    optimizer=optimizer,
+    loss={"age_output": keras.losses.Huber(delta=5.0), "gender_output": "binary_crossentropy"},
+    loss_weights=loss_weights,
+    metrics={"age_output": "mae", "gender_output": "accuracy"}
+)
+
+# Definimos los callbacks para el entrenamiento
+CALLBACKS = [
+    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.01, patience=10, mode='auto', restore_best_weights=True),
+    tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=7, min_lr=1e-6, verbose=0),
+]</code></pre>
+          </div>
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Entrenamiento del modelo</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Entrenamos el modelo
+history = model.fit(train_ds, # Conjunto de datos de entrenamiento
+                    batch_size=BATCH_SIZE, # Tamaño del lote
+                    epochs=EPOCHS, # Número de épocas
+                    callbacks=CALLBACKS, # Callbacks definidos anteriormente
+                    validation_data=val_ds, # Conjunto de datos de validación
+                    verbose=1 # Mostrar el progreso del entrenamiento
+                    )</code></pre>
+          </div>
+        </section>
+
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Guardar el modelo entrenado</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Creamos un directorio para guardar el modelo si no existe
+if not os.path.exists(FOLDER_MODELS):
+    os.mkdir(FOLDER_MODELS)
+
+model.save(FOLDER_MODELS+'age-gender.keras') # Guardamos el modelo</code></pre>
+          </div>
+        </section>
+
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Visualización de métricas de entrenamiento y validación</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Visualizamos las métricas de entrenamiento y validación
+fig = plt.figure(figsize=(15, 10))
+fig.add_subplot(2,2,1)
+plt.plot(history.history['gender_output_loss'], label='train gender loss')
+plt.plot(history.history['val_gender_output_loss'], label='val gender loss')
+plt.legend()
+plt.grid(True)
+plt.ylim([0,1.0])
+plt.xlabel('epoch')
+
+fig.add_subplot(2,2,2)
+plt.plot(history.history['gender_output_accuracy'], label='train gender accuracy')
+plt.plot(history.history['val_gender_output_accuracy'], label='val gender accuracy')
+plt.legend()
+plt.grid(True)
+plt.ylim([0,1.0])
+plt.xlabel('epoch')
+
+fig.add_subplot(2,2,3)
+plt.plot(history.history['age_output_loss'], label='train age loss')
+plt.plot(history.history['val_age_output_loss'], label='val age loss')
+plt.legend()
+plt.grid(True)
+plt.xlabel('epoch')
+
+fig.add_subplot(2,2,4)
+plt.plot(history.history['age_output_mae'], label='train age mae')
+plt.plot(history.history['val_age_output_mae'], label='val age mae')
+plt.legend()
+plt.grid(True)
+plt.xlabel('epoch')</code></pre>
+          </div>
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Evaluación del modelo</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre
+              class="blog-code-block"><code class="language-python">print(model.evaluate(val_ds)) # Evaluamos el modelo en el conjunto de validación</code></pre>
           </div>
         </section>
 
