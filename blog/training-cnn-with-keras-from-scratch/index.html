@@ -9,18 +9,11 @@
   <link rel="icon" href="../../assets/favicon.png" type="image/png">
   <link rel="icon" href="../../assets/logo-imagen.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css">
-  <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
-  <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],   // para inline
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]  // para bloque
-      },
-      svg: { fontCache: 'global' }  // render en SVG nítido
-    };
-  </script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js" defer></script>
+  <script src="mathjax.js" defer></script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body class="bg-gray-100 text-gray-800 font-sans">
@@ -1426,10 +1419,156 @@ plt.xlabel('epoch')</code></pre>
           </div>
         </section>
 
-        <footer class="mt-8 border-t pt-4">
-          <p>¿Quieres que incluya un <em>ejemplo paso a paso</em> de una CNN con código en PyTorch o TensorFlow? Dime
-            cuál prefieres y lo preparo.</p>
+        <section id="demo">
+          <h2 class="blog-paragraph-h2">Demo</h2>
+          <p class="blog-paragraph">
+            He creado una demo interactiva donde puedes subir una foto y el modelo entrenado te dirá la edad y género
+            estimados. Puedes probarla a continuación:
+          </p>
+
+          <!-- Indicador de estado del modelo -->
+          <div id="modelStatus" class="mb-6 hidden">
+            <!-- El contenido se insertará dinámicamente -->
+          </div>
+
+          <div class="demo-div">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+              <div class="demo-panel-div">
+                <h3 class="blog-paragraph-h3 flex items-center mb-4">
+                  <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  Subir Imagen
+                </h3>
+
+                <div id="dropZone" class="demo-drop-zone">
+                  <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                  </svg>
+                  <p class="text-gray-600 mb-2">Arrastra una imagen aquí o haz clic para seleccionar</p>
+                  <p class="text-sm text-gray-400">Formatos soportados: JPG, PNG</p>
+                  <input type="file" id="imageInput" accept="image/jpeg,image/png" class="hidden">
+                </div>
+
+                <button id="analyzeBtn"
+                  class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
+                  Realizar predicción
+                </button>
+              </div>
+
+              <div class="demo-panel-div">
+                <h3 class="blog-paragraph-h3 flex items-center mb-4">
+                  <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                    </path>
+                  </svg>
+                  Vista Previa
+                </h3>
+
+                <div id="imagePreview" class="demo-image-preview-zone">
+                  <div class="text-center text-gray-400">
+                    <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                      </path>
+                    </svg>
+                    <p>La imagen aparecerá aquí</p>
+                  </div>
+                </div>
+
+                <div id="results" class="mt-5 hidden transition-all duration-300">
+                  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                    <h4 class="flex items-center text-base font-semibold text-slate-700 mb-4">
+                      <svg class="w-5 h-5 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      Resultados de Predicción
+                    </h4>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                        <p class="demo-pred-text">Edad Estimada</p>
+                        <p id="ageResult" class="text-2xl font-semibold text-slate-800 tracking-tight">--</p>
+                      </div>
+
+                      <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                        <p class="demo-pred-text">Género</p>
+                        <p id="genderResult" class="text-2xl font-semibold text-slate-800 tracking-tight">--</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="cierre">
+          <h2 class="blog-paragraph-h2">Cierre</h2>
+
+          <p class="blog-paragraph">
+            En este artículo hemos recorrido el proceso completo de construcción y entrenamiento de una
+            <strong>red neuronal convolucional (CNN)</strong> desde cero utilizando <strong>Keras</strong> y
+            <strong>TensorFlow</strong>. A lo largo del desarrollo abordamos la preparación y el preprocesamiento de los
+            datos,
+            la definición de la arquitectura, el entrenamiento del modelo y su evaluación final.
+          </p>
+
+          <p class="blog-paragraph">
+            Espero que esta publicación te haya proporcionado una comprensión sólida de cómo construir y entrenar una
+            CNN
+            para tareas de visión por computadora. Te animo a experimentar con diferentes arquitecturas, técnicas de
+            aumento
+            de datos y conjuntos de datos, para explorar cómo cada decisión de diseño impacta en el rendimiento del
+            modelo.
+          </p>
+
+          <p class="blog-paragraph">
+            Además, la demo interactiva que acompaña este artículo está soportada en un entorno de
+            <strong>costo cero</strong> gracias al uso de <strong>Hugging Face Spaces</strong>, una plataforma que
+            permite
+            desplegar modelos de aprendizaje profundo de forma gratuita y accesible. Esto demuestra que hoy en día es
+            posible
+            compartir prototipos funcionales y experimentos de Deep Learning sin depender de infraestructura costosa,
+            haciendo la tecnología más cercana a todos.
+          </p>
+
+          <p class="blog-paragraph">
+            Si te interesa seguir aprendiendo sobre los conceptos y casos prácticos de
+            <strong>Machine Learning</strong>, <strong>Deep Learning</strong>, <strong>Computer Vision</strong> y
+            <strong>GenAI</strong>, te invito a conectar por
+            <a href="https://www.linkedin.com/in/jeffersonangel/" target="_blank"
+              class="text-blue-600 hover:underline">LinkedIn</a>
+            y estar atento a las próximas publicaciones y proyectos en mi portafolio. En futuras entregas también
+            exploraremos
+            cómo aplicar estas tecnologías en entornos <strong>cloud</strong>, utilizando servicios de
+            <strong>AWS</strong>, <strong>Google Cloud Platform</strong> y <strong>Microsoft Azure</strong>
+            para la construcción, automatización y despliegue de soluciones de inteligencia artificial a escala.
+          </p>
+
+          <p class="blog-paragraph-end">
+            ¡Gracias por leer y feliz aprendizaje profundo!
+          </p>
+        </section>
+
+
+        <footer class="mt-12 py-6 border-t border-slate-200 text-center text-sm text-slate-500">
+          © <span id="year"></span> Jefferson Angel Areche Rojas
         </footer>
+        <script>
+          document.getElementById('year').textContent = new Date().getFullYear();
+        </script>
+
       </article>
     </main>
 
@@ -1448,7 +1587,8 @@ plt.xlabel('epoch')</code></pre>
 
   </div>
 
-  <script src="toc.js"></script>
+  <script src="toc.js" defer></script>
+  <script src="demo.js" defer></script>
 </body>
 
 </html>

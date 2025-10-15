@@ -103,4 +103,24 @@
     .blog-div-image {
         @apply mt-8 flex justify-center mb-5;
     }
+
+    .demo-div {
+        @apply mt-8 bg-slate-50 rounded-2xl p-8 shadow-sm border border-blue-100;
+    }
+
+    .demo-panel-div {
+        @apply bg-white rounded-xl p-6 shadow-md;
+    }
+
+    .demo-drop-zone {
+        @apply border-2 border-dashed border-blue-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200;
+    }
+
+    .demo-image-preview-zone {
+        @apply border-2 border-gray-200 rounded-lg p-4 min-h-[300px] flex items-center justify-center bg-gray-50;
+    }
+
+    .demo-pred-text {
+        @apply text-sm text-slate-500 mb-1;
+    }
 }
