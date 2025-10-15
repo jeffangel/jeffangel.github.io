@@ -848,7 +848,8 @@ from google.colab import drive</code></pre>
           <p class="blog-paragraph">
             A continuación, definimos algunas variables que utilizaremos a lo largo del notebook. Estas incluyen la
             ruta de montaje de Google Drive, la cantidad de imágenes a mostrar, la ruta del conjunto de datos, la ruta
-            para guardar los modelos entrenados, el tamaño del lote, el tamaño de las imágenes y el porcentaje de datos
+            para guardar los modelos entrenados, el tamaño del lote, el tamaño de las imágenes, el número de épocas, los
+            canales y el porcentaje de datos
             a utilizar para entrenamiento.
           </p>
           <div class="blog-code-windows">
@@ -865,6 +866,7 @@ IMAGES_TO_DISPLAY = 20 # Número de imágenes a mostrar en la visualización
 BATCH_SIZE = 32 # Tamaño del lote para el entrenamiento
 IMAGE_SIZE = 128 # Tamaño al que se redimensionarán las imágenes
 EPOCHS = 10 # Número de épocas para el entrenamiento
+NUM_CHANNELS = 3 # Número de canales de las imágenes
 TRAINING_PERCENTAGE = 0.8 # Porcentaje de datos a utilizar para entrenamiento</code></pre>
           </div>
           <p class="blog-paragraph">
@@ -996,7 +998,7 @@ for image, age, gender in sample_ds.take(1):  # Tomamos un lote del dataset
           <p class="blog-paragraph">
             Ahora que hemos visualizado una muestra de las imágenes, el siguiente paso es dividir el conjunto de datos
             en conjuntos de entrenamiento y validación. Esto es crucial para evaluar el rendimiento del modelo durante
-            el entrenamiento y asegurarnos de que no esté sobreajustando los datos.
+            el entrenamiento y asegurarnos de no caer en overfitting.
           </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
@@ -1028,7 +1030,17 @@ val_image_files = all_image_files[train_end:] # Archivos de imagen para validaci
         <!-- Sección 9 -->
         <section id="implementing-7">
           <h3 class="blog-paragraph-h3">Segmentación de imagenes para entrenamiento y validación</h3>
+          <p class="blog-paragraph">
+            A continuación, definimos una función para cargar las imágenes y sus etiquetas (edad y género) desde los
+            nombres de archivo. Esta función leerá cada imagen, la convertirá a formato RGB, la normalizará y extraerá
+            las etiquetas de edad y género del nombre del archivo.
+          </p>
           <h4 class="blog-paragraph-h4">Leer y procesar imagenes y etiquetas</h4>
+          <p class="blog-paragraph">
+            La función <code class="blog-paragraph-code">load_images_labels</code> toma como entrada la ruta del
+            conjunto de datos y una lista de nombres de archivo. Devuelve tres arreglos de NumPy: uno con las imágenes
+            procesadas, otro con las etiquetas de edad y otro con las etiquetas de género.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1059,16 +1071,15 @@ def load_images_labels(dataset_path, filenames):
   
   return images, age_labels, gender_labels</code></pre>
           </div>
-          <p class="blog-paragraph-end">
-            Esta función carga las imágenes y sus etiquetas correspondientes (edad y género) desde los nombres de los
-            archivos. Normaliza los valores de píxeles dividiéndolos por 255.0 para que estén en el rango [0, 1], lo que
-            es beneficioso para el entrenamiento del modelo.
-          </p>
         </section>
 
         <!-- Sección 10 -->
         <section id="implementing-8">
           <h4 class="blog-paragraph-h4">Cargar datos a memoria</h4>
+          <p class="blog-paragraph">
+            Ahora, utilizamos la función definida anteriormente para cargar las imágenes y sus etiquetas tanto para el
+            conjunto de entrenamiento como para el conjunto de validación.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1082,15 +1093,18 @@ train_images, train_age, train_gender = load_images_labels(DATASET_PATH, train_i
 # Llamamos a la función para cargar imágenes y etiquetas de validación en memoria
 val_images, val_age, val_gender = load_images_labels(DATASET_PATH, val_image_files)</code></pre>
           </div>
-          <p class="blog-paragraph-end">
-            Aquí, utilizamos la función definida anteriormente para cargar las imágenes y sus etiquetas tanto para el
-            conjunto de entrenamiento como para el conjunto de validación.
-          </p>
         </section>
 
         <!-- Sección 11 -->
         <section id="implementing-9">
           <h4 class="blog-paragraph-h4">Crear objetos de TensorFlow dataset</h4>
+          <p class="blog-paragraph">
+            Finalmente, convertimos los arreglos de imágenes y etiquetas en objetos <code
+              class="blog-paragraph-code">tf.data.Dataset</code> para facilitar su manipulación durante el entrenamiento
+            del modelo. Estos objetos permiten un manejo eficiente de los datos, incluyendo operaciones como el
+            barajado (shuffling), el agrupamiento en lotes (batching) y la pre-carga (prefetching) para optimizar el
+            rendimiento durante el entrenamiento.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1098,11 +1112,7 @@ val_images, val_age, val_gender = load_images_labels(DATASET_PATH, val_image_fil
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python"># Convertimos las imágenes de BGR a RGB (OpenCV carga las imágenes en formato BGR por defecto)
-# train_images = train_images[..., ::-1]
-# val_images = val_images[..., ::-1]
-
-# Creamos un objeto de dataset de tensorflow en base a las imágenes y etiquetas de entrenamiento
+            <pre class="blog-code-block"><code class="language-python"># Creamos un objeto de dataset de tensorflow en base a las imágenes y etiquetas de entrenamiento
 train_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": train_images}, {"age_output":train_age, "gender_output":train_gender}))
 train_ds = train_ds.shuffle(len(train_images)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 
@@ -1115,6 +1125,16 @@ val_ds = val_ds.shuffle(len(val_images)).batch(BATCH_SIZE).prefetch(tf.data.AUTO
         <!-- Sección 12 -->
         <section id="implementing-10">
           <h3 class="blog-paragraph-h3">Aumentación de datos</h3>
+          <p class="blog-paragraph">
+            Aunque no se mencionó este concepto durante la teoría abordada, la aumentación de datos es una técnica
+            crucial en el entrenamiento de modelos de aprendizaje
+            profundo, especialmente cuando se trabaja con conjuntos de datos limitados.
+          </p>
+          <p class="blog-paragraph">
+            Consiste en aplicar transformaciones aleatorias a las imágenes de entrenamiento para crear variaciones
+            adicionales, lo que ayuda a mejorar la generalización del modelo (capacidad de predecir correctamente en
+            datos no vistos), evitando el overfitting.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1135,12 +1155,71 @@ data_augmentation_layers = [
     layers.RandomZoom(0.14) # Aplicar zoom aleatorio hasta 14%
 ]</code></pre>
           </div>
+          <p class="blog-paragraph">
+            En este caso, hemos definido tres técnicas de aumentación: volteo horizontal, rotación aleatoria y zoom
+            aleatorio. Estas transformaciones se aplicarán a las imágenes de entrenamiento durante el proceso de
+            entrenamiento del modelo, ayudando a crear un conjunto de datos más diverso y robusto.
+          </p>
+          <p class="blog-paragraph">
+            Los valores específicos de rotación y zoom también son hiperparámetros que pueden ser ajustados para
+            optimizar el rendimiento del modelo. Por lo que pueden ser incluidos en el proceso de optimización con
+            Optuna como lo mencionamos anteriormente.
+          </p>
+          <p class="blog-paragraph-end">
+            Puedes encontrar todas las técnicas de aumentación disponibles en la documentación de
+            <a href="https://keras.io/api/layers/preprocessing_layers/image_augmentation/" target="_blank"
+              class="blog-paragraph-link">Keras</a>.
+          </p>
         </section>
 
         <!-- Sección 13 -->
         <section id="implementing-11">
           <h3 class="blog-paragraph-h3">Definición de la arquitectura del modelo</h3>
+          <p class="blog-paragraph">
+            Ahora que hemos preparado los datos, es momento de definir la arquitectura de nuestra red neuronal
+            convolucional (CNN). Utilizaremos la API funcional de Keras para crear un modelo con múltiples salidas,
+            una para predecir la edad y otra para predecir el género.
+          </p>
           <h4 class="blog-paragraph-h4">Capas de la rama principal del modelo</h4>
+          <p class="blog-paragraph">
+            Comenzamos definiendo la entrada del modelo, que será una imagen de tamaño 128x128 con 3 canales de color
+            (RGB). Luego, aplicamos las técnicas de aumentación de datos definidas anteriormente.
+          </p>
+          <p class="blog-paragraph">
+            A continuación, definimos la arquitectura principal de la CNN, que consta de varios bloques de capas
+            convolucionales seguidas de capas de normalización por lotes y capas de agrupamiento (pooling) para extraer
+            características relevantes de las imágenes.
+          </p>
+          <p class="blog-paragraph">
+            Cada capa <code class="blog-paragraph-code">layers.Conv2D</code> representa una capa convolucional, donde
+            los
+            valores dentro del parentesis son los hiperparametros mencionados anteriormente. Por ejemplo, en la primera
+            capa
+            convolucional, usamos 64 filtros de tamaño 3x3 con la función de activación ReLU y padding "same" para
+            mantener las dimensiones espaciales de la imagen. Esta misma idea se aplica a las demás capas de la red.
+          </p>
+          <p class="blog-paragraph">
+            ¿Pero notaste que mencionamos a ReLU como hiperparámetro de la capa convolucional?
+          </p>
+          <p class="blog-paragraph">
+            Esta es una capa aparte según lo que vimos en la teoría abordada, pero en Keras se incluye dentro de la
+            definición de la capa convolucional como un hiperparámetro más.
+          </p>
+          <p class="blog-paragraph">
+            Otro punto importante que debemos mencionar es que los valores que van al fin (<code
+              class="blog-paragraph-code">(x)</code> / <code class="blog-paragraph-code">(branch_gender)</code> / <code
+              class="blog-paragraph-code">(branch_age)</code>) de cada capa (Conv2D, MaxPooling2D, Flatten, Dense,
+            Dropout) son la salida de la capa anterior, es decir, la capa sobre la que se aplican los cambios de .
+            la siguiente capa.
+          </p>
+          <p class="blog-quote"><strong>Ejemplo:</strong> La salida de la capa Conv2D (<code
+              class="blog-paragraph-code">x_salida_1</code>) se utiliza como entrada para la
+            capa BatchNormalization:
+            <br>
+            <code class="blog-paragraph-code">x_salida_1 = layers.Conv2D(...)(x_salida_0)</code>
+            <br>
+            <code class="blog-paragraph-code">x_salida_2 = layers.BatchNormalization(...)(x_salida_1)</code>
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1148,7 +1227,7 @@ data_augmentation_layers = [
               <span class="blog-code-block-button-maximize"></span>
               <span class="blog-code-windows-header">python</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python">image_inputs = keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, 3), name="my_images_input") # Definimos la entrada del modelo
+            <pre class="blog-code-block"><code class="language-python">image_inputs = keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS), name="my_images_input") # Definimos la entrada del modelo
 x = data_augmentation(image_inputs) # Aplicamos aumentos de datos
 
 # Definimos la arquitectura principal de la CNN
@@ -1171,11 +1250,20 @@ x = layers.Conv2D(512, (3, 3), activation="relu", padding="same")(x) # Quinta ca
 x = layers.BatchNormalization()(x) # Normalización por lotes
 x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)</code></pre>
           </div>
+          <p class="blog-paragraph">
+            La salida de esta sección servirá como entrada para las dos ramas del modelo, una para predecir la edad y
+            otra para predecir el género.
+          </p>
         </section>
 
         <!-- Sección 14 -->
         <section id="implementing-12">
           <h4 class="blog-paragraph-h4">Capas de la rama de edad</h4>
+          <p class="blog-paragraph">
+            A continuación, definimos la rama del modelo encargada de predecir la edad. Esta rama toma la salida de la
+            arquitectura principal y pasa por varios bloques de capas convolucionales y completamente conectadas antes
+            de generar la predicción final de edad.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1198,11 +1286,20 @@ branch_age = layers.Dense(128, activation="relu")(branch_age) # Capa completamen
 branch_age = layers.Dropout(0.45)(branch_age) # Capa de abandono (dropout) para prevenir sobreajuste
 age_output = layers.Dense(1, activation="linear", name="age_output")(branch_age) # Salida para la predicción de edad</code></pre>
           </div>
+          <p class="blog-paragraph-end">
+            La salida de esta rama es una única neurona con activación lineal, adecuada para un problema de regresión
+            como la predicción de edad.
+          </p>
         </section>
 
         <!-- Sección 15 -->
         <section id="implementing-13">
           <h4 class="blog-paragraph-h4">Capas de la rama de género</h4>
+          <p class="blog-paragraph">
+            Ahora, definimos la rama del modelo encargada de predecir el género. Similar a la rama de edad, esta
+            rama también toma la salida de la arquitectura principal y pasa por varios bloques de capas convolucionales
+            y completamente conectadas antes de generar la predicción final de género.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1225,11 +1322,20 @@ branch_gender = layers.Dense(128, activation="relu")(branch_gender) # Capa compl
 branch_gender = layers.Dropout(0.26871378401366075)(branch_gender) # Capa de abandono (dropout) para prevenir sobreajuste
 gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(branch_gender) # Salida para la predicción de género</code></pre>
           </div>
+          <p class="blog-paragraph-end">
+            La salida de esta rama es una única neurona con activación sigmoide, adecuada para un problema de
+            clasificación binaria como la predicción de género (masculino o femenino).
+          </p>
         </section>
 
         <!-- Sección 16 -->
         <section id="implementing-14">
           <h4 class="blog-paragraph-h4">Entradas y salidas del modelo</h4>
+          <p class="blog-paragraph">
+            Finalmente, definimos el modelo completo especificando las entradas y salidas. Utilizamos la clase
+            <code class="blog-paragraph-code">keras.Model</code> para crear un modelo con múltiples salidas, una para
+            la edad y otra para el género.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1248,6 +1354,11 @@ model = keras.Model(
         <!-- Sección 17 -->
         <section id="implementing-15">
           <h4 class="blog-paragraph-h4">Resumen de la arquitectura del modelo</h4>
+          <p class="blog-paragraph">
+            Podemos imprimir un resumen de la arquitectura del modelo para verificar que todo esté definido
+            correctamente. Esto nos mostrará las capas del modelo, el número de parámetros entrenables y no entrenables,
+            y la forma de las salidas de cada capa. Puedes ver el diagrama en el Colab de este articulo.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1263,6 +1374,10 @@ model = keras.Model(
         <!-- Sección 18 -->
         <section id="implementing-16">
           <h4 class="blog-paragraph-h4">Grafo del modelo</h4>
+          <p class="blog-paragraph">
+            También podemos visualizar la arquitectura del modelo como un grafo, lo que nos ayuda a entender mejor la
+            estructura y las conexiones entre las diferentes capas. Puedes ver el grafo en el Colab de este articulo.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1277,7 +1392,19 @@ model = keras.Model(
 
         <section id="implementing-16">
           <h3 class="blog-paragraph-h3">Definición de hiperparámetros</h3>
+          <p class="blog-paragraph">
+            Antes de entrenar el modelo, necesitamos definir varios hiperparámetros importantes que influirán en el
+            proceso de entrenamiento y en el rendimiento final del modelo. Estos incluyen las funciones de pérdida,
+            los pesos de las pérdidas para cada tarea (edad y género), el optimizador, las métricas de evaluación y los
+            callbacks para el entrenamiento.
+          </p>
           <h4 class="blog-paragraph-h4">Pesos de las pérdidas de edad y género</h4>
+          <p class="blog-paragraph">
+            Dado que estamos abordando un problema de aprendizaje multitarea, es importante asignar pesos adecuados a
+            las pérdidas de cada tarea. En este caso, hemos decidido asignar un peso ligeramente mayor a la pérdida de
+            edad en comparación con la pérdida de género, ya que la predicción de edad puede ser más desafiante y
+            crítica en este contexto.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1296,6 +1423,11 @@ loss_weights = {
 
         <section id="implementing-16">
           <h4 class="blog-paragraph-h4">Optimizador, métricas y callbacks de entrenamiento</h4>
+          <p class="blog-paragraph">
+            Utilizaremos el optimizador Adam, que es ampliamente utilizado en tareas de aprendizaje profundo debido a
+            su capacidad para adaptarse a diferentes tasas de aprendizaje durante el entrenamiento. Además, definiremos
+            las funciones de pérdida y las métricas de evaluación para cada tarea.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1319,10 +1451,21 @@ CALLBACKS = [
     tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=7, min_lr=1e-6, verbose=0),
 ]</code></pre>
           </div>
+          <p class="blog-paragraph-end">
+            Los callbacks definidos incluyen <code class="blog-paragraph-code">EarlyStopping</code> para detener el
+            entrenamiento si la pérdida de validación no mejora después de un número determinado de épocas, y
+            <code class="blog-paragraph-code">ReduceLROnPlateau</code> para reducir la tasa de aprendizaje si la
+            pérdida de validación se estanca.
         </section>
 
         <section id="implementing-16">
           <h3 class="blog-paragraph-h3">Entrenamiento del modelo</h3>
+          <p class="blog-paragraph">
+            Ahora sí, estamos listos para entrenar el modelo utilizando los conjuntos de datos de entrenamiento y
+            validación que preparamos anteriormente. El proceso de entrenamiento implicará alimentar las imágenes y
+            etiquetas al modelo en lotes, ajustar los pesos de la red neuronal mediante retropropagación y evaluar el
+            rendimiento del modelo en el conjunto de validación después de cada época.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1345,6 +1488,12 @@ history = model.fit(train_ds, # Conjunto de datos de entrenamiento
 
         <section id="implementing-16">
           <h3 class="blog-paragraph-h3">Guardar el modelo entrenado</h3>
+          <p class="blog-paragraph">
+            Una vez que el modelo ha sido entrenado, es importante guardar los pesos y la arquitectura del modelo para
+            poder reutilizarlos posteriormente sin necesidad de volver a entrenar desde cero. Keras proporciona una
+            manera sencilla de guardar y cargar modelos completos utilizando el formato HDF5 o el formato nativo de
+            TensorFlow.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1356,7 +1505,7 @@ history = model.fit(train_ds, # Conjunto de datos de entrenamiento
 if not os.path.exists(FOLDER_MODELS):
     os.mkdir(FOLDER_MODELS)
 
-model.save(FOLDER_MODELS+'age-gender.keras') # Guardamos el modelo</code></pre>
+model.save(FOLDER_MODELS+'/age-gender.keras') # Guardamos el modelo</code></pre>
           </div>
         </section>
 
@@ -1364,6 +1513,11 @@ model.save(FOLDER_MODELS+'age-gender.keras') # Guardamos el modelo</code></pre>
 
         <section id="implementing-16">
           <h3 class="blog-paragraph-h3">Visualización de métricas de entrenamiento y validación</h3>
+          <p class="blog-paragraph">
+            Durante el entrenamiento del modelo, es útil visualizar las métricas de rendimiento tanto en el conjunto de
+            entrenamiento como en el conjunto de validación. Esto nos permite monitorear el progreso del modelo y
+            detectar posibles problemas como el sobreajuste (overfitting) o el subajuste (underfitting).
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1407,6 +1561,11 @@ plt.xlabel('epoch')</code></pre>
 
         <section id="implementing-16">
           <h3 class="blog-paragraph-h3">Evaluación del modelo</h3>
+          <p class="blog-paragraph">
+            Por último, evaluamos el rendimiento del modelo en el conjunto de validación utilizando el método
+            <code class="blog-paragraph-code">model.evaluate()</code>. Esto nos proporciona una evaluación objetiva del
+            modelo en datos no vistos durante el entrenamiento.
+          </p>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
@@ -1422,11 +1581,15 @@ plt.xlabel('epoch')</code></pre>
         <section id="demo">
           <h2 class="blog-paragraph-h2">Demo</h2>
           <p class="blog-paragraph">
-            He creado una demo interactiva donde puedes subir una foto y el modelo entrenado te dirá la edad y género
+            Debido a que explicarlo esta bien, pero mostrarlo es mejor, he creado una demo interactiva donde puedes
+            subir una foto y el modelo entrenado te dirá la edad y género
             estimados. Puedes probarla a continuación:
           </p>
+          <p class="mt-4 text-sm text-slate-500 italic border-l-4 border-blue-200 pl-3 bg-blue-50/40 rounded-md mb-4">
+            Las imágenes no se almacenan ni se envían a servidores externos; se procesan en <strong>Hugging
+              Face Space</strong>.
+          </p>
 
-          <!-- Indicador de estado del modelo -->
           <div id="modelStatus" class="mb-6 hidden">
             <!-- El contenido se insertará dinámicamente -->
           </div>
