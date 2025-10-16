@@ -8,6 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastLiH3 = null;
 
     headings.forEach((heading) => {
+        if (heading.hasAttribute("data-no-toc")) {
+            return;
+        }
+
         if (!heading.id) {
             heading.id = heading.textContent
                 .trim()

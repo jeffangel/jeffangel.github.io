@@ -13,9 +13,9 @@
     let selectedImage = null;
     let modelReady = false;
 
-    // Function to wake up the Hugging Face container
+    // Función para despertar el contenedor de Hugging Face
     async function wakeUpHuggingFaceContainer() {
-        // Show loading indicator
+        // Mostrar indicador de carga
         showModelLoadingStatus();
         
         try {
@@ -27,17 +27,17 @@
             );
             
             if (response.ok) {
-                console.log('Health check successful - Container ready');
+                console.log('Health check exitoso - Contenedor listo');
                 modelReady = true;
                 showModelReadyStatus();
             } else {
-                console.log('Health check response not OK - Container starting...');
-                // Retry after 3 seconds
+                console.log('Health check respuesta no OK - Contenedor iniciando...');
+                // Reintentar después de 3 segundos
                 setTimeout(wakeUpHuggingFaceContainer, 3000);
             }
         } catch (error) {
-            console.log('Health check error - Retrying...', error);
-            // Retry after 3 seconds
+            console.log('Health check error - Reintentando...', error);
+            // Reintentar después de 3 segundos
             setTimeout(wakeUpHuggingFaceContainer, 3000);
         }
     }
@@ -50,7 +50,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span class="text-sm font-medium">Model warming up...</span>
+                <span class="text-sm font-medium">Modelo preparándose...</span>
             </div>
         `;
         modelStatus.classList.remove('hidden');
@@ -63,10 +63,10 @@
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span class="text-sm font-medium">Model ready</span>
+                <span class="text-sm font-medium">Modelo listo</span>
             </div>
         `;
-        // Hide after 3 seconds with a smooth transition
+        // Ocultar después de 3 segundos con una transición suave
         setTimeout(() => {
             if (modelStatus) {
                 modelStatus.style.transition = 'opacity 0.5s ease-out';
@@ -83,7 +83,7 @@
         setupDropZoneEvents();
         setupFileInputEvent();
         setupAnalyzeButtonEvent();
-        // Wake up the container when the page loads
+        // Despertar el contenedor al cargar la página
         wakeUpHuggingFaceContainer();
     }
 
@@ -121,7 +121,7 @@
 
     function handleImage(file) {
         if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
-            alert('Please select an image in JPG or PNG format');
+            alert('Por favor, selecciona una imagen en formato JPG o PNG');
             return;
         }
 
@@ -131,7 +131,7 @@
         reader.onload = e => {
             imagePreview.innerHTML = `
        <img src="${e.target.result}" 
-           alt="Loaded image" 
+           alt="Imagen cargada" 
              class="max-w-full max-h-[400px] rounded-lg shadow-md object-contain">
       `;
             analyzeBtn.disabled = false;
@@ -159,18 +159,18 @@
             );
 
             if (!response.ok) {
-                throw new Error(`HTTP Error: ${response.status}`);
+                throw new Error(`Error HTTP: ${response.status}`);
             }
 
             const data = await response.json();
             const predictedAge = data.age;
-            const predictedGender = data.gender === "female" ? 'Female' : 'Male';
+            const predictedGender = data.gender === "female" ? 'Femenino' : 'Masculino';
 
             displayResults(predictedAge, predictedGender);
 
         } catch (error) {
-            console.error('Error analyzing the image:', error);
-            alert('There was a problem processing the image. Please try again.');
+            console.error('Error al analizar la imagen:', error);
+            alert('Hubo un problema al procesar la imagen. Inténtalo nuevamente.');
         } finally {
             setButtonNormalState();
         }
@@ -182,18 +182,18 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
-            Analyzing...
+      Analizando...
     `;
         analyzeBtn.disabled = true;
     }
 
     function setButtonNormalState() {
-        analyzeBtn.innerHTML = `Predict again`;
+    analyzeBtn.innerHTML = `Predecir nuevamente`;
         analyzeBtn.disabled = false;
     }
 
     function displayResults(age, gender) {
-        ageResult.textContent = age;
+    ageResult.textContent = age + ' años';
         genderResult.textContent = gender;
         results.classList.remove('hidden');
     }

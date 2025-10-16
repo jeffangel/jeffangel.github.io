@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Blog de JeffAngel</title>
+  <link href="../../output.css" rel="stylesheet">
+  <link rel="icon" href="../../assets/favicon.png" type="image/png">
+  <link rel="icon" href="../../assets/logo-imagen.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js" defer></script>
+  <script src="../common/mathjax.js" defer></script>
+  <script src="../common/reading-time.js" defer></script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-white/70 backdrop-blur-sm shadow mb-8 sticky top-0 z-50 transition duration-300 ease-in-out">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+
+      <div class="grid grid-cols-[auto,1fr] items-center gap-2">
+        <a href="/">
+          <img src="../../assets/logo-imagen.svg" alt="JeffAngel Logo Icon" class="h-14 w-auto">
+        </a>
+        <a href="/" class="hidden md:flex flex-col justify-center">
+          <img href="/" src="../../assets/logo-text.svg" alt="JeffAngel.AR Text" class="h-8 w-auto mb-1">
+          <span class="text-[12px] text-gray-500 leading-none">
+            Data · AI · ML · MLOps · Cloud
+          </span>
+        </a>
+      </div>
+
+      <div class="space-x-4 text-sm">
+        <a href="/" class="text-gray-600 hover:text-blue-600">Portfolio</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem] gap-8">
+    <!-- Contenido principal -->
+    <main id="inicio" class="prose max-w-none">
+      <article class="bg-white rounded-2xl shadow-lg p-8 md:px-10 lg:px-12 space-y-10 prose prose-slate">
+
+        <header>
+          <h1 class="blog-paragraph-h1">Entrenando una red CNN desde cero</h1>
+          <div class="text-sm text-gray-500 flex items-center space-x-3">
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 
+                 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <time datetime="2025-09-16">15 de octubre de 2025</time>
+            </span>
+
+            <span>·</span>
+
+            <span id="reading-time" class="flex items-center" data-content="main article" data-wpm="200" data-exclude="#close">
+              <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+          </div>
+        </header>
+
+        <!-- Sección 1 -->
+        <section id="overview">
+          <h2 class="blog-paragraph-h2">¿Qué haremos hoy?</h2>
+          <p class="blog-paragraph">
+            En este post, te mostraré uno de los flujos a seguir para entrenar un modelo CNN desde cero donde
+            construiremos una red neuronal convolucional que sea capaz de estimar la edad y sexo de una persona
+            a partir de su imagen facial.
+          </p>
+          <div class="mt-8 flex justify-center mb-5">
+            <img src="../../assets/blog/training-cnn-with-keras-from-scratch/overview-diagram.svg"
+              alt="Overview Diagram">
+          </div>
+          <p class="blog-paragraph">
+            Como fuente de datos utilizaremos un subconjunto de datos de imágenes de rostros extraídos del
+            dataset de Kaggle
+            <a href="https://www.kaggle.com/datasets/jangedoo/utkface-new" target="_blank"
+              class="blog-paragraph-link">UTKFace</a>,
+            sin embargo, el enfoque es aplicable a cualquier conjunto de datos de imágenes.
+          </p>
+          <p class="blog-paragraph-end">
+            Para la creación de esta red neuronal convolucional utilizaremos la API de Keras versión 3, ahora
+            integrado a Tensorflow a partir de la versión 2.0.
+          </p>
+
+        </section>
+
+        <!-- Sección 2 -->
+        <section id="theory">
+          <h2 class="blog-paragraph-h2">Un poco de información...</h2>
+          <p class="blog-paragraph">
+            En esta sección te compartiré algunos conceptos básicos que te ayudarán a entender mejor el
+            desarrollo del modelo.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Red neuronal artificial (ANN)</h3>
+          <p class="blog-paragraph">
+            Una <strong>red neuronal artificial</strong> es un modelo de inteligencia artificial inspirado en cómo
+            funciona el cerebro humano. Aprende de datos para reconocer patrones y tomar decisiones: desde clasificar
+            imágenes hasta predecir tendencias.
+          </p>
+          <p class="blog-paragraph">
+            Dependiendo del problema, existen diferentes <strong>arquitecturas</strong> (topologías). Aquí están las más
+            usadas y una explicación simple de cuándo aplicarlas.
+          </p>
+
+          <h4 class="blog-paragraph-h4">Red neuronal directa (FeedForward)</h4>
+          <p class="blog-paragraph">
+            Las redes directas procesan los datos en un solo sentido: entrada → capas ocultas → salida. No mantienen
+            memoria del pasado, por lo que son ideales para tareas de <em>clasificación</em> y <em>regresión</em> con
+            datos tabulares.
+          </p>
+          <p class="blog-quote"><strong>Ejemplo:</strong> Predecir el precio de una casa usando
+            características (m², habitaciones, ubicación).
+          </p>
+
+          <h4 class="blog-paragraph-h4">Red neuronal recurrente (RNN)</h4>
+          <p class="blog-paragraph">
+            Las RNNs procesa los datos de manera iterativa a través de la misma red, es decir, luego de procesar los
+            datos y obtener la predicción en la capa de salida, esta predicción se envía a la capa de entrada para que
+            la nueva predicción no sea solo influenciada por los nuevos datos, sino también además por el estado
+            anterior de la última predicción.
+          </p>
+          <p class="blog-quote">
+            <strong>Ejemplo:</strong> Previsión de series temporales (ventas diarias) donde el pasado reciente influye
+            en la predicción futura.
+          </p>
+
+          <h4 class="blog-paragraph-h4">Red neuronal convolucional (CNN)</h4>
+          <p class="blog-paragraph">
+            Las CNNs están diseñadas para procesar datos con estructura espacial, sobre todo imágenes. Usan filtros
+            (convoluciones) que detectan patrones locales como bordes, texturas y formas, combinando estos datos en
+            capas profundas para reconocer objetos.
+          </p>
+          <p class="blog-quote"><strong>Ejemplo:</strong> Clasificar imágenes (perro vs. gato) o
+            detectar objetos en una fotografía.
+          </p>
+
+          <p class="blog-paragraph">
+            En esta publicación nos enfocaremos en entender y aplicar la red neuronal convolucional a través de un
+            ejemplo práctico que incluye el código basado en Python.
+          </p>
+          <p class="blog-paragraph-end">
+            Existen arquitecturas más avanzadas como las Redes Generativas Adversariales (GANs) y los Transformers,
+            ampliamente usados en generación de imágenes y en modelos de lenguaje como ChatGPT. No las veremos a detalle
+            aquí, pero si quieres profundizar te recomiendo este artículo de <a
+              href="https://learn.microsoft.com/es-es/azure/machine-learning/concept-deep-learning-vs-machine-learning?view=azureml-api-2#artificial-neural-networks"
+              target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Microsoft</a>.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Desentrañando las CNN</h3>
+          <p class="blog-paragraph">
+            Las redes neuronales convolucionales (CNN) son una clase especial de redes neuronales diseñadas para
+            procesar datos con una estructura de cuadrícula, como imágenes. A diferencia de las redes neuronales
+            tradicionales, que son completamente conectadas, las CNN utilizan capas de convolución para extraer
+            características jerárquicas de los datos de entrada.
+          </p>
+          <p class="blog-paragraph">
+            Las CNN se componen de varios tipos de capas conectados secuencialmente:
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              <strong>Capas de convolución:</strong> Aplican filtros a la entrada para crear mapas de características.
+            </li>
+            <li>
+              <strong>Capas de activación:</strong> Introducen no linealidades en el modelo (ReLU es la más común).
+            </li>
+            <li>
+              <strong>Capas de agrupamiento:</strong> Reducen la dimensionalidad de los mapas de
+              características.
+            </li>
+            <li>
+              <strong>Capas completamente conectadas:</strong> Realizan la clasificación final basándose en las
+              características extraídas.
+            </li>
+          </ul>
+
+          <h4 class="blog-paragraph-h4">Capas de convolución</h4>
+          <p class="blog-paragraph">
+            Estas capas aplican <strong>filtros</strong> o también llamado kernels que se deslizan sobre la imagen de
+            entrada para detectar patrones locales como bordes, texturas y formas.
+          </p>
+          <p class="blog-paragraph">
+            Para comprender plenamente como funcionan estos filtros debemos mencionar a los hiperparametros
+            <strong>kernel size</strong>, <strong>padding</strong> y <strong>stride</strong>.
+          </p>
+          <p class="blog-paragraph">
+            Además, dado que el filtro se define como una matríz, podemos imaginarnos al filtro como una grilla (un
+            tablero de ajedrez pequeño), donde el ancho y alto tienen el mismo tamaño. Aquí entra el primer
+            hiperparámetro: el <strong>kernel size</strong>, el cual define el tamaño del filtro.</p>
+          <p class="blog-paragraph">
+            Por otro lado, como el filtro se desplaza recorriendo la imagen paso a paso, el <strong>padding</strong>
+            hace referencia a la adición de píxeles en los bordes de la imagen. Esto permite que el filtro también pueda
+            analizar las zonas cercanas al borde y que el tamaño de la imagen procesada no se reduzca.
+          </p>
+          <p class="blog-paragraph">
+            Finalmente, el <strong>stride</strong> indica de cuánto en cuánto se mueve el filtro al recorrer la imagen.
+            Si el paso es pequeño, el filtro analiza con más detalle pero genera un resultado más grande; si el paso es
+            mayor, avanza más rápido, resumiendo la información pero con menos precisión. En otras palabras, el stride
+            controla el “ritmo” con el que la red examina la imagen.
+          </p>
+          <p class="blog-paragraph">
+            Todo esto puede sonar quizás un tanto abstracto, por ello, veámoslo con unos ejemplos prácticos.
+          </p>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            En este primer ejemplo podemos ver como trabajaría la capa de convolución con los siguientes
+            hiperparametros:
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
+            </li>
+            <li>
+              <strong>padding</strong>: same, lo que significa que no se agregaron píxeles extra alrededor de la imagen
+              original.
+            </li>
+            <li>
+              <strong>stride</strong>: 1, lo que indica que el filtro avanza de un píxel en un píxel al recorrer la
+              imagen.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="blog-video">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-3x3.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            Bien... ¿y qué pasa si probamos con un <strong>kernel size</strong> más pequeño?
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              <strong>kernel size</strong>: 2x2, es decir, una grilla de 2 unidades de ancho por 2 de alto.
+            </li>
+            <li>
+              <strong>padding</strong>: same, lo que significa que no se agregaron píxeles extra alrededor de la imagen
+              original.
+            </li>
+            <li>
+              <strong>stride</strong>: 1, lo que indica que el filtro avanza de un píxel en un píxel al recorrer
+              la imagen.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="blog-video">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-2x2.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+          <p class="blog-paragraph">
+            En este caso, el <strong>kernel size</strong> se ha reducido a <strong>2x2</strong>, lo que permite capturar
+            características más finas en la imagen. Sin embargo, esto también significa que la capa de convolución
+            tendrá menos información contextual para trabajar, lo que podría afectar la calidad de las características
+            extraídas.
+          </p>
+          <p class="blog-paragraph">
+            Si no está del todo claro hasta ahora, aquí te comparto una analogía rápida: imagina que estás viendo una
+            foto tipo selfie de tu abuela, con un kernel size más grande (de 3x3 o más grande) podrías enfocarte
+            visualizar la frente y los ojos a la vez (y luego otras partes de la foto como la nariz y la boca); mientras
+            que con un kernel size más pequeño (de 2x2) podrías enfocarte en visualizar en algo más concreto como solo
+            el ojo izquierdo del selfie.
+          </p>
+          <p class="blog-paragraph">
+            ¿Notaste la diferencia? Con un kernel size más pequeño es posible ver los detalles de un sector más
+            específico dentro de la imagen, como notar incluso poros o las arrugas alrededor del ojo. Sin embargo, al
+            reducir el tamaño del kernel se pierde información contextual, como notar si el color de ambos ojos son
+            iguales, con un kernel más grande podrías notar esto directamente en una observación.
+          </p>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            Ahora que entendemos la importancia del <strong>kernel size</strong>, veamos qué ocurre al modificar los
+            valores de <strong>padding</strong> y <strong>stride</strong>, y cómo estos hiperparámetros influyen en el
+            funcionamiento de la capa de convolución.
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
+            </li>
+            <li>
+              <strong>padding</strong>: 1, lo que significa que se agrega 1 píxel extra alrededor de la imagen
+              original.
+            </li>
+            <li>
+              <strong>stride</strong>: 2, lo que indica que el filtro avanza de 2 píxeles en 2 píxeles al recorrer
+              la imagen.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="blog-video">
+            <source
+              src="../../assets/blog/training-cnn-with-keras-from-scratch/convolution-layer-3x3_stride_padding.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+
+          <p class="blog-paragraph">
+            En este caso, un <strong>padding</strong> de 1 píxel permite que el filtro también analice las zonas
+            cercanas a los bordes de la imagen. Por otro lado, un <strong>stride</strong> de 2 píxeles hace que el
+            filtro avance más rápido al recorrerla, resumiendo la información obtenida pero sacrificando algo de
+            precisión en los detalles.
+          </p>
+          <p class="blog-paragraph">
+            ¿Entonces cuál es la mejor configuración de estos hiperparámetros? 😲
+          </p>
+          <p class="blog-paragraph">
+            La respuesta es que depende del problema que estés tratando de resolver y de la naturaleza de los datos con
+            los que estás trabajando. Experimentar con diferentes configuraciones y evaluar su impacto en el rendimiento
+            del modelo es clave para encontrar la mejor solución.
+          </p>
+          <p class="blog-paragraph">
+            Puedes explorar con herramientas de exploración de hiperparametros para encontrar el mejor valor para cada
+            uno de tus hiperparámetros, hoy existen muchas alternativas, pero mi favorita es <a
+              href="https://optuna.org/" target="_blank" class="blog-paragraph-link">Optuna</a> por su
+            flexibilidad y facilidad de uso. Se integra con múltiples frameworks/librerías tanto de Machine Learning
+            como de Deep Learning, además de su integración
+            con soluciones de logging y tracking como <a href="https://mlflow.org/" target="_blank"
+              class="blog-paragraph-link">MLFlow</a> y <a href="https://wandb.ai/" target="_blank"
+              class="blog-paragraph-link">Weights & Biases</a>.
+          </p>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            Hasta ahora sabemos como estos hiperparametros afectan la forma en la que la imagen es analizada, pero ¿Qué
+            obtenemos como resultado? 😲
+          </p>
+          <p class="blog-paragraph">
+            El resultado de aplicar una capa de convolución es un conjunto de <strong>mapas de características</strong>
+            (feature maps), que son representaciones simplificadas de la imagen original, destacando las características
+            más relevantes detectadas por los filtros.
+          </p>
+          <p class="blog-paragraph">
+            Sí, leíste bien, <strong>mapas de características</strong>, en plural. Esto se debe a que en una capa de
+            convolución se aplican múltiples filtros (obteniendo un mapa de características por cada filtro), cada uno
+            diseñado para detectar diferentes patrones en la imagen.
+            Por ejemplo, un filtro puede estar enfocado en detectar bordes horizontales, otro en bordes verticales, y
+            así sucesivamente.
+          </p>
+          <p class="blog-paragraph">
+            Cada uno de estos filtros genera su propio mapa de características, pero ¿Cómo la red sabe qué patrones
+            buscar y cuantos filtros usar? 😲
+          </p>
+          <p class="blog-paragraph">
+            Bueno, la búsqueda de patrones se realiza mediante el entrenamiento de la red neuronal y sigue el proceso
+            ya conocido como <strong>backpropagation</strong> a fin de encontrar los pesos de cada mapa de
+            características, no voy a entrar en detalle de esto porque es un capitulo completo explicar su flujo
+            matemático, pero en un próximo video y publicación lo abordaré a detalle; mientras tanto te puedo recomendar
+            <a href="https://www.youtube.com/watch?v=0e0z28wAWfg" target="_blank" class="blog-paragraph-link">este
+              recurso</a> que me
+            ayudó a entender mejor este proceso.
+          </p>
+          <p class="blog-paragraph-end">
+            Por otro lado, la <strong>cantidad de filtros</strong> a usar en cada capa de convolución es otro
+            <strong>hiperparámetro</strong> que debe ser
+            definido por nosotros al momento de crear la arquitectura de la red neuronal. Sí, otro hiperparámetro a
+            definir, pero nada que el amigo Optuna no pueda ayudarnos a optimizar.
+          </p>
+
+          <h4 class="blog-paragraph-h4">Capas de activación</h4>
+          <p class="blog-paragraph">
+            Estas capas aplican <strong>funciones de activación</strong> a los mapas de características generados por
+            las
+            capas de convolución. Su objetivo es introducir no linealidades en el modelo, permitiendo que la red aprenda
+            patrones más complejos.
+          </p>
+          <p class="blog-paragraph">
+            La función de activación más comúnmente utilizada en las capas de activación es <strong>ReLU</strong>
+            (Rectified Linear Unit), que convierte todos los valores negativos a cero, manteniendo los positivos sin
+            cambios. Esto ayuda a acelerar el proceso de entrenamiento y a mitigar el problema del desvanecimiento del
+            gradiente durante el backpropagation.
+          </p>
+          <p class="blog-paragraph">
+            ¿Valores positivos y negativos? ¿De dónde sale eso y qué significa? 😲
+          </p>
+          <p class="blog-paragraph">
+            Debemos recordar que los pixeles de cada imagen se traducen en valores numéricos que representan la
+            intensidad de la luz en diferentes canales de color (por ejemplo, rojo, verde y azul). Estos valores
+            pueden ser positivos o negativos dependiendo de cómo se procesen a través de las capas de la red
+            neuronal. Para entender esto, veamos cómo se visualiza un mapa de características obtenido por la capa
+            de convolución y su equivalente rectificado mediante la función de activación ReLU.
+          </p>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            A continuación, vemos un ejemplo de un mapa de características representado como una <strong>matriz de
+              5x5</strong> obtenida después de una convolución. Luego, aplicamos la función de activación
+            <strong>ReLU</strong>, que revisa cada valor de la matriz.
+          </p>
+          <video autoplay loop muted playsinline class="blog-video">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/relu_activation-layer.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+
+          <p class="blog-paragraph">
+            En este ejemplo, la función de activación <strong>ReLU</strong> (Rectified Linear Unit) toma el mapa de
+            características y convierte todos los valores negativos en <code>0</code>. Esto ayuda a que la red se
+            enfoque solo en la información más importante, mostrando una representación más clara de lo que la imagen
+            contiene.
+          </p>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            ¿ReLU es la única función de activación? 😲
+          </p>
+          <p class="blog-paragraph">
+            ¡No! Existen otras funciones de activación como <strong>Sigmoid</strong>, <strong>Tanh</strong> y variantes
+            de ReLU como <strong>SeLU</strong> o <strong>GeLU</strong>, pero ReLU es la más popular en las CNN debido a
+            su simplicidad y eficacia (brinda buenos resultados solo al convertir valores negativos en <code>0</code>).
+            Sin embargo, la elección de la función de activación puede depender del problema específico que se esté
+            abordando. Puedes explorar más sobre estas funciones en este articulo de <a
+              href="https://developers.google.com/machine-learning/crash-course/neural-networks/activation-functions?hl=es-419"
+              target="_blank" class="blog-paragraph-link">Google
+              Developers</a>.
+          </p>
+          <p class="blog-paragraph-end">
+            En resumen, las capas de activación son cruciales en las CNN porque permiten que la red aprenda patrones
+            complejos y no lineales en los datos, mejorando significativamente su capacidad para reconocer y clasificar
+            imágenes, y además siempre van después de una capa de convolución.
+          </p>
+
+          <h4 class="blog-paragraph-h4">Capas de agrupamiento</h4>
+
+          <p class="blog-paragraph">
+            Estas capas sirven para <strong>reducir el tamaño</strong> de los mapas de características (rectificados),
+            resumiendo la información más importante. De esta forma, la red necesita menos parámetros y cálculos, es
+            decir, menos cómputo requerido para ejecutar el modelo (hacer predicciones en un entorno real). Por otro
+            lado, estas capas también ayudan a evitar el <strong>overfitting</strong> o <strong>sobreajuste</strong>, si
+            estos términos no son familiares para ti, checa este <a
+              href="https://developers.google.com/machine-learning/crash-course/overfitting/overfitting?hl=es-419"
+              target="_blank" class="blog-paragraph-link">blog</a>.
+          </p>
+
+          <p class="blog-quote">
+            <strong>Overfitting</strong> se refiere a la creación de un modelo que coincida (memorice) con el conjunto
+            de entrenamiento de tal manera que no pueda realizar predicciones correctas con datos nuevos. Un modelo
+            sobreajustado es análogo a un invento que funciona bien en el laboratorio, pero que no tiene valor en el
+            mundo real <span class="italic">(Fuente:
+              <a href="https://developers.google.com/machine-learning/crash-course/overfitting/overfitting?hl=es-419"
+                target="_blank" class="blog-paragraph-link">
+                Google Developers</a>)
+            </span>
+          </p>
+          <p class="blog-paragraph">
+            ¿Entonces el overfitting es negociable? 😲
+          </p>
+          <p class="blog-paragraph">
+            ¡No, en todo modelo de Machine Learning o Deep Learning se tiene que evitar!
+          </p>
+          <p class="blog-paragraph">
+            Los mapas de caracteristicas son representaciones simplificadas de la imagen original altamente sensibles,
+            esta sensibilidad se puede traducir en que si intentas predecir una imagen facial donde la nariz ocupa tres
+            pixeles más que la imagen con la que entrenaste el modelo, la predicción puede fallar. ¡Pero son 3 pixeles!
+            ajá, por ello, es importante reducir esta sensibilidad y hacer que el modelo sea más robusto, y las capas de
+            agrupamiento ayudan a lograr esto.
+          </p>
+          <p class="blog-paragraph">
+            Dicho esto, debo mencionarte que las capas de agrupamiento también requieren hiperparametros (similar a la
+            capas de convolución). Además, existen diferentes tipos de capas de agrupamiento, pero las más comunes son
+            <strong>Max Pooling</strong> y <strong>Average Pooling</strong>, entendamos su diferencia con un par de
+            ejemplos.
+          </p>
+
+          <p class="blog-quote">
+            Los hiperparámetros <strong>kernel size</strong> y <strong>stride</strong> se definen de la misma forma que
+            en la <em>capa de convolución</em>, por lo que podemos aprovechar de ese conocimiento directamente.
+          </p>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            En este primer ejemplo podemos ver como trabajaría la capa de agrupamiento con los siguientes
+            hiperparametros:
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
+            </li>
+            <li>
+              <strong>stride</strong>: 1, lo que indica que el filtro avanza de 1 píxel en 1 píxel al recorrer
+              la imagen.
+            </li>
+            <li>
+              <strong>tipo de pooling</strong>: max pooling, que selecciona el valor máximo dentro de la región
+              cubierta por el filtro.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="blog-video">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer_max-pooling.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            Ahora veamos qué ocurre si cambiamos el tipo de pooling a average pooling, manteniendo los mismos
+            hiperparámetros que en el ejemplo anterior:
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              <strong>kernel size</strong>: 3x3, es decir, una grilla de 3 unidades de ancho por 3 de alto.
+            </li>
+            <li>
+              <strong>stride</strong>: 1, lo que indica que el filtro avanza de 1 píxel en 1 píxel al recorrer
+              la imagen.
+            </li>
+            <li>
+              <strong>tipo de pooling</strong>: average pooling, que calcula el valor promedio dentro de la región
+              cubierta por el filtro.
+            </li>
+          </ul>
+          <video autoplay loop muted playsinline class="blog-video">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/pooling-layer_average-pooling.mp4"
+              type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph-end">
+            En resumen, las capas de agrupamiento (pooling) son esenciales en las CNN porque reducen el tamaño de los
+            mapas de características, simplifican la información más relevante y ayudan a que el modelo sea más
+            eficiente y robusto, evitando la sensibilidad excesiva a pequeños cambios en la imagen.
+          </p>
+
+          <h4 class="blog-paragraph-h4">Capas completamente conectadas</h4>
+
+          <p class="blog-paragraph">
+            Estas capas sirven para tomar todas las características extraídas por las capas anteriores y combinarlas
+            para decidir la clase final de la imagen (por ejemplo: perro o gato).
+          </p>
+          <p class="blog-paragraph">
+            Pero... ¿Cómo funciona? 😲
+          </p>
+          <p class="blog-paragraph">
+            Recordemos que las capas de convolución y de agrupamiento ya se encargaron de extraer y resumir
+            características de la imagen: bordes, texturas, colores, formas, y cualquier otra característica visual.
+          </p>
+          <p class="blog-paragraph">
+            Entonces, imagina que tienes una lista de características detectadas, como “pistas” que describen la imagen
+            (valores numéricos como los que aparecen en la animación inferior).
+          </p>
+          <p class="blog-paragraph">
+            Cada característica (\(x_i\)) se conecta con todas las clases posibles mediante un peso (\(w_i\)):
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              <strong>Si la característica es relevante para una clase</strong>, el peso será alto (positivo).
+            </li>
+            <li>
+              <strong>Si la característica no es relevante</strong>, el peso será bajo (cercano a cero o negativo).
+            </li>
+          </ul>
+          <p class="blog-paragraph">
+            De esta forma, cada característica (pista) emite un “voto” con distinta importancia (peso) para cada
+            categoría.
+          </p>
+          <p class="blog-paragraph">
+            Finalmente, la capa completamente conectada suma todos estos votos ponderados para cada clase y aplica
+            una función de activación (como sigmoide o softmax) para convertir estas sumas en probabilidades. La clase
+            con la
+            probabilidad más alta es la predicción final del modelo.
+          </p>
+          <p class="blog-paragraph">
+            Matemáticamente (pero simple):
+          </p>
+          $$
+          p(X) = \sigma \Big(\sum_i x_i w_i + b\Big), \quad
+          \text{donde } \sigma(z) = \frac{1}{1+e^{-z}}
+          $$
+          <p class="blog-paragraph">
+            El cálculo se hace como una suma ponderada de todas las características. Cada característica \(x_i\)
+            se multiplica por su peso \(w_i\), se suman todas junto con un sesgo \(b\), y finalmente se aplica la
+            función sigmoide para convertir el resultado en una probabilidad.
+          </p>
+          <p class="blog-paragraph">
+            Donde:
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              \(p(X)\) es la probabilidad de que la imagen pertenezca a una clase específica (por ejemplo, gato).
+            </li>
+            <li>
+              \(x_i\) son las características extraídas por las capas anteriores.
+            </li>
+            <li>
+              \(w_i\) son los pesos que indican la importancia de cada característica para la clase.
+            </li>
+            <li>
+              \(b\) es un sesgo que ayuda a ajustar la salida.
+            </li>
+            <li>
+              \(\sigma(z)\) es la función sigmoide que convierte el resultado en una probabilidad entre 0 y 1 (para más
+              de 2 clases se utiliza la función softmax).
+            </li>
+          </ul>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            En este ejemplo se muestra cómo una capa completamente conectada toma las características extraídas por las
+            capas
+            anteriores, las aplana y las conecta a todas las posibles clases (en este caso, 2 clases: gato y perro).
+          </p>
+          <p class="blog-paragraph">
+            Las conexiones más fuertes (líneas más remarcadas) indican que esas características son más relevantes para
+            esa clase en particular.
+          </p>
+          <video autoplay loop muted playsinline class="blog-video mb-8 mt-4">
+            <source src="../../assets/blog/training-cnn-with-keras-from-scratch/fc-layer.mp4" type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+          <p class="blog-paragraph">
+            En este ejemplo hemos aplicado la función de activación sigmoide, que es adecuada para problemas de
+            clasificación binaria (dos clases).
+            Si estuviéramos trabajando con múltiples clases (por ejemplo, gato, perro, pájaro), utilizaríamos la función
+            softmax en su lugar.
+          </p>
+          <p class="blog-paragraph">
+            Como se puede observar, la clase con la probabilidad <strong>0.81</strong> más alta (en este caso, perro) es
+            la predicción
+            final
+            del modelo.
+          </p>
+
+          <hr class="blog-example-separator">
+
+          <p class="blog-paragraph">
+            En las capas anteriores hemos hablado de varios hiperparámetros, y las capas completamente conectadas no son
+            la excepción, aquí los más importantes:
+          </p>
+          <ul class="blog-paragraph-list">
+            <li>
+              <strong>Número de neuronas:</strong> Define cuántas unidades (neuronas) tendrá la capa. Más neuronas
+              pueden capturar patrones más complejos, pero también aumentan el riesgo de sobreajuste.
+            </li>
+            <li>
+              <strong>Función de activación:</strong> La elección de la función de activación (ReLU, lineal, sigmoide,
+              softmax,
+              etc.) afecta cómo se procesan las señales dentro de la capa y puede influir en el rendimiento del modelo.
+            </li>
+            <li>
+              <strong>Regularización:</strong> Técnicas como Dropout o L2 regularization ayudan a prevenir el
+              sobreajuste al agregar ruido o penalizar pesos grandes durante el entrenamiento. Puedes leer más sobre
+              esto
+              en este <a
+                href="https://developers.google.com/machine-learning/crash-course/overfitting/regularization?hl=es-419"
+                target="_blank" class="blog-paragraph-link">recurso</a> de Google Developers.
+            </li>
+            <li>
+              <strong>Dropout:</strong> Esta técnica consiste en "apagar" aleatoriamente un porcentaje de neuronas
+              durante el entrenamiento, lo que ayuda a prevenir el sobreajuste. Puedes entender más sobre Dropout en
+              este <a href="https://www.ultralytics.com/es/glossary/dropout-layer" target="_blank"
+                class="blog-paragraph-link">recurso</a> de
+              Ultralytics.
+            </li>
+          </ul>
+          <p class="blog-paragraph">
+            Y ya como anteriormente vimos, estos hiperparámetros pueden ser optimizados usando herramientas como Optuna.
+          </p>
+          <p class="blog-paragraph-end">
+            En resumen, las capas completamente conectadas son cruciales en las CNN porque combinan todas las
+            características extraídas para tomar una decisión final sobre la clase de la imagen, permitiendo que el
+            modelo realice predicciones precisas basadas en la información visual procesada.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Visión global de la CNN</h3>
+
+          <p class="blog-paragraph">
+            Hasta ahora hemos visto las capas principales que componen una CNN, pero ¿Cómo se integran todas estas
+            capas para formar una red completa? Veamos un diagrama general de la arquitectura típica de una CNN.
+          </p>
+          <div class="blog-div-image">
+            <img src="../../assets/blog/training-cnn-with-keras-from-scratch/cnn-architecture.png"
+              alt="Overview Diagram">
+          </div>
+          <p class="blog-paragraph">
+            Como muestra la imagen anterior, el flujo de datos comienza con la imagen de entrada, que pasa por
+            varias capas de convolución y activación para extraer características, seguido de capas de agrupamiento para
+            reducir la dimensionalidad. Finalmente, las características extraídas se aplanan y se pasan a través de
+            capas completamente conectadas para realizar la clasificación final.
+          </p>
+          <p class="blog-paragraph">
+            Pero, ¿Todas las redes CNN deben seguir el esquema especifico mostrado? 😲
+          </p>
+          <p class="blog-paragraph">
+            ¡No, no hay una única receta fija!
+          </p>
+          <p class="blog-paragraph">
+            La arquitectura específica puede variar dependiendo del problema que se esté abordando, la naturaleza de los
+            datos y los objetivos del modelo. Algunas CNN pueden incluir capas adicionales como capas de normalización
+            (Batch Normalization), capas de abandono (Dropout) para prevenir el sobreajuste, o incluso estructuras más
+            complejas como bloques residuales (ResNet) o módulos Inception.
+          </p>
+          <p class="blog-paragraph">
+            La clave está en experimentar con diferentes arquitecturas y evaluar su rendimiento en el conjunto de datos
+            específico para encontrar la configuración que funcione mejor para el problema en cuestión.
+          </p>
+          <p class="blog-paragraph">
+            ¿Y adivina qué? Optuna puede ayudarte con esto también, simplemente tratando cada una de las capas como un
+            hiperparámetro más a optimizar, en la sección del hands-on te mostraré un breve ejemplo de ello.
+          </p>
+          <p class="blog-paragraph">
+            En resumen, una CNN transforma una imagen en una decisión, pasando de píxeles a características y de
+            características a predicciones. Para entender mejor cómo se construyen y entrenan estas redes, en la
+            siguiente sección veremos un ejemplo práctico con Keras.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Keras, la herramienta</h3>
+          <p class="blog-paragraph">
+            Antes de comenzar con la parte práctica, hagamos una breve parada para entender qué es Keras, una de las
+            bibliotecas más usadas para crear modelos de aprendizaje profundo.. Antes de continuar, considero importante
+            mencionar que Keras v3 ofrece 3 formas de crear modelos,
+            puedes consultar el detalle completo en el sitio web de
+            <a href="https://keras.io/api/models/" target="_blank" class="blog-paragraph-link">Keras</a>.
+            Sin embargo, a manera de resumen te comento brevemente la diferencia entre estas:
+          </p>
+          <ol class="list-decimal list-inside text-slate-600 space-y-6 ml-4 mb-6 mt-4">
+            <li><strong>API secuencial:</strong> Forma simple de apilar capas, soporta una sola entrada y
+              salida.
+              <p class="blog-quote mt-2">
+                <strong>Ejemplo:</strong> Predecir el género (1 salida) de una persona a partir de su imagen facial (1
+                entrada).
+              </p>
+              <div class="blog-div-image mt-4 mb-2">
+                <img src="../../assets/blog/training-cnn-with-keras-from-scratch/sequential_diagram.png"
+                  alt="Muestra de imágenes">
+              </div>
+            </li>
+            <li><strong>API funcional:</strong> Permite arquitecturas más personalizables con múltiples
+              entradas y salidas.
+              <p class="blog-quote mt-2">
+                <strong>Ejemplo:</strong> Predecir el género y la edad (2 salidas) de una persona a partir de su imagen
+                facial (1 entrada).
+              </p>
+              <div class="blog-div-image mt-4 mb-2">
+                <img src="../../assets/blog/training-cnn-with-keras-from-scratch/api-functional_diagram.png"
+                  alt="Muestra de imágenes">
+              </div>
+            </li>
+            <li><strong>Sub-clase de modelo:</strong> Permite crear arquitecturas dinámicas que se adaptan
+              a requisitos
+              donde se necesita un mayor control sobre el flujo de datos y la lógica de la red dependiendo del tipo de
+              entrada.
+              <p class="blog-quote mt-2">
+                <strong>Ejemplo:</strong> Agregar capas de convolución y agrupamiento (pooling) condicionalmente,
+                dependiendo
+                del tamaño de la imagen de entrada. Si la imagen es grande, agregar más capas para extraer más
+                características; si es pequeña, usar menos capas para evitar la sobrecarga computacional. Puedes
+                entenderlo como lógicas de flujo condicionales dentro de la arquitectura de la red que potencia las
+                capacidades de las 2 arquitecturas previas. Este enfoque se usa frecuentemente en arquitecturas de
+                investigación o cuando se busca un control total sobre el flujo interno del modelo.
+              </p>
+            </li>
+          </ol>
+          <p class="blog-paragraph-end">
+            Como en este ejemplo vamos a crear una arquitectura que generará dos predicciones de salida (edad y sexo),
+            haremos
+            uso de la API funcional de Keras. Puedes seguir el notebook disponible en
+            <a href="https://colab.research.google.com/drive/1KFUeehzOaWZYCwpD0yH0Spa0o099hkb_#scrollTo=-GRYwLR3vqLz"
+              target="_blank" class="blog-paragraph-link">Google
+              Colab</a>.
+          </p>
+        </section>
+
+        <!-- Sección 3 -->
+        <section id="implementing-1">
+          <h2 class="blog-paragraph-h2">¡Hora de practicar!</h2>
+          <p class="blog-paragraph">
+            Ahora que comprendemos las tres formas de construir modelos con Keras, es momento de poner manos a la obra.
+            En esta sección implementaremos paso a paso una red neuronal convolucional utilizando la API funcional, una
+            basada en la que empleamos en el esquema de predicción de género y edad.
+          </p>
+          <p class="blog-paragraph-end">
+            El objetivo será reproducir el flujo completo: desde la carga de datos hasta la generación de predicciones.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Importación de librerías requeridas</h3>
+          <p class="blog-paragraph">
+            Lo primero es importar las librerías requeridas para este ejercicio. Utilizaremos <code
+              class="blog-paragraph-code">Keras</code> dentro del ecosistema de <code
+              class="blog-paragraph-code">TensorFlow</code>, ya que es la forma recomendada actualmente. Además,
+            utilizaremos <code class="blog-paragraph-code">NumPy</code>, <code
+              class="blog-paragraph-code">Matplotlib</code> y <code class="blog-paragraph-code">OpenCV</code> para la
+            manipulación y visualización de imágenes.</p>
+          <p class="blog-paragraph">
+            Además, dado que estamos en Google Colab, también importamos <code class="blog-paragraph-code">drive</code>
+            de Google Colab y <code class="blog-paragraph-code">os</code> para montar Google Drive y acceder a los
+            archivos.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"> # Librerias de sistema
+import os
+import random
+
+# Librerias para procesamiento
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.utils import plot_model
+
+# Librerias para visualización
+import cv2
+import matplotlib.pyplot as plt
+
+# Libreria para montar Google Drive (solo en Google Colab)
+from google.colab import drive</code></pre>
+          </div>
+          <p class="blog-paragraph">
+            Con estas dependencias listas, ya tenemos todo lo necesario para definir el entorno de trabajo.
+          </p>
+        </section>
+
+        <!-- Sección 4 -->
+        <section id="implementing-2">
+          <h3 class="blog-paragraph-h3">Definición de variables</h3>
+          <p class="blog-paragraph">
+            A continuación, definimos algunas variables que utilizaremos a lo largo del notebook. Estas incluyen la
+            ruta de montaje de Google Drive, la cantidad de imágenes a mostrar, la ruta del conjunto de datos, la ruta
+            para guardar los modelos entrenados, el tamaño del lote, el tamaño de las imágenes, el número de épocas, los
+            canales y el porcentaje de datos
+            a utilizar para entrenamiento.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">MOUNT_POINT = "/content/drive" # Punto de montaje de Google Drive
+DATASET_PATH = "/content/drive/MyDrive/train_val" # Ruta para acceder al conjunto de datos
+FOLDER_MODELS = "/content/drive/MyDrive/models" # Ruta para guardar los modelos entrenados
+IMAGES_TO_DISPLAY = 20 # Número de imágenes a mostrar en la visualización
+BATCH_SIZE = 32 # Tamaño del lote para el entrenamiento
+IMAGE_SIZE = 128 # Tamaño al que se redimensionarán las imágenes
+EPOCHS = 10 # Número de épocas para el entrenamiento
+NUM_CHANNELS = 3 # Número de canales de las imágenes
+TRAINING_PERCENTAGE = 0.8 # Porcentaje de datos a utilizar para entrenamiento</code></pre>
+          </div>
+          <p class="blog-paragraph">
+            Estas variables nos ayudarán a mantener el código organizado y facilitarán cualquier ajuste que necesitemos
+            hacer en el futuro.
+          </p>
+        </section>
+
+        <!-- Sección 5 -->
+        <section id="implementing-3">
+          <h3 class="blog-paragraph-h3">Montar Google Drive</h3>
+          <p class="blog-paragraph">
+            Dado que los datos están almacenados en Google Drive, el siguiente paso es montar Google Drive en el entorno
+            de Colab para poder acceder a los archivos.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">drive.mount(MOUNT_POINT)</code></pre>
+          </div>
+          <p class="blog-paragraph-end">
+            Al ejecutar esto el navegador nos pedirá autorización para acceder a Google Drive, simplemente seguimos las
+            instrucciones en pantalla.
+          </p>
+        </section>
+
+        <!-- Sección 6 -->
+        <section id="implementing-4">
+          <h3 class="blog-paragraph-h3">Visualización de una muestra de imágenes</h3>
+          <p class="blog-paragraph">
+            Este paso es opcional pero recomendable para entender mejor el conjunto de datos con el que
+            trabajaremos.
+          </p>
+          <h4 class="blog-paragraph-h4" data-no-toc>Cargar imágenes a tensorflow dataframe</h4>
+          <p class="blog-paragraph">
+            Ahora que tenemos acceso a los datos, el siguiente paso es cargar una muestra de imágenes del conjunto de
+            datos para visualizarlas y entender mejor qué tipo de imágenes estamos manejando.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">file_names = os.listdir(DATASET_PATH) # Listamos todos los archivos en el directorio del conjunto de datos
+random_images = random.sample(file_names, IMAGES_TO_DISPLAY) # Seleccionamos aleatoriamente 20 imágenes
+images, age_labels, gender_labels = [], [], [] # Creamos listas para imágenes y etiquetas
+
+for image in random_images: # Se itera sobre las imágenes seleccionadas
+    labels = image.split('_') # Extraemos etiquetas de edad y género del nombre del archivo delimitados por '_'
+    image = cv2.imread(os.path.join(DATASET_PATH, image)) # Leemos la imagen usando OpenCV
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # Convertimos de BGR a RGB
+
+    age_label = int(labels[0]) # La edad es la primera parte del nombre del archivo
+    gender_label = int(labels[1]) # El género es la segunda parte del nombre del archivo
+
+    age_labels.append(age_label) # Agregamos la etiqueta de edad a la lista
+    gender_labels.append(gender_label) # Agregamos la etiqueta de género a la lista
+    images.append(image) # Agregamos la imagen a la lista
+
+# Convertimos las listas a arreglos de NumPy para cargarlos en tensorflow dataset
+images_sample = np.array(images, dtype=np.int32)
+age_sample = np.array(age_labels, dtype=np.int32)
+gender_sample = np.array(gender_labels, dtype=np.int32)
+
+# Creamos un objeto de dataset de tensorflow en base a las muestras
+sample_ds = tf.data.Dataset.from_tensor_slices((images_sample, age_sample, gender_sample))
+sample_ds = sample_ds.shuffle(len(images_sample)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)</code></pre>
+          </div>
+          <p class="blog-paragraph">
+            Aquí, seleccionamos aleatoriamente un conjunto de imágenes del directorio del conjunto de datos, las
+            leemos y convertimos a formato RGB (ya que OpenCV las lee en formato BGR por defecto). Además, extraemos
+            las etiquetas de edad y género de los nombres de los archivos, ya que sabemos que el formato del nombre es
+            <code class="blog-paragraph-code">edad_genero_raza_id-unico.jpg</code>.
+          </p>
+
+          <p class="blog-quote">
+            Por ejemplo, un archivo llamado <code class="blog-paragraph-code">25_0_3_123432323235.jpg</code> indica que
+            la
+            persona en la imagen tiene 25 años y es de género femenino (1). De igual forma, un archivo llamado
+            <code class="blog-paragraph-code">30_1_4_23231267890.jpg</code> indica que la persona tiene 30 años y es de
+            género
+            masculino (0).
+          </p>
+          <p class="blog-paragraph-end">
+            Finalmente, convertimos las listas de imágenes y etiquetas en arreglos de NumPy y creamos un
+            <code class="blog-paragraph-code">tf.data.Dataset</code> para facilitar la manipulación y el procesamiento
+            de los datos.
+          </p>
+          <h4 class="blog-paragraph-h4" data-no-toc>Previsualización de imágenes cargadas</h4>
+          <p class="blog-paragraph">
+            Finalmente, visualizamos las imágenes cargadas junto con sus etiquetas de edad y género para asegurarnos de
+            que se han cargado correctamente.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">plt.figure(figsize=(15, 12)) # Configuramos el tamaño de la figura
+for image, age, gender in sample_ds.take(1):  # Tomamos un lote del dataset
+    for i in range(IMAGES_TO_DISPLAY): # Iteramos sobre las imágenes del lote
+        ax = plt.subplot(4, 5, i + 1) # Creamos un subplot para cada imagen
+        plt.imshow(np.array(image[i]).astype("uint8")) # Mostramos la imagen
+        plt.title(f"Age: {int(age[i])} // Gender: {int(gender[i])}") # Imprimimos el título con edad y género
+        plt.axis("off")</code></pre>
+          </div>
+          <p class="blog-paragraph">
+            Como podemos observar, las imágenes se han cargado correctamente, y las etiquetas de edad y género
+            coinciden con las imágenes mostradas. Esto confirma que estamos listos para proceder con el preprocesamiento
+            y entrenamiento del modelo.
+          </p>
+          <div class="blog-div-image mt-8">
+            <img src="../../assets/blog/training-cnn-with-keras-from-scratch/faces.png" alt="Muestra de imágenes"
+              class="w-full rounded-lg shadow-md">
+          </div>
+        </section>
+
+        <!-- Sección 8 -->
+        <section id="implementing-6">
+          <h3 class="blog-paragraph-h3">Particionar el conjunto de datos</h3>
+          <p class="blog-paragraph">
+            Ahora que hemos visualizado una muestra de las imágenes, el siguiente paso es dividir el conjunto de datos
+            en conjuntos de entrenamiento y validación. Esto es crucial para evaluar el rendimiento del modelo durante
+            el entrenamiento y asegurarnos de no caer en overfitting.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">all_image_files = [file for file in os.listdir(DATASET_PATH) if file.lower().endswith(('.jpg'))] # Listamos todos los archivos de imagen en el directorio del conjunto de datos
+random.seed(0) # Fijamos una semilla para reproducibilidad del shuffle
+random.shuffle(all_image_files) # Mezclamos aleatoriamente los archivos de imagen
+
+total_images = len(all_image_files) # Contamos el número total de imágenes
+train_end = int(total_images * TRAINING_PERCENTAGE) # Calculamos el índice para dividir el conjunto de datos
+
+# Separamos los archivos en conjuntos de entrenamiento y validación
+train_image_files = all_image_files[:train_end] # Archivos de imagen para entrenamiento
+val_image_files = all_image_files[train_end:] # Archivos de imagen para validación </code></pre>
+          </div>
+          <p class="blog-paragraph-end">
+            Aquí, listamos todos los archivos de imagen en el directorio del conjunto de datos y los mezclamos
+            aleatoriamente para asegurar que la división sea representativa. Luego, calculamos el índice para dividir el
+            conjunto de datos según el porcentaje definido para entrenamiento (80% en este caso) y separamos los
+            archivos
+            en conjuntos de entrenamiento y validación.
+          </p>
+        </section>
+
+        <!-- Sección 9 -->
+        <section id="implementing-7">
+          <h3 class="blog-paragraph-h3">Segmentación de datos</h3>
+          <p class="blog-paragraph">
+            A continuación, definimos una función para cargar las imágenes y sus etiquetas (edad y género) desde los
+            nombres de archivo. Esta función leerá cada imagen, la convertirá a formato RGB, la normalizará y extraerá
+            las etiquetas de edad y género del nombre del archivo.
+          </p>
+          <h4 class="blog-paragraph-h4" data-no-toc>Leer y procesar imagenes y etiquetas</h4>
+          <p class="blog-paragraph">
+            La función <code class="blog-paragraph-code">load_images_labels</code> toma como entrada la ruta del
+            conjunto de datos y una lista de nombres de archivo. Devuelve tres arreglos de NumPy: uno con las imágenes
+            procesadas, otro con las etiquetas de edad y otro con las etiquetas de género.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Definimos una función para cargar imágenes y sus etiquetas (edad y género) desde los nombres de archivo
+def load_images_labels(dataset_path, filenames):
+  images, age_labels, gender_labels = [], [], [] # Creamos listas para imágenes y etiquetas
+
+  for current_file_name in filenames: # Se itera sobre los nombres de archivo proporcionados
+    image = cv2.imread(os.path.join(dataset_path, current_file_name)) # Leemos la imagen usando OpenCV
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # Convertimos de BGR a RGB
+    image = image / 255.0  # Normalizamos la imagen a [0, 1] como práctica recomendada
+    labels = current_file_name.split('_') # Extraemos las etiquetas de edad y género del nombre del archivo
+    age_label = int(labels[0]) # La edad es la primera parte del nombre del archivo
+    gender_label = int(labels[1]) # El género es la segunda parte del nombre del archivo
+
+    age_labels.append(age_label) # Agregamos la etiqueta de edad a la lista
+    gender_labels.append(gender_label) # Agregamos la etiqueta de género a la lista
+    images.append(image) # Agregamos la imagen a la lista
+
+  # Convertimos las listas a arreglos de NumPy para cargarlos en tensorflow dataset
+  images = np.array(images) 
+  age_labels = np.array(age_labels)
+  gender_labels = np.array(gender_labels)
+  
+  return images, age_labels, gender_labels</code></pre>
+          </div>
+        </section>
+
+        <!-- Sección 10 -->
+        <section id="implementing-8">
+          <h4 class="blog-paragraph-h4" data-no-toc>Cargar datos a memoria</h4>
+          <p class="blog-paragraph">
+            Ahora, utilizamos la función definida anteriormente para cargar las imágenes y sus etiquetas tanto para el
+            conjunto de entrenamiento como para el conjunto de validación.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Llamamos a la función para cargar imágenes y etiquetas de entrenamiento en memoria
+train_images, train_age, train_gender = load_images_labels(DATASET_PATH, train_image_files)
+
+# Llamamos a la función para cargar imágenes y etiquetas de validación en memoria
+val_images, val_age, val_gender = load_images_labels(DATASET_PATH, val_image_files)</code></pre>
+          </div>
+        </section>
+
+        <!-- Sección 11 -->
+        <section id="implementing-9">
+          <h4 class="blog-paragraph-h4" data-no-toc>Crear objetos de TensorFlow dataset</h4>
+          <p class="blog-paragraph">
+            Finalmente, convertimos los arreglos de imágenes y etiquetas en objetos <code
+              class="blog-paragraph-code">tf.data.Dataset</code> para facilitar su manipulación durante el entrenamiento
+            del modelo. Estos objetos permiten un manejo eficiente de los datos, incluyendo operaciones como el
+            barajado (shuffling), el agrupamiento en lotes (batching) y la pre-carga (prefetching) para optimizar el
+            rendimiento durante el entrenamiento.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Creamos un objeto de dataset de tensorflow en base a las imágenes y etiquetas de entrenamiento
+train_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": train_images}, {"age_output":train_age, "gender_output":train_gender}))
+train_ds = train_ds.shuffle(len(train_images)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
+
+# Creamos un objeto de dataset de tensorflow en base a las imágenes y etiquetas de validación
+val_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": val_images}, {"age_output":val_age, "gender_output":val_gender}))
+val_ds = val_ds.shuffle(len(val_images)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)</code></pre>
+          </div>
+        </section>
+
+        <!-- Sección 12 -->
+        <section id="implementing-10">
+          <h3 class="blog-paragraph-h3">Aumentación de datos</h3>
+          <p class="blog-paragraph">
+            Aunque no se mencionó este concepto durante la teoría abordada, la aumentación de datos es una técnica
+            crucial en el entrenamiento de modelos de aprendizaje
+            profundo, especialmente cuando se trabaja con conjuntos de datos limitados.
+          </p>
+          <p class="blog-paragraph">
+            Consiste en aplicar transformaciones aleatorias a las imágenes de entrenamiento para crear variaciones
+            adicionales, lo que ayuda a mejorar la generalización del modelo (capacidad de predecir correctamente en
+            datos no vistos), evitando el overfitting.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Definimos una función para aplicar aumentos de datos a las imágenes
+def data_augmentation(images):
+    for layer in data_augmentation_layers:
+        images = layer(images)
+    return images
+
+# Definimos las técnicas de aumento de datos que aplicaremos
+data_augmentation_layers = [
+    layers.RandomFlip("horizontal"), # Voltear horizontalmente
+    layers.RandomRotation(0.1), # Rotar aleatoriamente hasta 10%
+    layers.RandomZoom(0.14) # Aplicar zoom aleatorio hasta 14%
+]</code></pre>
+          </div>
+          <p class="blog-paragraph">
+            En este caso, hemos definido tres técnicas de aumentación: volteo horizontal, rotación aleatoria y zoom
+            aleatorio. Estas transformaciones se aplicarán a las imágenes de entrenamiento durante el proceso de
+            entrenamiento del modelo, ayudando a crear un conjunto de datos más diverso y robusto.
+          </p>
+          <p class="blog-paragraph">
+            Los valores específicos de rotación y zoom también son hiperparámetros que pueden ser ajustados para
+            optimizar el rendimiento del modelo. Por lo que pueden ser incluidos en el proceso de optimización con
+            Optuna como lo mencionamos anteriormente.
+          </p>
+          <p class="blog-paragraph-end">
+            Puedes encontrar todas las técnicas de aumentación disponibles en la documentación de
+            <a href="https://keras.io/api/layers/preprocessing_layers/image_augmentation/" target="_blank"
+              class="blog-paragraph-link">Keras</a>.
+          </p>
+        </section>
+
+        <!-- Sección 13 -->
+        <section id="implementing-11">
+          <h3 class="blog-paragraph-h3">Definición de la arquitectura del modelo</h3>
+          <p class="blog-paragraph">
+            Ahora que hemos preparado los datos, es momento de definir la arquitectura de nuestra red neuronal
+            convolucional (CNN). Utilizaremos la API funcional de Keras para crear un modelo con múltiples salidas,
+            una para predecir la edad y otra para predecir el género.
+          </p>
+          <h4 class="blog-paragraph-h4" data-no-toc>Capas de la rama principal del modelo</h4>
+          <p class="blog-paragraph">
+            Comenzamos definiendo la entrada del modelo, que será una imagen de tamaño 128x128 con 3 canales de color
+            (RGB). Luego, aplicamos las técnicas de aumentación de datos definidas anteriormente.
+          </p>
+          <p class="blog-paragraph">
+            A continuación, definimos la arquitectura principal de la CNN, que consta de varios bloques de capas
+            convolucionales seguidas de capas de normalización por lotes y capas de agrupamiento (pooling) para extraer
+            características relevantes de las imágenes.
+          </p>
+          <p class="blog-paragraph">
+            Cada capa <code class="blog-paragraph-code">layers.Conv2D</code> representa una capa convolucional, donde
+            los
+            valores dentro del parentesis son los hiperparametros mencionados anteriormente. Por ejemplo, en la primera
+            capa
+            convolucional, usamos 64 filtros de tamaño 3x3 con la función de activación ReLU y padding "same" para
+            mantener las dimensiones espaciales de la imagen. Esta misma idea se aplica a las demás capas de la red.
+          </p>
+          <p class="blog-paragraph">
+            ¿Pero notaste que mencionamos a ReLU como hiperparámetro de la capa convolucional?
+          </p>
+          <p class="blog-paragraph">
+            Esta es una capa aparte según lo que vimos en la teoría abordada, pero en Keras se incluye dentro de la
+            definición de la capa convolucional como un hiperparámetro más.
+          </p>
+          <p class="blog-paragraph">
+            Otro punto importante que debemos mencionar es que los valores que van al fin (<code
+              class="blog-paragraph-code">(x)</code> / <code class="blog-paragraph-code">(branch_gender)</code> / <code
+              class="blog-paragraph-code">(branch_age)</code>) de cada capa (Conv2D, MaxPooling2D, Flatten, Dense,
+            Dropout) son la salida de la capa anterior, es decir, la capa sobre la que se aplican los cambios de .
+            la siguiente capa.
+          </p>
+          <p class="blog-quote"><strong>Ejemplo:</strong> La salida de la capa Conv2D (<code
+              class="blog-paragraph-code">x_salida_1</code>) se utiliza como entrada para la
+            capa BatchNormalization:
+            <br>
+            <code class="blog-paragraph-code">x_salida_1 = layers.Conv2D(...)(x_salida_0)</code>
+            <br>
+            <code class="blog-paragraph-code">x_salida_2 = layers.BatchNormalization(...)(x_salida_1)</code>
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">image_inputs = keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS), name="my_images_input") # Definimos la entrada del modelo
+x = data_augmentation(image_inputs) # Aplicamos aumentos de datos
+
+# Definimos la arquitectura principal de la CNN
+## Bloque de extracción de características 1
+x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Primera capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Segunda capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)
+
+## Bloque de extracción de características 2
+x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Tercera capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Cuarta capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)
+
+## Bloque de extracción de características 3
+x = layers.Conv2D(512, (3, 3), activation="relu", padding="same")(x) # Quinta capa convolucional
+x = layers.BatchNormalization()(x) # Normalización por lotes
+x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)</code></pre>
+          </div>
+          <p class="blog-paragraph">
+            La salida de esta sección servirá como entrada para las dos ramas del modelo, una para predecir la edad y
+            otra para predecir el género.
+          </p>
+        </section>
+
+        <!-- Sección 14 -->
+        <section id="implementing-12">
+          <h4 class="blog-paragraph-h4" data-no-toc>Capas de la rama de edad</h4>
+          <p class="blog-paragraph">
+            A continuación, definimos la rama del modelo encargada de predecir la edad. Esta rama toma la salida de la
+            arquitectura principal y pasa por varios bloques de capas convolucionales y completamente conectadas antes
+            de generar la predicción final de edad.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre
+              class="blog-code-block"><code class="language-python"># Rama para predicción de edad
+## Bloque de extracción de características para edad
+branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(x) # Primera capa convolucional
+branch_age = layers.BatchNormalization()(branch_age) # Normalización por lotes
+branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(branch_age) # Segunda capa convolucional
+branch_age = layers.BatchNormalization()(branch_age) # Normalización por lotes
+branch_age = layers.MaxPooling2D((2, 2))(branch_age) # Capa de agrupamiento (pooling)
+
+## Bloque para predicción de edad
+branch_age = layers.Flatten()(branch_age) # Aplanamiento
+branch_age = layers.Dense(128, activation="relu")(branch_age) # Capa completamente conectada
+branch_age = layers.Dropout(0.45)(branch_age) # Capa de abandono (dropout) para prevenir sobreajuste
+age_output = layers.Dense(1, activation="linear", name="age_output")(branch_age) # Salida para la predicción de edad</code></pre>
+          </div>
+          <p class="blog-paragraph-end">
+            La salida de esta rama es una única neurona con activación lineal, adecuada para un problema de regresión
+            como la predicción de edad.
+          </p>
+        </section>
+
+        <!-- Sección 15 -->
+        <section id="implementing-13">
+          <h4 class="blog-paragraph-h4" data-no-toc>Capas de la rama de género</h4>
+          <p class="blog-paragraph">
+            Ahora, definimos la rama del modelo encargada de predecir el género. Similar a la rama de edad, esta
+            rama también toma la salida de la arquitectura principal y pasa por varios bloques de capas convolucionales
+            y completamente conectadas antes de generar la predicción final de género.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre
+              class="blog-code-block"><code class="language-python"># Rama para predicción de género
+## Bloque de extracción de características para género
+branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x) # Primera capa convolucional
+branch_gender = layers.BatchNormalization()(branch_gender) # Normalización por lotes
+branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(branch_gender) # Segunda capa convolucional
+branch_gender = layers.BatchNormalization()(branch_gender) # Normalización por lotes
+branch_gender = layers.MaxPooling2D((2, 2))(branch_gender) # Capa de agrupamiento (pooling)
+
+## Bloque para predicción de género
+branch_gender = layers.Flatten()(branch_gender) # Aplanamiento
+branch_gender = layers.Dense(128, activation="relu")(branch_gender) # Capa completamente conectada
+branch_gender = layers.Dropout(0.26871378401366075)(branch_gender) # Capa de abandono (dropout) para prevenir sobreajuste
+gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(branch_gender) # Salida para la predicción de género</code></pre>
+          </div>
+          <p class="blog-paragraph-end">
+            La salida de esta rama es una única neurona con activación sigmoide, adecuada para un problema de
+            clasificación binaria como la predicción de género (masculino o femenino).
+          </p>
+        </section>
+
+        <!-- Sección 16 -->
+        <section id="implementing-14">
+          <h4 class="blog-paragraph-h4" data-no-toc>Entradas y salidas del modelo</h4>
+          <p class="blog-paragraph">
+            Finalmente, definimos el modelo completo especificando las entradas y salidas. Utilizamos la clase
+            <code class="blog-paragraph-code">keras.Model</code> para crear un modelo con múltiples salidas, una para
+            la edad y otra para el género.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Definimos el modelo con entradas y salidas múltiples
+model = keras.Model(
+    inputs=[image_inputs],
+    outputs=[age_output, gender_output]
+)</code></pre>
+          </div>
+        </section>
+
+        <!-- Sección 17 -->
+        <section id="implementing-15">
+          <h4 class="blog-paragraph-h4" data-no-toc>Resumen de la arquitectura del modelo</h4>
+          <p class="blog-paragraph">
+            Podemos imprimir un resumen de la arquitectura del modelo para verificar que todo esté definido
+            correctamente. Esto nos mostrará las capas del modelo, el número de parámetros entrenables y no entrenables,
+            y la forma de las salidas de cada capa. Puedes ver el diagrama en el Colab de este articulo.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre
+              class="blog-code-block"><code class="language-python">model.summary() # Imprimimos el resumen del modelo</code></pre>
+          </div>
+        </section>
+
+        <!-- Sección 18 -->
+        <section id="implementing-16">
+          <h4 class="blog-paragraph-h4" data-no-toc>Grafo del modelo</h4>
+          <p class="blog-paragraph">
+            También podemos visualizar la arquitectura del modelo como un grafo, lo que nos ayuda a entender mejor la
+            estructura y las conexiones entre las diferentes capas. Puedes ver el grafo en el Colab de este articulo.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre
+              class="blog-code-block"><code class="language-python">plot_model(model, show_shapes=True, dpi=100) # Visualizamos la arquitectura del modelo</code></pre>
+          </div>
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Definición de hiperparámetros</h3>
+          <p class="blog-paragraph">
+            Antes de entrenar el modelo, necesitamos definir varios hiperparámetros importantes que influirán en el
+            proceso de entrenamiento y en el rendimiento final del modelo. Estos incluyen las funciones de pérdida,
+            los pesos de las pérdidas para cada tarea (edad y género), el optimizador, las métricas de evaluación y los
+            callbacks para el entrenamiento.
+          </p>
+          <h4 class="blog-paragraph-h4" data-no-toc>Pesos de las pérdidas de edad y género</h4>
+          <p class="blog-paragraph">
+            Dado que estamos abordando un problema de aprendizaje multitarea, es importante asignar pesos adecuados a
+            las pérdidas de cada tarea. En este caso, hemos decidido asignar un peso ligeramente mayor a la pérdida de
+            edad en comparación con la pérdida de género, ya que la predicción de edad puede ser más desafiante y
+            crítica en este contexto.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">loss_weight_gender = 0.6940071116394927 # Peso para la pérdida de género
+loss_weight_age = 1.0 - loss_weight_gender # Peso para la pérdida de edad
+loss_weights = {
+    "age_output": loss_weight_age,
+    "gender_output": loss_weight_gender
+}</code></pre>
+          </div>
+        </section>
+
+        <section id="implementing-16">
+          <h4 class="blog-paragraph-h4" data-no-toc>Optimizador, métricas y callbacks de entrenamiento</h4>
+          <p class="blog-paragraph">
+            Utilizaremos el optimizador Adam, que es ampliamente utilizado en tareas de aprendizaje profundo debido a
+            su capacidad para adaptarse a diferentes tasas de aprendizaje durante el entrenamiento. Además, definiremos
+            las funciones de pérdida y las métricas de evaluación para cada tarea.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python">optimizer = keras.optimizers.Adam(learning_rate=1e-4) # Definimos el optimizador Adam con una tasa de aprendizaje de 0.0001
+
+# Compilamos el modelo con múltiples pérdidas y métricas
+model.compile(
+    optimizer=optimizer,
+    loss={"age_output": keras.losses.Huber(delta=5.0), "gender_output": "binary_crossentropy"},
+    loss_weights=loss_weights,
+    metrics={"age_output": "mae", "gender_output": "accuracy"}
+)
+
+# Definimos los callbacks para el entrenamiento
+CALLBACKS = [
+    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.01, patience=10, mode='auto', restore_best_weights=True),
+    tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=7, min_lr=1e-6, verbose=0),
+]</code></pre>
+          </div>
+          <p class="blog-paragraph-end">
+            Los callbacks definidos incluyen <code class="blog-paragraph-code">EarlyStopping</code> para detener el
+            entrenamiento si la pérdida de validación no mejora después de un número determinado de épocas, y
+            <code class="blog-paragraph-code">ReduceLROnPlateau</code> para reducir la tasa de aprendizaje si la
+            pérdida de validación se estanca.
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Entrenamiento del modelo</h3>
+          <p class="blog-paragraph">
+            Ahora sí, estamos listos para entrenar el modelo utilizando los conjuntos de datos de entrenamiento y
+            validación que preparamos anteriormente. El proceso de entrenamiento implicará alimentar las imágenes y
+            etiquetas al modelo en lotes, ajustar los pesos de la red neuronal mediante retropropagación y evaluar el
+            rendimiento del modelo en el conjunto de validación después de cada época.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Entrenamos el modelo
+history = model.fit(train_ds, # Conjunto de datos de entrenamiento
+                    batch_size=BATCH_SIZE, # Tamaño del lote
+                    epochs=EPOCHS, # Número de épocas
+                    callbacks=CALLBACKS, # Callbacks definidos anteriormente
+                    validation_data=val_ds, # Conjunto de datos de validación
+                    verbose=1 # Mostrar el progreso del entrenamiento
+                    )</code></pre>
+          </div>
+        </section>
+
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Guardar el modelo entrenado</h3>
+          <p class="blog-paragraph">
+            Una vez que el modelo ha sido entrenado, es importante guardar los pesos y la arquitectura del modelo para
+            poder reutilizarlos posteriormente sin necesidad de volver a entrenar desde cero. Keras proporciona una
+            manera sencilla de guardar y cargar modelos completos utilizando el formato HDF5 o el formato nativo de
+            TensorFlow.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Creamos un directorio para guardar el modelo si no existe
+if not os.path.exists(FOLDER_MODELS):
+    os.mkdir(FOLDER_MODELS)
+
+model.save(FOLDER_MODELS+'/age-gender.keras') # Guardamos el modelo</code></pre>
+          </div>
+        </section>
+
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Métricas de entrenamiento y validación</h3>
+          <p class="blog-paragraph">
+            Durante el entrenamiento del modelo, es útil visualizar las métricas de rendimiento tanto en el conjunto de
+            entrenamiento como en el conjunto de validación. Esto nos permite monitorear el progreso del modelo y
+            detectar posibles problemas como el sobreajuste (overfitting) o el subajuste (underfitting).
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-python"># Visualizamos las métricas de entrenamiento y validación
+fig = plt.figure(figsize=(15, 10))
+fig.add_subplot(2,2,1)
+plt.plot(history.history['gender_output_loss'], label='train gender loss')
+plt.plot(history.history['val_gender_output_loss'], label='val gender loss')
+plt.legend()
+plt.grid(True)
+plt.ylim([0,1.0])
+plt.xlabel('epoch')
+
+fig.add_subplot(2,2,2)
+plt.plot(history.history['gender_output_accuracy'], label='train gender accuracy')
+plt.plot(history.history['val_gender_output_accuracy'], label='val gender accuracy')
+plt.legend()
+plt.grid(True)
+plt.ylim([0,1.0])
+plt.xlabel('epoch')
+
+fig.add_subplot(2,2,3)
+plt.plot(history.history['age_output_loss'], label='train age loss')
+plt.plot(history.history['val_age_output_loss'], label='val age loss')
+plt.legend()
+plt.grid(True)
+plt.xlabel('epoch')
+
+fig.add_subplot(2,2,4)
+plt.plot(history.history['age_output_mae'], label='train age mae')
+plt.plot(history.history['val_age_output_mae'], label='val age mae')
+plt.legend()
+plt.grid(True)
+plt.xlabel('epoch')</code></pre>
+          </div>
+        </section>
+
+        <section id="implementing-16">
+          <h3 class="blog-paragraph-h3">Evaluación del modelo</h3>
+          <p class="blog-paragraph">
+            Por último, evaluamos el rendimiento del modelo en el conjunto de validación utilizando el método
+            <code class="blog-paragraph-code">model.evaluate()</code>. Esto nos proporciona una evaluación objetiva del
+            modelo en datos no vistos durante el entrenamiento.
+          </p>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">python</span>
+            </div>
+            <pre
+              class="blog-code-block"><code class="language-python">print(model.evaluate(val_ds)) # Evaluamos el modelo en el conjunto de validación</code></pre>
+          </div>
+        </section>
+
+        <section id="demo">
+          <h2 class="blog-paragraph-h2">Demo</h2>
+          <p class="blog-paragraph">
+            Debido a que explicarlo esta bien, pero mostrarlo es mejor, he creado una demo interactiva donde puedes
+            subir una foto y el modelo entrenado te dirá la edad y género
+            estimados. Puedes probarla a continuación:
+          </p>
+          <p class="mt-4 text-sm text-slate-500 italic border-l-4 border-blue-200 pl-3 bg-blue-50/40 rounded-md mb-4">
+            Las imágenes no se almacenan ni se envían a servidores externos; se procesan en <strong>Hugging
+              Face Space</strong>.
+          </p>
+
+          <div id="modelStatus" class="mb-6 hidden">
+            <!-- El contenido se insertará dinámicamente -->
+          </div>
+
+          <div class="demo-div">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+              <div class="demo-panel-div">
+                <h3 class="blog-paragraph-h3 flex items-center mb-4" data-no-toc>
+                  <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  Subir Imagen
+                </h3>
+
+                <div id="dropZone" class="demo-drop-zone">
+                  <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                  </svg>
+                  <p class="text-gray-600 mb-2">Arrastra una imagen aquí o haz clic para seleccionar</p>
+                  <p class="text-sm text-gray-400">Formatos soportados: JPG, PNG</p>
+                  <input type="file" id="imageInput" accept="image/jpeg,image/png" class="hidden">
+                </div>
+
+                <button id="analyzeBtn"
+                  class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
+                  Realizar predicción
+                </button>
+              </div>
+
+              <div class="demo-panel-div">
+                <h3 class="blog-paragraph-h3 flex items-center mb-4" data-no-toc>
+                  <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                    </path>
+                  </svg>
+                  Vista Previa
+                </h3>
+
+                <div id="imagePreview" class="demo-image-preview-zone">
+                  <div class="text-center text-gray-400">
+                    <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                      </path>
+                    </svg>
+                    <p>La imagen aparecerá aquí</p>
+                  </div>
+                </div>
+
+                <div id="results" class="mt-5 hidden transition-all duration-300">
+                  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                    <h4 class="flex items-center text-base font-semibold text-slate-700 mb-4" data-no-toc>
+                      <svg class="w-5 h-5 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      Resultados de Predicción
+                    </h4>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                        <p class="demo-pred-text">Edad</p>
+                        <p id="ageResult" class="text-2xl font-semibold text-slate-800 tracking-tight">--</p>
+                      </div>
+
+                      <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                        <p class="demo-pred-text">Género</p>
+                        <p id="genderResult" class="text-2xl font-semibold text-slate-800 tracking-tight">--</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="close">
+          <h2 class="blog-paragraph-h2">Cierre</h2>
+
+          <p class="blog-paragraph">
+            En este artículo hemos recorrido el proceso completo de construcción y entrenamiento de una
+            <strong>red neuronal convolucional (CNN)</strong> desde cero utilizando <strong>Keras</strong> y
+            <strong>TensorFlow</strong>. A lo largo del desarrollo abordamos la preparación y el preprocesamiento de los
+            datos,
+            la definición de la arquitectura, el entrenamiento del modelo y su evaluación final.
+          </p>
+
+          <p class="blog-paragraph">
+            Espero que esta publicación te haya proporcionado una comprensión sólida de cómo construir y entrenar una
+            CNN
+            para tareas de visión por computadora. Te animo a experimentar con diferentes arquitecturas, técnicas de
+            aumento
+            de datos y conjuntos de datos, para explorar cómo cada decisión de diseño impacta en el rendimiento del
+            modelo.
+          </p>
+
+          <p class="blog-paragraph">
+            Además, la demo interactiva que acompaña este artículo está soportada en un entorno de
+            <strong>costo cero</strong> gracias al uso de <strong>Hugging Face Spaces</strong>, una plataforma que
+            permite
+            desplegar modelos de aprendizaje profundo de forma gratuita y accesible. Esto demuestra que hoy en día es
+            posible
+            compartir prototipos funcionales y experimentos de Deep Learning sin depender de infraestructura costosa,
+            haciendo la tecnología más cercana a todos.
+          </p>
+
+          <p class="blog-paragraph">
+            Si te interesa seguir aprendiendo sobre los conceptos y casos prácticos de
+            <strong>Machine Learning</strong>, <strong>Deep Learning</strong>, <strong>Computer Vision</strong> y
+            <strong>GenAI</strong>, te invito a conectar por
+            <a href="https://www.linkedin.com/in/jeffersonangel/" target="_blank"
+              class="text-blue-600 hover:underline">LinkedIn</a>
+            y estar atento a las próximas publicaciones y proyectos en mi portafolio. En futuras entregas también
+            exploraremos
+            cómo aplicar estas tecnologías en entornos <strong>cloud</strong>, utilizando servicios de
+            <strong>AWS</strong>, <strong>Google Cloud Platform</strong> y <strong>Microsoft Azure</strong>
+            para la construcción, automatización y despliegue de soluciones de inteligencia artificial a escala.
+          </p>
+
+          <p class="blog-paragraph-end">
+            ¡Gracias por leer y feliz aprendizaje profundo!
+          </p>
+        </section>
+
+
+        <footer class="mt-12 py-6 border-t border-slate-200 text-center text-sm text-slate-500">
+          © <span id="year"></span> Jefferson Angel Areche Rojas
+        </footer>
+        <script>
+          document.getElementById('year').textContent = new Date().getFullYear();
+        </script>
+
+      </article>
+    </main>
+
+    <!-- Slider de navegación -->
+    <aside id="sidebar-toc"
+      class="hidden lg:block h-fit sticky top-28 bg-white shadow-md rounded-lg border border-gray-200">
+      <div class="bg-black text-white font-semibold px-4 py-2 rounded-t-lg flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z" />
+        </svg>
+        <span>En esta página</span>
+      </div>
+      <nav id="toc-list" class="list-none m-0 space-y-1 divide-y divide-gray-200"></nav>
+    </aside>
+
+  </div>
+
+  <script src="../common/toc.js" defer></script>
+  <script src="demo.js" defer></script>
+</body>
+
+</html>
