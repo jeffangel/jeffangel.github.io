@@ -1016,138 +1016,272 @@
             \nabla \mathcal{L}(\beta^{(t)})
             $$
           </p>
+
+
           <h3 class="blog-paragraph-h3">Descenso de Gradiente</h3>
 
           <p class="blog-paragraph">
-            La idea fundamental detrás del descenso de gradiente se puede entender como una extensión natural de la
-            aproximación de derivadas mediante el polinomio de Taylor. En una dimensión, recordamos que para una función
-            diferenciable se cumple:
+            Como contraparte al método de Newton-Raphson, el descenso de gradiente es un algoritmo de optimización de
+            <strong>primer orden</strong>, ya que utiliza únicamente información del gradiente para actualizar los
+            parámetros, evitando el cálculo del Hessiano de la función de pérdida.
+          </p>
+
+          <p class="blog-paragraph">
+            Para entender de dónde surge la regla de actualización del descenso de gradiente, partimos nuevamente de una
+            idea fundamental del análisis matemático, es decir, la aproximación local de una función mediante una
+            expansión de Taylor<sup>2</sup>.
+            En este caso, consideramos únicamente los términos de primer orden.
+          </p>
+
+          <p class="blog-paragraph">
+            Para ver con claridad cómo el polinomio de Taylor conduce a una aproximación de la derivada, partimos de la
+            expansión de segundo orden de una función diferenciable alrededor del punto \( x \):
             $$
             f(x+h)
             =
             f(x)
             +
-            f'(x)h
+            f'(x)\,h
             +
-            \frac{f''(x)}{2}h^2
+            \frac{f''(x)}{2}\,h^2
             $$
-          </p>
 
-          <p class="blog-paragraph">
-            Si despejamos el término lineal y dividimos entre \( h \), obtenemos:
+            $$
+            f(x+h) - f(x)
+            =
+            f'(x)\,h
+            +
+            \frac{f''(x)}{2}\,h^2
+            $$
+
+            $$
+            f'(x)\,h
+            =
+            f(x+h) - f(x)
+            -
+            \frac{f''(x)}{2}\,h^2
+            $$
+
             $$
             f'(x)
             =
-            \frac{f(x+h)-f(x)}{h}
+            \frac{f(x+h) - f(x)}{h}
             -
-            \mathcal{O}(h)
+            \frac{f''(x)}{2}\,h
             $$
-            lo que nos indica que la derivada puede interpretarse como la razón de cambio local de la función,
-            con un error que desaparece cuando \( h \to 0 \).
+          </p>
+
+
+          <p class="blog-paragraph">
+            Luego de hacer algunas cuentas sobre el polinomio de Taylor, llegamos a una expresión en la que el último
+            término es proporcional a \( h \), por lo que representa un error de orden \( \mathcal{O}(h) \).
+            Es decir, cuando \( h \) es suficientemente pequeño, este término se vuelve despreciable y se obtiene
+            la aproximación:
+            $$
+            f'(x)
+            \approx
+            \frac{f(x+h) - f(x)}{h}
+            \quad
+            \Rightarrow
+            \quad
+            f(x+h)
+            \approx
+            f(x)
+            +
+            f'(x)\,h
+            \tag{17}
+            $$
           </p>
 
           <p class="blog-paragraph">
-            Esta misma idea se puede trasladar al caso multivariado. Consideremos una función de pérdida
-            \( \mathcal{L}(\beta) \), y analicemos cómo cambia su valor al movernos desde \( \beta \) en una dirección
-            \( \Delta \). Usando una expansión de Taylor de primer orden, tenemos:
+            Si ahora extrapolamos la idea de (17) al caso multivariado, consideremos la función de pérdida \(
+            \mathcal{L}(\beta) \) y un desplazamiento pequeño \( \Delta = \beta - \beta^{(t)} \). Usando una expansión
+            de Taylor de primer orden alrededor del
+            punto actual \( \beta^{(t)} \), se obtiene:
             $$
-            \mathcal{L}(\beta + \Delta)
-            \approx
-            \mathcal{L}(\beta^{(t)})
-            +
-            \nabla \mathcal{L}(\beta^{(t)})^\top \Delta
-            $$
-            $$
-            \mathcal{L}(\beta)
+            \mathcal{L}(\beta^{(t)} + \Delta)
             \approx
             \mathcal{L}(\beta^{(t)})
             +
             \nabla \mathcal{L}(\beta^{(t)})^\top
-            (\beta - \beta^{(t)})
-            +
-            \frac{1}{2}
-            (\beta - \beta^{(t)})^\top
-            H(\beta^{(t)})
-            (\beta - \beta^{(t)})
+            \Delta
+            \quad
+            \Rightarrow
+            \quad
+            \mathcal{L}(\beta^{(t)} + \Delta)
+            -
+            \mathcal{L}(\beta)
+            \approx
+            \nabla \mathcal{L}(\beta^{(t)})^\top
+            \Delta
+            \tag{18}
             $$
           </p>
 
           <p class="blog-paragraph">
-            Nuestro objetivo es minimizar la función de pérdida, es decir, buscamos que:
+            Dado que estamos trabajando con la función de pérdida, nuestro objetivo es minimizar su valor. Es decir,
+            buscamos que se cumpla que el siguiente paso reduzca el valor de la función de pérdida:
+
             $$
-            \mathcal{L}(\beta + \Delta) < \mathcal{L}(\beta) $$ Bajo la aproximación anterior, esto se traduce en la condición: $$ \nabla
-              \mathcal{L}(\beta)^\top \Delta < 0 $$ </p>
+            \mathcal{L}(\beta^{(t)} + \Delta) \lt \mathcal{L}(\beta^{(t)})
+            \tag{19}
+            $$
+          </p>
 
-              <p class="blog-paragraph">
-                Una elección natural para satisfacer esta desigualdad es tomar la dirección opuesta al gradiente,
-                definiendo:
-                $$
-                \Delta = -\alpha \nabla J(\beta),
-                \quad \alpha > 0
-                $$
-              </p>
+          <p class="blog-paragraph">
+            Teniendo en cuenta la inecuación de (19) se genera la siguiente condición desde (18):
+            $$
+            \nabla \mathcal{L}(\beta^{(t)})^\top
+            \Delta
+            \lt 0
+            $$
+          </p>
 
-              <p class="blog-paragraph">
-                En efecto, al sustituir esta dirección en la expresión anterior se obtiene:
-                $$
-                \nabla \mathcal{L}(\beta)^\top (-\nabla \mathcal{L}(\beta))
-                =
-                - \lVert \nabla \mathcal{L}(\beta) \rVert^2
-                \lt 0
-                $$
-                
-                Esto nos indica que se garantiza que el valor aproximado de la función de pérdida disminuye. 
-              </p>
+          <p class="blog-paragraph">
+            En particular, podemos tomar a la dirección opuesta al gradiente como una elección natural para \( \Delta
+            \), pues como se sabe, el gradiente apunta en la dirección de máximo crecimiento de la función, ya que:
+            $$
+            \nabla \mathcal{L}(\beta^{(t)})^\top
+            (-\nabla \mathcal{L}(\beta^{(t)}))
+            =
+            -\lVert \nabla \mathcal{L}(\beta^{(t)}) \rVert_2^2
+            \lt 0
+            $$
+          </p>
+          <p class="blog-paragraph">
+            Por lo tanto, definimos el desplazamiento como:
+            $$
+            \Delta
+            =
+            - \alpha \nabla \mathcal{L}(\beta^{(t)}),
+            \quad \alpha
+            \gt
+            0
+            \tag{20}
+            $$
 
-              <p class="blog-paragraph">
-                Por lo tanto, el valor del loss en el nuevo punto puede aproximarse como:
-                $$
-                \mathcal{L}(\beta + \Delta)
-                \approx
-                \mathcal{L}(\beta)
-                -
-                \alpha
-                \lVert \nabla \mathcal{L}(\beta) \rVert^2
-                $$
-              </p>
+            Donde \( \alpha \) es un parámetro positivo conocido como tasa de aprendizaje o step size.
+          </p>
 
-              <p class="blog-paragraph">
-                Finalmente, reemplazando \( \Delta \) en la actualización del parámetro, obtenemos la regla
-                iterativa
-                del descenso de gradiente:
-                $$
-                \beta_{k+1}
-                =
-                \beta_k
-                -
-                \alpha
-                \nabla \mathcal{L}(\beta_k)
-                $$
-              </p>
+          <p class="blog-paragraph">
+            De esta forma, utilizando (20) en (18) podemos definir la regla para el cálculo del valor de la función de
+            pérdida en
+            el nuevo punto:
+            $$
+            \mathcal{L}(\beta^{(t)} + \Delta)
+            \approx
+            \mathcal{L}(\beta^{(t)})
+            -
+            \alpha
+            \lVert \nabla \mathcal{L}(\beta^{(t)}) \rVert_2^2
+            \tag{21}
+            $$
+          </p>
 
-              <p class="blog-paragraph">
-                De esta forma, el descenso de gradiente surge directamente de una aproximación local de primer
-                orden,
-                donde el gradiente indica la dirección de mayor aumento de la función y su opuesto define la
-                dirección
-                de máximo descenso.
-              </p>
+          <p class="blog-paragraph">
+            Por otro lado, sabemos que el nuevo punto se calcula como:
+            $$
+            \beta^{(t+1)}
+            =
+            \beta^{(t)} + \Delta
+            $$
+          </p>
+          <p class="blog-quote">
+            \( \Delta \) es la diferencia entre un nuevo punto y el punto actual en el espacio de parámetros, pero su
+            valor exacto ya lo hemos definido en (20).
+          </p>
+          <p class="blog-paragraph-end">
+            Es decir, obtenemos la regla iterativa del descenso de gradiente es:
+            $$
+            \beta^{(t+1)}
+            =
+            \beta^{(t)}
+            -
+            \alpha
+            \nabla \mathcal{L}(\beta^{(t)})
+            $$
+          </p>
+          <h3 class="blog-paragraph-h3">Descenso de Gradiente con Backtracking</h3>
+
+          <p class="blog-paragraph">
+            En la derivación anterior del descenso de gradiente hemos asumido la existencia de un tamaño de paso
+            \( \alpha > 0 \) fijo. Sin embargo, en la práctica, la elección de este parámetro resulta crítica, ya que
+            valores demasiado grandes pueden provocar divergencia del algoritmo, mientras que valores demasiado pequeños
+            pueden ralentizar considerablemente la convergencia.
+          </p>
+
+          <p class="blog-paragraph">
+            Para abordar este problema, se introduce el método de <em>backtracking line search</em>, el cual nos ayuda a
+            seleccionar de manera adaptativa un tamaño de paso adecuado que garantice una disminución suficiente del
+            valor de la función de pérdida en cada iteración.
+          </p>
+
+          <p class="blog-paragraph">
+
+          </p>
+          <p class="blog-paragraph">
+            Recordando que obtuvimos la función de pérdida alrededor del punto actual \( \beta^{(t)} \) al resolver la
+            aproximación de Taylor de primer orden, la cual se expresa según (21) como:
+            $$
+            \mathcal{L}(\beta^{(t)} + \Delta)
+            \approx
+            \mathcal{L}(\beta^{(t)})
+            -
+            \alpha
+            \lVert \nabla \mathcal{L}(\beta^{(t)}) \rVert_2^2
+            $$
+
+          </p>
+
+          <p class="blog-paragraph">
+            Backtracking line search con la condición de Armijo busca asegurar que el valor real de la función de
+            pérdida en
+            el nuevo punto \( \beta^{(t)} + \Delta \) sea menor que el valor predicho por la aproximación lineal, es
+            decir, que se cumpla:
+            $$
+            \mathcal{L}(\beta^{(t)} + \Delta)
+            \le
+            \mathcal{L}(\beta^{(t)})
+            -
+            c \alpha
+            \lVert \nabla \mathcal{L}(\beta^{(t)}) \rVert_2^2,
+            \quad 0 \lt c \lt 1
+            $$
+          </p>
+          <p class="blog-paragraph">
+            Donde \( c \) es un parámetro pequeño que controla la suficiencia de la disminución.
+            Si la condición no se cumple, se reduce el tamaño del paso \( \alpha \) multiplicándolo por un factor \(
+            \omega \) (con \( 0 \lt \omega \lt 1 \)) y se vuelve a evaluar la condición hasta que se satisfaga.
+          </p>
+          <p class="blog-quote">
+            Dicho en otras palabras, Armijo exige que la función de pérdida disminuya al menos en una fracción \( c
+            \) del valor predicho por la aproximación lineal, asegurando así una reducción significativa en cada paso.
+            En dado caso de no cumplirse, se genera un nuevo tamaño de paso más pequeño \(\alpha_{n+1}\) , cuyo valor es el resultado de
+            multiplicar el actual \(\alpha_n\) por \(\omega\).
+          </p>
+          <p class="blog-paragraph">
+            En resumen, el descenso de gradiente con backtracking line search usando la condición de Armijo nos ayuda a 
+            asegurar una convergencia más robusta y eficiente, para ello adiciona dos parámetros adicionales \( c \) y \( \omega \) que
+            regulan la suficiencia de la disminución y el ajuste del tamaño del paso, respectivamente
+          </p>
 
 
 
 
 
-              <h4 class="blog-paragraph-h4">Referencias</h4>
-              <ol class="blog-paragraph text-sm">
-                <li id="ref-1">
-                  Casella, G., & Berger, R. L. (2002).
-                  <em>Statistical Inference</em> (2nd ed.).
-                  Duxbury Press.
-                  Sección de distribuciones discretas.
-                  <a href="https://pages.stat.wisc.edu/~shao/stat610/Casella_Berger_Statistical_Inference.pdf"
-                    target="_blank">[PDF]</a>
-                </li>
-              </ol>
+
+
+          <h4 class="blog-paragraph-h4">Referencias</h4>
+          <ol class="blog-paragraph text-sm">
+            <li id="ref-1">
+              Casella, G., & Berger, R. L. (2002).
+              <em>Statistical Inference</em> (2nd ed.).
+              Duxbury Press.
+              Sección de distribuciones discretas.
+              <a href="https://pages.stat.wisc.edu/~shao/stat610/Casella_Berger_Statistical_Inference.pdf"
+                target="_blank">[PDF]</a>
+            </li>
+          </ol>
 
         </section>
         <!-- Sección 3 -->
