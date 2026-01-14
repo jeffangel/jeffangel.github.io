@@ -134,7 +134,7 @@
 
           <p class="blog-paragraph">
             En un problema de <strong>clasificación binaria</strong>, la variable respuesta puede tomar
-            únicamente dos valores, típicamente representados como <code>0</code> y <code>1</code>.
+            únicamente dos valores, típicamente representados como 0 y 1.
             Desde un punto de vista probabilístico, esto se modela naturalmente mediante una
             <strong>distribución Bernoulli</strong>.
           </p>
@@ -163,14 +163,14 @@
           </p>
 
           <p class="blog-paragraph">
-            Donde <code>η</code> es el predictor lineal, <code>β</code> son los coeficientes del modelo,
-            y <code>σ(·)</code> es la función sigmoide que mapea cualquier valor real al intervalo (0, 1).
+            Donde \(\eta\) es el predictor lineal, \(\beta\) son los coeficientes del modelo,
+            y \(\sigma(\cdot)\) es la función sigmoide que mapea cualquier valor real al intervalo (0, 1).
           </p>
 
           <p class="blog-paragraph">
             Esta formulación permite conectar directamente la estadística (distribución Bernoulli)
             con la optimización, ya que todos los parámetros del modelo aparecen únicamente a través
-            de <code>η</code>.
+            de \(\eta\).
           </p>
 
           <h3 class="blog-paragraph-h3">Regresión logística como un caso de GLM</h3>
@@ -182,7 +182,7 @@
 
           <ul class="blog-paragraph-list">
             <li><strong>Distribución:</strong> Bernoulli</li>
-            <li><strong>Predictor lineal:</strong> η = Xβ</li>
+            <li><strong>Predictor lineal:</strong> \(\eta = X\beta\)</li>
             <li><strong>Función de enlace:</strong> logit</li>
           </ul>
 
@@ -196,7 +196,7 @@
 
           <p class="blog-paragraph">
             Una vez definida la distribución del modelo, el siguiente paso consiste en estimar
-            los parámetros <code>β</code>. Esto se realiza mediante el principio de
+            los parámetros \(\beta\). Esto se realiza mediante el principio de
             <strong>máxima verosimilitud</strong>.
           </p>
 
@@ -313,13 +313,12 @@
           </p>
           <h3 class="blog-paragraph-h3">Función de masa de probabilidad (PMF)</h3>
           <p class="blog-paragraph">
-            La función de masa de probabilidad (PMF) de una variable aleatoria <code
-              class="blog-paragraph-code">Y</code> que sigue una distribución Bernoulli está dada por:
+            La función de masa de probabilidad (PMF) de una variable aleatoria \(Y\) que sigue una distribución Bernoulli está dada por:
           </p>
 
           <p class="blog-paragraph">
             La distribución Bernoulli puede verse como un caso particular de la distribución Binomial cuando se
-            considera una única realización (<code class="blog-paragraph-code">n = 1</code>) <sup>[1]</sup>.
+            considera una única realización (\(n = 1\)) <sup><a href="#ref-1">[1]</a></sup>.
           </p>
 
           <p class="blog-paragraph-end">
@@ -346,7 +345,7 @@
 
           <p class="blog-paragraph">
             Entonces, obtenemos la función de verosimilitud multiplicando las PMF de cada observación con parámetro
-            <code class="blog-paragraph-code">p</code>.
+            \(p\).
           </p>
           <p class="blog-paragraph">
             $$
@@ -445,7 +444,7 @@
 
           <p class="blog-paragraph">
             Para cálcular la gradiente de manera analítica, realizamos la derivada parcial de la función de pérdida con
-            respecto a los parámetros <code class="blog-paragraph-code">β</code>.
+            respecto a los parámetros \(\beta\).
 
           </p>
           <p class="blog-paragraph">
@@ -702,14 +701,14 @@
           </p>
           <h3 class="blog-paragraph-h3">Newton Raphson</h3>
           <p class="blog-paragraph">
-            Como mencionamos anteriormente, el método de Newton-Raphson es un algoritmo de optimización de segundo orden
+            Como mencionamos anteriormente, el método de Newton-Raphson es un algoritmo de optimización de <strong>segundo orden</strong>
             que utiliza tanto el gradiente como el Hessiano para encontrar los parámetros que minimizan la función de
             pérdida.
           </p>
           <p class="blog-paragraph">
             Para entender de dónde surge la actualización de Newton-Raphson, partimos de una idea fundamental del
             análisis matemático, el cual aproxima una función complicada por un polinomio simple en un entorno local, en
-            efecto, una expansión de Taylor <sup>[2]</sup>.
+            efecto, una expansión de Taylor <sup><a href="#ref-2">[2]</a></sup>.
           </p>
           <p class="blog-paragraph">
             Entonces, partimos de la expansión de Taylor de la función de pérdida alrededor del punto actual \(
@@ -859,7 +858,7 @@
 
           <p class="blog-paragraph">
             Esto se puede expresar de forma compacta usando el delta de Kronecker
-            \( \delta_{ik} \) y \( \delta_{jk} \) <sup>[2]</sup>. Así, la derivada de cada
+            \( \delta_{ik} \) y \( \delta_{jk} \) <sup><a href="#ref-2">[2]</a></sup>. Así, la derivada de cada
             término es:
             $$
             \frac{\partial}{\partial d_k}
@@ -1029,7 +1028,7 @@
           <p class="blog-paragraph">
             Para entender de dónde surge la regla de actualización del descenso de gradiente, partimos nuevamente de una
             idea fundamental del análisis matemático, es decir, la aproximación local de una función mediante una
-            expansión de Taylor<sup>2</sup>.
+            expansión de Taylor<sup><a href="#ref-2">[2]</a></sup>.
             En este caso, consideramos únicamente los términos de primer orden.
           </p>
 
@@ -1235,9 +1234,8 @@
 
           <p class="blog-paragraph">
             Backtracking line search con la condición de Armijo busca asegurar que el valor real de la función de
-            pérdida en
-            el nuevo punto \( \beta^{(t)} + \Delta \) sea menor que el valor predicho por la aproximación lineal, es
-            decir, que se cumpla:
+            pérdida en el nuevo punto \( \beta^{(t)} + \Delta \) sea menor que el valor predicho por la aproximación
+            lineal <sup><a href="#ref-3">[3]</a></sup>, es decir, que se cumpla:
             $$
             \mathcal{L}(\beta^{(t)} + \Delta)
             \le
@@ -1256,22 +1254,19 @@
           <p class="blog-quote">
             Dicho en otras palabras, Armijo exige que la función de pérdida disminuya al menos en una fracción \( c
             \) del valor predicho por la aproximación lineal, asegurando así una reducción significativa en cada paso.
-            En dado caso de no cumplirse, se genera un nuevo tamaño de paso más pequeño \(\alpha_{n+1}\) , cuyo valor es el resultado de
+            En dado caso de no cumplirse, se genera un nuevo tamaño de paso más pequeño \(\alpha_{n+1}\) , cuyo valor es
+            el resultado de
             multiplicar el actual \(\alpha_n\) por \(\omega\).
           </p>
           <p class="blog-paragraph">
-            En resumen, el descenso de gradiente con backtracking line search usando la condición de Armijo nos ayuda a 
-            asegurar una convergencia más robusta y eficiente, para ello adiciona dos parámetros adicionales \( c \) y \( \omega \) que
+            En resumen, el descenso de gradiente con backtracking line search usando la condición de Armijo nos ayuda a
+            asegurar una convergencia más robusta y eficiente, para ello adiciona dos parámetros adicionales \( c \) y
+            \( \omega \) que
             regulan la suficiencia de la disminución y el ajuste del tamaño del paso, respectivamente
           </p>
 
 
-
-
-
-
-
-          <h4 class="blog-paragraph-h4">Referencias</h4>
+          <h3 class="blog-paragraph-h3">Referencias</h3>
           <ol class="blog-paragraph text-sm">
             <li id="ref-1">
               Casella, G., & Berger, R. L. (2002).
@@ -1280,6 +1275,20 @@
               Sección de distribuciones discretas.
               <a href="https://pages.stat.wisc.edu/~shao/stat610/Casella_Berger_Statistical_Inference.pdf"
                 target="_blank">[PDF]</a>
+            </li>
+            <li id="ref-2">
+              Lages Lima, E. (2013).
+              <em>Análisis Real</em> (Volumen 1).
+              IMCA Instituto de Matemática y Ciencias Afines.
+              Traducido por Rodrigo Vargas.
+              <a href="https://1drv.ms/b/c/f8d7aa099c6fb6c7/IQAp8ZnA4iTwRaRS9ORAFJtKAfE7RfyQ4PQ0eDaLDRVZloM?e=kNKxmL"
+                target="_blank">[PDF]</a>
+            </li>
+            <li id="ref-3">
+              Beck, A. (2014).
+              <em>Introduction to Nonlinear Optimization: Theory, Algorithms, and Applications with MATLAB</em>.
+              MOS-SIAM Series on Optimization.
+              <a href="https://1drv.ms/b/c/f8d7aa099c6fb6c7/IQDC75x2I2u0R7fhGX56R-bfAUT2CiCo6DPgL0l5uzW2NEo?e=JjhDI2" target="_blank">[PDF]</a>
             </li>
           </ol>
 
