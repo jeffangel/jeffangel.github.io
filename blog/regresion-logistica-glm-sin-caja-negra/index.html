@@ -97,8 +97,12 @@
           <p class="blog-paragraph">
             Finalmente, presentaremos una <strong>demo reproducible</strong> donde se compara el
             comportamiento de estos métodos en términos de convergencia, número de iteraciones
-            y costo computacional.
+            y costo computacional, utilizando el conjunto de datos
+            <a href="https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data" target="_blank"
+              class="blog-paragraph-link">German Credit Data</a>, que contiene información sobre créditos otorgados a
+            clientes, incluyendo características y si el crédito fue aprobado o no.
           </p>
+
 
           <p class="blog-paragraph">
             Aunque el foco estará en la regresión logística, mostraremos cómo este modelo puede
@@ -113,8 +117,7 @@
           </p>
 
           <div class="mt-8 flex justify-center mb-5">
-            <img src="../../assets/blog/regresion-logistica-glm-sin-caja-negra/overview-diagram.svg"
-              alt="Overview Diagram">
+            <img src="../../assets/blog/logistic-regression-no-black-box/overview-diagram.svg" alt="Overview Diagram">
           </div>
 
         </section>
@@ -313,7 +316,8 @@
           </p>
           <h3 class="blog-paragraph-h3">Función de masa de probabilidad (PMF)</h3>
           <p class="blog-paragraph">
-            La función de masa de probabilidad (PMF) de una variable aleatoria \(Y\) que sigue una distribución Bernoulli está dada por:
+            La función de masa de probabilidad (PMF) de una variable aleatoria \(Y\) que sigue una distribución
+            Bernoulli está dada por:
           </p>
 
           <p class="blog-paragraph">
@@ -701,7 +705,8 @@
           </p>
           <h3 class="blog-paragraph-h3">Newton Raphson</h3>
           <p class="blog-paragraph">
-            Como mencionamos anteriormente, el método de Newton-Raphson es un algoritmo de optimización de <strong>segundo orden</strong>
+            Como mencionamos anteriormente, el método de Newton-Raphson es un algoritmo de optimización de
+            <strong>segundo orden</strong>
             que utiliza tanto el gradiente como el Hessiano para encontrar los parámetros que minimizan la función de
             pérdida.
           </p>
@@ -1288,955 +1293,534 @@
               Beck, A. (2014).
               <em>Introduction to Nonlinear Optimization: Theory, Algorithms, and Applications with MATLAB</em>.
               MOS-SIAM Series on Optimization.
-              <a href="https://1drv.ms/b/c/f8d7aa099c6fb6c7/IQDC75x2I2u0R7fhGX56R-bfAUT2CiCo6DPgL0l5uzW2NEo?e=JjhDI2" target="_blank">[PDF]</a>
+              <a href="https://1drv.ms/b/c/f8d7aa099c6fb6c7/IQDC75x2I2u0R7fhGX56R-bfAUT2CiCo6DPgL0l5uzW2NEo?e=JjhDI2"
+                target="_blank">[PDF]</a>
             </li>
           </ol>
 
         </section>
         <!-- Sección 3 -->
-        <section id="implementing-1">
-          <h2 class="blog-paragraph-h2">¡Hora de practicar!</h2>
+        <section id="algorithm">
+          <h2 class="blog-paragraph-h2">Algoritmos de optimización</h2>
           <p class="blog-paragraph">
-            Ahora que comprendemos las tres formas de construir modelos con Keras, es momento de poner manos a la obra.
-            En esta sección implementaremos paso a paso una red neuronal convolucional utilizando la API funcional, una
-            basada en la que empleamos en el esquema de predicción de género y edad.
+            En esta sección mostraremos los algoritmos en pseudocódigo para cada uno de los métodos de optimización.
           </p>
-          <p class="blog-paragraph-end">
-            El objetivo será reproducir el flujo completo: desde la carga de datos hasta la generación de predicciones.
-          </p>
-
-          <h3 class="blog-paragraph-h3">Importación de librerías requeridas</h3>
-          <p class="blog-paragraph">
-            Lo primero es importar las librerías requeridas para este ejercicio. Utilizaremos <code
-              class="blog-paragraph-code">Keras</code> dentro del ecosistema de <code
-              class="blog-paragraph-code">TensorFlow</code>, ya que es la forma recomendada actualmente. Además,
-            utilizaremos <code class="blog-paragraph-code">NumPy</code>, <code
-              class="blog-paragraph-code">Matplotlib</code> y <code class="blog-paragraph-code">OpenCV</code> para la
-            manipulación y visualización de imágenes.</p>
-          <p class="blog-paragraph">
-            Además, dado que estamos en Google Colab, también importamos <code class="blog-paragraph-code">drive</code>
-            de Google Colab y <code class="blog-paragraph-code">os</code> para montar Google Drive y acceder a los
-            archivos.
-          </p>
+          <h3 class="blog-paragraph-h3">Newton-Raphson</h3>
           <div class="blog-code-windows">
             <div class="blog-code-windows-buttons">
               <span class="blog-code-block-button-close"></span>
               <span class="blog-code-block-button-minimize"></span>
               <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
+              <span class="blog-code-windows-header">pseudocodigo</span>
             </div>
-            <pre class="blog-code-block"><code class="language-python"> # Librerias de sistema
-import os
-import random
-
-# Librerias para procesamiento
-import numpy as np
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.regularizers import l2
-from tensorflow.keras.utils import plot_model
-
-# Librerias para visualización
-import cv2
-import matplotlib.pyplot as plt
-
-# Libreria para montar Google Drive (solo en Google Colab)
-from google.colab import drive</code></pre>
+            <pre class="blog-code-block"><code class="language-pseudocode"> Entrada:
+    - Parámetros iniciales: β^(0)
+    - Tolerancia de convergencia: ε
+    - Máximo de iteraciones: max_iter
+  Salida:
+    - Parámetros estimados: β^(*)
+  Algoritmo:
+    1. Establecer t = 0
+    2. Repetir hasta la convergencia o t >= max_iter:
+        a. Calcular gradiente: g^(t) = ∇L(β^(t))
+        b. Calcular Hessiano: H^(t) = H(β^(t))
+        c. Actualizar parámetros:
+           delta = (H^(t))^(-1) * g^(t)
+           β^(t+1) = β^(t) - delta
+        d. Verificar convergencia:
+           Si ||β^(t+1) - β^(t)|| < ε, entonces salir
+        e. Incrementar t: t = t + 1
+    3. Retornar β^(*) = β^(t)</code></pre>
           </div>
+          <h3 class="blog-paragraph-h3">Descenso de Gradiente</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">pseudocodigo</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-pseudocode"> Entrada:
+    - Parámetros iniciales: β^(0)
+    - Tasa de aprendizaje: α
+    - Tolerancia de convergencia: ε
+    - Máximo de iteraciones: max_iter
+  Salida:
+    - Parámetros estimados: β^(*)
+  Algoritmo:
+    1. Establecer t = 0
+    2. Repetir hasta la convergencia o t >= max_iter:
+        a. Calcular gradiente: g^(t) = ∇L(β^(t))
+        b. Actualizar parámetros:
+           β^(t+1) = β^(t) - α * g^(t)
+        c. Verificar convergencia: 
+           Si ||β^(t+1) - β^(t)|| < ε, entonces salir
+        d. Incrementar t: t = t + 1
+    3. Retornar β^(*) = β^(t)</code></pre>
+          </div>
+          <h3 class="blog-paragraph-h3">Descenso de Gradiente con Backtracking</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">pseudocodigo</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-pseudocode"> Entrada:
+    - Parámetros iniciales: β^(0)
+    - Tasa de aprendizaje inicial: α_0
+    - Parámetro de disminución suficiente: c (0 < c < 1)
+    - Factor de reducción del tamaño del paso: ω (0 < ω < 1)
+    - Tolerancia de convergencia: ε
+    - Máximo de iteraciones: max_iter
+  Salida:
+    - Parámetros estimados: β^(*)
+  Algoritmo:
+    1. Establecer t = 0
+    2. Repetir hasta la convergencia o t >= max_iter:
+        a. Calcular gradiente: g^(t) = ∇L(β^(t))
+        b. Establecer α = α_0
+        c. Mientras L(β^(t) - α * g^(t)) > L(β^(t)) - c * α * ||g^(t)||^2:
+            α = ω * α
+        d. Actualizar parámetros:
+           β^(t+1) = β^(t) - α * g^(t)
+        e. Verificar convergencia: 
+           Si ||β^(t+1) - β^(t)|| < ε, entonces salir
+        f. Incrementar t:
+           t = t + 1
+    3. Retornar β^(*) = β^(t)</code></pre>
+          </div>
+
+        </section>
+        <section id="implementing">
+          <h2 class="blog-paragraph-h2">Implementación en Python</h2>
           <p class="blog-paragraph">
-            Con estas dependencias listas, ya tenemos todo lo necesario para definir el entorno de trabajo.
+            A continuación, se presenta una implementación práctica de los algoritmos de optimización discutidos
+            anteriormente utilizando Python. Utilizaremos bibliotecas populares como NumPy para las operaciones
+            numéricas y Matplotlib para la visualización de resultados.
+          </p>
+          <p class="blog-paragraph">
+            A fin de no expandir demasiado este artículo, el código de la implementación completa está disponible desde
+            Google Colab en el siguiente enlace:
+            <a href="https://colab.research.google.com/drive/1oXKJYk1bYI3bq1Y1Z5KXJtU5F6v3Q9F7?usp=sharing"
+              target="_blank" class="blog-paragraph-link">Implementación de Algoritmos de Optimización en Python</a>
           </p>
         </section>
-
-        <!-- Sección 4 -->
-        <section id="implementing-2">
-          <h3 class="blog-paragraph-h3">Definición de variables</h3>
+        <section id="Comparison">
+          <h2 class="blog-paragraph-h2">Comparación de complejidad</h2>
           <p class="blog-paragraph">
-            A continuación, definimos algunas variables que utilizaremos a lo largo del notebook. Estas incluyen la
-            ruta de montaje de Google Drive, la cantidad de imágenes a mostrar, la ruta del conjunto de datos, la ruta
-            para guardar los modelos entrenados, el tamaño del lote, el tamaño de las imágenes, el número de épocas, los
-            canales y el porcentaje de datos
-            a utilizar para entrenamiento.
+            En esta sección se presenta una comparación entre los métodos de optimización implementados desde el punto
+            de vista del costo computacional. Primero, se analiza la complejidad temporal a partir del
+            comportamiento observado durante la ejecución del notebook. Posteriormente, se abordará la complejidad
+            espacial mediante un
+            análisis teórico.
           </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python">MOUNT_POINT = "/content/drive" # Punto de montaje de Google Drive
-DATASET_PATH = "/content/drive/MyDrive/train_val" # Ruta para acceder al conjunto de datos
-FOLDER_MODELS = "/content/drive/MyDrive/models" # Ruta para guardar los modelos entrenados
-IMAGES_TO_DISPLAY = 20 # Número de imágenes a mostrar en la visualización
-BATCH_SIZE = 32 # Tamaño del lote para el entrenamiento
-IMAGE_SIZE = 128 # Tamaño al que se redimensionarán las imágenes
-EPOCHS = 10 # Número de épocas para el entrenamiento
-NUM_CHANNELS = 3 # Número de canales de las imágenes
-TRAINING_PERCENTAGE = 0.8 # Porcentaje de datos a utilizar para entrenamiento</code></pre>
-          </div>
+
+          <h3 class="blog-paragraph-h3">Complejidad temporal</h3>
           <p class="blog-paragraph">
-            Estas variables nos ayudarán a mantener el código organizado y facilitarán cualquier ajuste que necesitemos
-            hacer en el futuro.
-          </p>
-        </section>
-
-        <!-- Sección 5 -->
-        <section id="implementing-3">
-          <h3 class="blog-paragraph-h3">Montar Google Drive</h3>
-          <p class="blog-paragraph">
-            Dado que los datos están almacenados en Google Drive, el siguiente paso es montar Google Drive en el entorno
-            de Colab para poder acceder a los archivos.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python">drive.mount(MOUNT_POINT)</code></pre>
-          </div>
-          <p class="blog-paragraph-end">
-            Al ejecutar esto el navegador nos pedirá autorización para acceder a Google Drive, simplemente seguimos las
-            instrucciones en pantalla.
-          </p>
-        </section>
-
-        <!-- Sección 6 -->
-        <section id="implementing-4">
-          <h3 class="blog-paragraph-h3">Visualización de una muestra de imágenes</h3>
-          <p class="blog-paragraph">
-            Este paso es opcional pero recomendable para entender mejor el conjunto de datos con el que
-            trabajaremos.
-          </p>
-          <h4 class="blog-paragraph-h4" data-no-toc>Cargar imágenes a tensorflow dataframe</h4>
-          <p class="blog-paragraph">
-            Ahora que tenemos acceso a los datos, el siguiente paso es cargar una muestra de imágenes del conjunto de
-            datos para visualizarlas y entender mejor qué tipo de imágenes estamos manejando.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python">file_names = os.listdir(DATASET_PATH) # Listamos todos los archivos en el directorio del conjunto de datos
-random_images = random.sample(file_names, IMAGES_TO_DISPLAY) # Seleccionamos aleatoriamente 20 imágenes
-images, age_labels, gender_labels = [], [], [] # Creamos listas para imágenes y etiquetas
-
-for image in random_images: # Se itera sobre las imágenes seleccionadas
-    labels = image.split('_') # Extraemos etiquetas de edad y género del nombre del archivo delimitados por '_'
-    image = cv2.imread(os.path.join(DATASET_PATH, image)) # Leemos la imagen usando OpenCV
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # Convertimos de BGR a RGB
-
-    age_label = int(labels[0]) # La edad es la primera parte del nombre del archivo
-    gender_label = int(labels[1]) # El género es la segunda parte del nombre del archivo
-
-    age_labels.append(age_label) # Agregamos la etiqueta de edad a la lista
-    gender_labels.append(gender_label) # Agregamos la etiqueta de género a la lista
-    images.append(image) # Agregamos la imagen a la lista
-
-# Convertimos las listas a arreglos de NumPy para cargarlos en tensorflow dataset
-images_sample = np.array(images, dtype=np.int32)
-age_sample = np.array(age_labels, dtype=np.int32)
-gender_sample = np.array(gender_labels, dtype=np.int32)
-
-# Creamos un objeto de dataset de tensorflow en base a las muestras
-sample_ds = tf.data.Dataset.from_tensor_slices((images_sample, age_sample, gender_sample))
-sample_ds = sample_ds.shuffle(len(images_sample)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)</code></pre>
-          </div>
-          <p class="blog-paragraph">
-            Aquí, seleccionamos aleatoriamente un conjunto de imágenes del directorio del conjunto de datos, las
-            leemos y convertimos a formato RGB (ya que OpenCV las lee en formato BGR por defecto). Además, extraemos
-            las etiquetas de edad y género de los nombres de los archivos, ya que sabemos que el formato del nombre es
-            <code class="blog-paragraph-code">edad_genero_raza_id-unico.jpg</code>.
-          </p>
-
-          <p class="blog-quote">
-            Por ejemplo, un archivo llamado <code class="blog-paragraph-code">25_0_3_123432323235.jpg</code> indica que
+            La figura siguiente presenta una comparación empírica de los métodos de optimización analizados, combinando
             la
-            persona en la imagen tiene 25 años y es de género femenino (1). De igual forma, un archivo llamado
-            <code class="blog-paragraph-code">30_1_4_23231267890.jpg</code> indica que la persona tiene 30 años y es de
-            género
-            masculino (0).
+            evolución de la función de pérdida con distintas métricas de costo computacional. En conjunto, estas
+            visualizaciones
+            permiten evaluar no solo la velocidad de convergencia, sino también la complejidad temporal efectiva de cada
+            método.
+          </p>
+          <figure class="mt-10 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="text-center">
+                <img src="../../assets/blog/logistic-regression-no-black-box/convergence.png" alt="Convergence Plot"
+                  class="mx-auto">
+                <figcaption class="text-sm text-gray-600 mt-2">(a) Convergencia de la función de pérdida</figcaption>
+              </div>
+
+              <div class="text-center">
+                <img src="../../assets/blog/logistic-regression-no-black-box/computational_cost_per_iteration.png"
+                  alt="Computational Cost Per Iteration Plot" class="mx-auto">
+                <figcaption class="text-sm text-gray-600 mt-2">(b) Costo computacional por iteración</figcaption>
+              </div>
+
+              <div class="text-center">
+                <img
+                  src="../../assets/blog/logistic-regression-no-black-box/cumulative_execution_time_per_iteration.png"
+                  alt="Cumulative Execution Time Plot" class="mx-auto">
+                <figcaption class="text-sm text-gray-600 mt-2">(c) Tiempo de ejecución acumulado</figcaption>
+              </div>
+
+              <div class="text-center">
+                <img src="../../assets/blog/logistic-regression-no-black-box/total_execution_time.png"
+                  alt="Total Execution Time Plot" class="mx-auto">
+                <figcaption class="text-sm text-gray-600 mt-2">(d) Tiempo total hasta convergencia</figcaption>
+              </div>
+            </div>
+            <figcaption class="text-center text-sm text-gray-700 mt-6">
+              <strong>Figura 2.</strong> Comparación empírica de la complejidad temporal de los métodos de optimización.
+              La subfigura (a) muestra la convergencia en términos de iteraciones, mientras que (b), (c) y (d)
+              incorporan el costo computacional real asociado a cada método.
+            </figcaption>
+          </figure>
+
+          <p class="blog-paragraph">
+            En la subfigura <strong>(a)</strong> se observa que el método de Newton–Raphson alcanza un valor estable de
+            la función
+            de pérdida en un número reducido de iteraciones, lo que refleja su rápida convergencia local. Sin embargo,
+            esta
+            métrica por sí sola no captura el costo computacional real del método.
+          </p>
+          <p class="blog-paragraph">
+            Por otro lado, la subfigura <strong>(b)</strong> muestra que el costo computacional por iteración de
+            Newton–Raphson es
+            considerablemente mayor que el de los métodos basados en gradiente, debido al cálculo del Hessiano y la
+            resolución
+            de un sistema lineal en cada paso. Este comportamiento se refleja de forma acumulativa en la subfigura
+            <strong>(c)</strong>, donde el tiempo de ejecución total crece más rápidamente para Newton–Raphson, a pesar
+            de
+            requerir menos iteraciones.
+          </p>
+          <p class="blog-paragraph">
+            Finalmente, la subfigura <strong>(d)</strong> resume el tiempo total de ejecución hasta alcanzar la
+            convergencia,
+            evidenciando que, en este experimento, los métodos basados en gradiente ofrecen un mejor compromiso entre
+            estabilidad
+            y costo computacional, especialmente cuando se consideran escenarios de mayor escala.
           </p>
           <p class="blog-paragraph-end">
-            Finalmente, convertimos las listas de imágenes y etiquetas en arreglos de NumPy y creamos un
-            <code class="blog-paragraph-code">tf.data.Dataset</code> para facilitar la manipulación y el procesamiento
-            de los datos.
+            En conclusión, aunque el método de Newton-Raphson converge rápidamente en términos de iteraciones, su alto
+            costo
+            computacional por iteración lo hace menos eficiente en la práctica en comparación con los métodos de
+            descenso de gradiente, especialmente en problemas de gran escala.
           </p>
-          <h4 class="blog-paragraph-h4" data-no-toc>Previsualización de imágenes cargadas</h4>
+          <h3 class="blog-paragraph-h3">Complejidad espacial</h3>
           <p class="blog-paragraph">
-            Finalmente, visualizamos las imágenes cargadas junto con sus etiquetas de edad y género para asegurarnos de
-            que se han cargado correctamente.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python">plt.figure(figsize=(15, 12)) # Configuramos el tamaño de la figura
-for image, age, gender in sample_ds.take(1):  # Tomamos un lote del dataset
-    for i in range(IMAGES_TO_DISPLAY): # Iteramos sobre las imágenes del lote
-        ax = plt.subplot(4, 5, i + 1) # Creamos un subplot para cada imagen
-        plt.imshow(np.array(image[i]).astype("uint8")) # Mostramos la imagen
-        plt.title(f"Age: {int(age[i])} // Gender: {int(gender[i])}") # Imprimimos el título con edad y género
-        plt.axis("off")</code></pre>
-          </div>
-          <p class="blog-paragraph">
-            Como podemos observar, las imágenes se han cargado correctamente, y las etiquetas de edad y género
-            coinciden con las imágenes mostradas. Esto confirma que estamos listos para proceder con el preprocesamiento
-            y entrenamiento del modelo.
-          </p>
-          <div class="blog-div-image mt-8">
-            <img src="../../assets/blog/training-cnn-with-keras-from-scratch/faces.png" alt="Muestra de imágenes"
-              class="w-full rounded-lg shadow-md">
-          </div>
-        </section>
-
-        <!-- Sección 8 -->
-        <section id="implementing-6">
-          <h3 class="blog-paragraph-h3">Particionar el conjunto de datos</h3>
-          <p class="blog-paragraph">
-            Ahora que hemos visualizado una muestra de las imágenes, el siguiente paso es dividir el conjunto de datos
-            en conjuntos de entrenamiento y validación. Esto es crucial para evaluar el rendimiento del modelo durante
-            el entrenamiento y asegurarnos de no caer en overfitting.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python">all_image_files = [file for file in os.listdir(DATASET_PATH) if file.lower().endswith(('.jpg'))] # Listamos todos los archivos de imagen en el directorio del conjunto de datos
-random.seed(0) # Fijamos una semilla para reproducibilidad del shuffle
-random.shuffle(all_image_files) # Mezclamos aleatoriamente los archivos de imagen
-
-total_images = len(all_image_files) # Contamos el número total de imágenes
-train_end = int(total_images * TRAINING_PERCENTAGE) # Calculamos el índice para dividir el conjunto de datos
-
-# Separamos los archivos en conjuntos de entrenamiento y validación
-train_image_files = all_image_files[:train_end] # Archivos de imagen para entrenamiento
-val_image_files = all_image_files[train_end:] # Archivos de imagen para validación </code></pre>
-          </div>
-          <p class="blog-paragraph-end">
-            Aquí, listamos todos los archivos de imagen en el directorio del conjunto de datos y los mezclamos
-            aleatoriamente para asegurar que la división sea representativa. Luego, calculamos el índice para dividir el
-            conjunto de datos según el porcentaje definido para entrenamiento (80% en este caso) y separamos los
-            archivos
-            en conjuntos de entrenamiento y validación.
-          </p>
-        </section>
-
-        <!-- Sección 9 -->
-        <section id="implementing-7">
-          <h3 class="blog-paragraph-h3">Segmentación de datos</h3>
-          <p class="blog-paragraph">
-            A continuación, definimos una función para cargar las imágenes y sus etiquetas (edad y género) desde los
-            nombres de archivo. Esta función leerá cada imagen, la convertirá a formato RGB, la normalizará y extraerá
-            las etiquetas de edad y género del nombre del archivo.
-          </p>
-          <h4 class="blog-paragraph-h4" data-no-toc>Leer y procesar imagenes y etiquetas</h4>
-          <p class="blog-paragraph">
-            La función <code class="blog-paragraph-code">load_images_labels</code> toma como entrada la ruta del
-            conjunto de datos y una lista de nombres de archivo. Devuelve tres arreglos de NumPy: uno con las imágenes
-            procesadas, otro con las etiquetas de edad y otro con las etiquetas de género.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python"># Definimos una función para cargar imágenes y sus etiquetas (edad y género) desde los nombres de archivo
-def load_images_labels(dataset_path, filenames):
-  images, age_labels, gender_labels = [], [], [] # Creamos listas para imágenes y etiquetas
-
-  for current_file_name in filenames: # Se itera sobre los nombres de archivo proporcionados
-    image = cv2.imread(os.path.join(dataset_path, current_file_name)) # Leemos la imagen usando OpenCV
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # Convertimos de BGR a RGB
-    image = image / 255.0  # Normalizamos la imagen a [0, 1] como práctica recomendada
-    labels = current_file_name.split('_') # Extraemos las etiquetas de edad y género del nombre del archivo
-    age_label = int(labels[0]) # La edad es la primera parte del nombre del archivo
-    gender_label = int(labels[1]) # El género es la segunda parte del nombre del archivo
-
-    age_labels.append(age_label) # Agregamos la etiqueta de edad a la lista
-    gender_labels.append(gender_label) # Agregamos la etiqueta de género a la lista
-    images.append(image) # Agregamos la imagen a la lista
-
-  # Convertimos las listas a arreglos de NumPy para cargarlos en tensorflow dataset
-  images = np.array(images) 
-  age_labels = np.array(age_labels)
-  gender_labels = np.array(gender_labels)
-  
-  return images, age_labels, gender_labels</code></pre>
-          </div>
-        </section>
-
-        <!-- Sección 10 -->
-        <section id="implementing-8">
-          <h4 class="blog-paragraph-h4" data-no-toc>Cargar datos a memoria</h4>
-          <p class="blog-paragraph">
-            Ahora, utilizamos la función definida anteriormente para cargar las imágenes y sus etiquetas tanto para el
-            conjunto de entrenamiento como para el conjunto de validación.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python"># Llamamos a la función para cargar imágenes y etiquetas de entrenamiento en memoria
-train_images, train_age, train_gender = load_images_labels(DATASET_PATH, train_image_files)
-
-# Llamamos a la función para cargar imágenes y etiquetas de validación en memoria
-val_images, val_age, val_gender = load_images_labels(DATASET_PATH, val_image_files)</code></pre>
-          </div>
-        </section>
-
-        <!-- Sección 11 -->
-        <section id="implementing-9">
-          <h4 class="blog-paragraph-h4" data-no-toc>Crear objetos de TensorFlow dataset</h4>
-          <p class="blog-paragraph">
-            Finalmente, convertimos los arreglos de imágenes y etiquetas en objetos <code
-              class="blog-paragraph-code">tf.data.Dataset</code> para facilitar su manipulación durante el entrenamiento
-            del modelo. Estos objetos permiten un manejo eficiente de los datos, incluyendo operaciones como el
-            barajado (shuffling), el agrupamiento en lotes (batching) y la pre-carga (prefetching) para optimizar el
-            rendimiento durante el entrenamiento.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python"># Creamos un objeto de dataset de tensorflow en base a las imágenes y etiquetas de entrenamiento
-train_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": train_images}, {"age_output":train_age, "gender_output":train_gender}))
-train_ds = train_ds.shuffle(len(train_images)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
-
-# Creamos un objeto de dataset de tensorflow en base a las imágenes y etiquetas de validación
-val_ds = tf.data.Dataset.from_tensor_slices(({"my_images_input": val_images}, {"age_output":val_age, "gender_output":val_gender}))
-val_ds = val_ds.shuffle(len(val_images)).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)</code></pre>
-          </div>
-        </section>
-
-        <!-- Sección 12 -->
-        <section id="implementing-10">
-          <h3 class="blog-paragraph-h3">Aumentación de datos</h3>
-          <p class="blog-paragraph">
-            Aunque no se mencionó este concepto durante la teoría abordada, la aumentación de datos es una técnica
-            crucial en el entrenamiento de modelos de aprendizaje
-            profundo, especialmente cuando se trabaja con conjuntos de datos limitados.
+            Desde el punto de vista teórico, la complejidad espacial de cada método de optimización puede analizarse en
+            función de las estructuras de datos que deben almacenarse durante la ejecución del algoritmo.
           </p>
           <p class="blog-paragraph">
-            Consiste en aplicar transformaciones aleatorias a las imágenes de entrenamiento para crear variaciones
-            adicionales, lo que ayuda a mejorar la generalización del modelo (capacidad de predecir correctamente en
-            datos no vistos), evitando el overfitting.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python"># Definimos una función para aplicar aumentos de datos a las imágenes
-def data_augmentation(images):
-    for layer in data_augmentation_layers:
-        images = layer(images)
-    return images
-
-# Definimos las técnicas de aumento de datos que aplicaremos
-data_augmentation_layers = [
-    layers.RandomFlip("horizontal"), # Voltear horizontalmente
-    layers.RandomRotation(0.1), # Rotar aleatoriamente hasta 10%
-    layers.RandomZoom(0.14) # Aplicar zoom aleatorio hasta 14%
-]</code></pre>
-          </div>
-          <p class="blog-paragraph">
-            En este caso, hemos definido tres técnicas de aumentación: volteo horizontal, rotación aleatoria y zoom
-            aleatorio. Estas transformaciones se aplicarán a las imágenes de entrenamiento durante el proceso de
-            entrenamiento del modelo, ayudando a crear un conjunto de datos más diverso y robusto.
+            En el caso del método de Newton-Raphson, es necesario almacenar el Hessiano de la función de pérdida, que es
+            una matriz de tamaño \( p \times p \), donde \( p \) es el número de parámetros del modelo. Esto implica una
+            complejidad espacial de \( \mathcal{O}(p^2) \). Además, se deben almacenar el gradiente y los parámetros, lo
+            que añade una
+            complejidad adicional de \( \mathcal{O}(p) \). Por lo tanto, la complejidad espacial total del método de
+            Newton-Raphson es:
+            $$
+            \mathcal{O}(p^2) + \mathcal{O}(p) = \mathcal{O}(p^2)
+            $$
           </p>
           <p class="blog-paragraph">
-            Los valores específicos de rotación y zoom también son hiperparámetros que pueden ser ajustados para
-            optimizar el rendimiento del modelo. Por lo que pueden ser incluidos en el proceso de optimización con
-            Optuna como lo mencionamos anteriormente.
+            En contraste, los métodos de descenso de gradiente y descenso de gradiente con backtracking solo requieren
+            almacenar el gradiente y los parámetros, ambos de tamaño \( p \). Por lo tanto, la complejidad espacial de
+            estos
+            métodos es:
+            $$
+            \mathcal{O}(p) + \mathcal{O}(p) = \mathcal{O}(p)
+            $$
           </p>
           <p class="blog-paragraph-end">
-            Puedes encontrar todas las técnicas de aumentación disponibles en la documentación de
-            <a href="https://keras.io/api/layers/preprocessing_layers/image_augmentation/" target="_blank"
-              class="blog-paragraph-link">Keras</a>.
+            En resumen, desde el punto de vista de la complejidad espacial, los métodos basados en gradiente son más
+            eficientes que el
+            método de Newton-Raphson, especialmente cuando el número de parámetros \( p \) es grande.
           </p>
-        </section>
-
-        <!-- Sección 13 -->
-        <section id="implementing-11">
-          <h3 class="blog-paragraph-h3">Definición de la arquitectura del modelo</h3>
-          <p class="blog-paragraph">
-            Ahora que hemos preparado los datos, es momento de definir la arquitectura de nuestra red neuronal
-            convolucional (CNN). Utilizaremos la API funcional de Keras para crear un modelo con múltiples salidas,
-            una para predecir la edad y otra para predecir el género.
-          </p>
-          <h4 class="blog-paragraph-h4" data-no-toc>Capas de la rama principal del modelo</h4>
-          <p class="blog-paragraph">
-            Comenzamos definiendo la entrada del modelo, que será una imagen de tamaño 128x128 con 3 canales de color
-            (RGB). Luego, aplicamos las técnicas de aumentación de datos definidas anteriormente.
-          </p>
-          <p class="blog-paragraph">
-            A continuación, definimos la arquitectura principal de la CNN, que consta de varios bloques de capas
-            convolucionales seguidas de capas de normalización por lotes y capas de agrupamiento (pooling) para extraer
-            características relevantes de las imágenes.
-          </p>
-          <p class="blog-paragraph">
-            Cada capa <code class="blog-paragraph-code">layers.Conv2D</code> representa una capa convolucional, donde
-            los
-            valores dentro del parentesis son los hiperparametros mencionados anteriormente. Por ejemplo, en la primera
-            capa
-            convolucional, usamos 64 filtros de tamaño 3x3 con la función de activación ReLU y padding "same" para
-            mantener las dimensiones espaciales de la imagen. Esta misma idea se aplica a las demás capas de la red.
-          </p>
-          <p class="blog-paragraph">
-            ¿Pero notaste que mencionamos a ReLU como hiperparámetro de la capa convolucional?
-          </p>
-          <p class="blog-paragraph">
-            Esta es una capa aparte según lo que vimos en la teoría abordada, pero en Keras se incluye dentro de la
-            definición de la capa convolucional como un hiperparámetro más.
-          </p>
-          <p class="blog-paragraph">
-            Otro punto importante que debemos mencionar es que los valores que van al fin (<code
-              class="blog-paragraph-code">(x)</code> / <code class="blog-paragraph-code">(branch_gender)</code> / <code
-              class="blog-paragraph-code">(branch_age)</code>) de cada capa (Conv2D, MaxPooling2D, Flatten, Dense,
-            Dropout) son la salida de la capa anterior, es decir, la capa sobre la que se aplican los cambios de .
-            la siguiente capa.
-          </p>
-          <p class="blog-quote"><strong>Ejemplo:</strong> La salida de la capa Conv2D (<code
-              class="blog-paragraph-code">x_salida_1</code>) se utiliza como entrada para la
-            capa BatchNormalization:
-            <br>
-            <code class="blog-paragraph-code">x_salida_1 = layers.Conv2D(...)(x_salida_0)</code>
-            <br>
-            <code class="blog-paragraph-code">x_salida_2 = layers.BatchNormalization(...)(x_salida_1)</code>
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python">image_inputs = keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS), name="my_images_input") # Definimos la entrada del modelo
-x = data_augmentation(image_inputs) # Aplicamos aumentos de datos
-
-# Definimos la arquitectura principal de la CNN
-## Bloque de extracción de características 1
-x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Primera capa convolucional
-x = layers.BatchNormalization()(x) # Normalización por lotes
-x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Segunda capa convolucional
-x = layers.BatchNormalization()(x) # Normalización por lotes
-x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)
-
-## Bloque de extracción de características 2
-x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Tercera capa convolucional
-x = layers.BatchNormalization()(x) # Normalización por lotes
-x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x) # Cuarta capa convolucional
-x = layers.BatchNormalization()(x) # Normalización por lotes
-x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)
-
-## Bloque de extracción de características 3
-x = layers.Conv2D(512, (3, 3), activation="relu", padding="same")(x) # Quinta capa convolucional
-x = layers.BatchNormalization()(x) # Normalización por lotes
-x = layers.MaxPooling2D((2, 2))(x) # Capa de agrupamiento (pooling)</code></pre>
-          </div>
-          <p class="blog-paragraph">
-            La salida de esta sección servirá como entrada para las dos ramas del modelo, una para predecir la edad y
-            otra para predecir el género.
-          </p>
-        </section>
-
-        <!-- Sección 14 -->
-        <section id="implementing-12">
-          <h4 class="blog-paragraph-h4" data-no-toc>Capas de la rama de edad</h4>
-          <p class="blog-paragraph">
-            A continuación, definimos la rama del modelo encargada de predecir la edad. Esta rama toma la salida de la
-            arquitectura principal y pasa por varios bloques de capas convolucionales y completamente conectadas antes
-            de generar la predicción final de edad.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre
-              class="blog-code-block"><code class="language-python"># Rama para predicción de edad
-## Bloque de extracción de características para edad
-branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(x) # Primera capa convolucional
-branch_age = layers.BatchNormalization()(branch_age) # Normalización por lotes
-branch_age = layers.Conv2D(128, (3, 3), activation="relu", padding="same", kernel_regularizer=l2(0.01))(branch_age) # Segunda capa convolucional
-branch_age = layers.BatchNormalization()(branch_age) # Normalización por lotes
-branch_age = layers.MaxPooling2D((2, 2))(branch_age) # Capa de agrupamiento (pooling)
-
-## Bloque para predicción de edad
-branch_age = layers.Flatten()(branch_age) # Aplanamiento
-branch_age = layers.Dense(128, activation="relu")(branch_age) # Capa completamente conectada
-branch_age = layers.Dropout(0.45)(branch_age) # Capa de abandono (dropout) para prevenir sobreajuste
-age_output = layers.Dense(1, activation="linear", name="age_output")(branch_age) # Salida para la predicción de edad</code></pre>
-          </div>
-          <p class="blog-paragraph-end">
-            La salida de esta rama es una única neurona con activación lineal, adecuada para un problema de regresión
-            como la predicción de edad.
-          </p>
-        </section>
-
-        <!-- Sección 15 -->
-        <section id="implementing-13">
-          <h4 class="blog-paragraph-h4" data-no-toc>Capas de la rama de género</h4>
-          <p class="blog-paragraph">
-            Ahora, definimos la rama del modelo encargada de predecir el género. Similar a la rama de edad, esta
-            rama también toma la salida de la arquitectura principal y pasa por varios bloques de capas convolucionales
-            y completamente conectadas antes de generar la predicción final de género.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre
-              class="blog-code-block"><code class="language-python"># Rama para predicción de género
-## Bloque de extracción de características para género
-branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x) # Primera capa convolucional
-branch_gender = layers.BatchNormalization()(branch_gender) # Normalización por lotes
-branch_gender = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(branch_gender) # Segunda capa convolucional
-branch_gender = layers.BatchNormalization()(branch_gender) # Normalización por lotes
-branch_gender = layers.MaxPooling2D((2, 2))(branch_gender) # Capa de agrupamiento (pooling)
-
-## Bloque para predicción de género
-branch_gender = layers.Flatten()(branch_gender) # Aplanamiento
-branch_gender = layers.Dense(128, activation="relu")(branch_gender) # Capa completamente conectada
-branch_gender = layers.Dropout(0.26871378401366075)(branch_gender) # Capa de abandono (dropout) para prevenir sobreajuste
-gender_output = layers.Dense(1, activation="sigmoid", name="gender_output")(branch_gender) # Salida para la predicción de género</code></pre>
-          </div>
-          <p class="blog-paragraph-end">
-            La salida de esta rama es una única neurona con activación sigmoide, adecuada para un problema de
-            clasificación binaria como la predicción de género (masculino o femenino).
-          </p>
-        </section>
-
-        <!-- Sección 16 -->
-        <section id="implementing-14">
-          <h4 class="blog-paragraph-h4" data-no-toc>Entradas y salidas del modelo</h4>
-          <p class="blog-paragraph">
-            Finalmente, definimos el modelo completo especificando las entradas y salidas. Utilizamos la clase
-            <code class="blog-paragraph-code">keras.Model</code> para crear un modelo con múltiples salidas, una para
-            la edad y otra para el género.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python"># Definimos el modelo con entradas y salidas múltiples
-model = keras.Model(
-    inputs=[image_inputs],
-    outputs=[age_output, gender_output]
-)</code></pre>
-          </div>
-        </section>
-
-        <!-- Sección 17 -->
-        <section id="implementing-15">
-          <h4 class="blog-paragraph-h4" data-no-toc>Resumen de la arquitectura del modelo</h4>
-          <p class="blog-paragraph">
-            Podemos imprimir un resumen de la arquitectura del modelo para verificar que todo esté definido
-            correctamente. Esto nos mostrará las capas del modelo, el número de parámetros entrenables y no entrenables,
-            y la forma de las salidas de cada capa. Puedes ver el diagrama en el Colab de este articulo.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre
-              class="blog-code-block"><code class="language-python">model.summary() # Imprimimos el resumen del modelo</code></pre>
-          </div>
-        </section>
-
-        <!-- Sección 18 -->
-        <section id="implementing-16">
-          <h4 class="blog-paragraph-h4" data-no-toc>Grafo del modelo</h4>
-          <p class="blog-paragraph">
-            También podemos visualizar la arquitectura del modelo como un grafo, lo que nos ayuda a entender mejor la
-            estructura y las conexiones entre las diferentes capas. Puedes ver el grafo en el Colab de este articulo.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre
-              class="blog-code-block"><code class="language-python">plot_model(model, show_shapes=True, dpi=100) # Visualizamos la arquitectura del modelo</code></pre>
-          </div>
-        </section>
-
-        <section id="implementing-16">
-          <h3 class="blog-paragraph-h3">Definición de hiperparámetros</h3>
-          <p class="blog-paragraph">
-            Antes de entrenar el modelo, necesitamos definir varios hiperparámetros importantes que influirán en el
-            proceso de entrenamiento y en el rendimiento final del modelo. Estos incluyen las funciones de pérdida,
-            los pesos de las pérdidas para cada tarea (edad y género), el optimizador, las métricas de evaluación y los
-            callbacks para el entrenamiento.
-          </p>
-          <h4 class="blog-paragraph-h4" data-no-toc>Pesos de las pérdidas de edad y género</h4>
-          <p class="blog-paragraph">
-            Dado que estamos abordando un problema de aprendizaje multitarea, es importante asignar pesos adecuados a
-            las pérdidas de cada tarea. En este caso, hemos decidido asignar un peso ligeramente mayor a la pérdida de
-            edad en comparación con la pérdida de género, ya que la predicción de edad puede ser más desafiante y
-            crítica en este contexto.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python">loss_weight_gender = 0.6940071116394927 # Peso para la pérdida de género
-loss_weight_age = 1.0 - loss_weight_gender # Peso para la pérdida de edad
-loss_weights = {
-    "age_output": loss_weight_age,
-    "gender_output": loss_weight_gender
-}</code></pre>
-          </div>
-        </section>
-
-        <section id="implementing-16">
-          <h4 class="blog-paragraph-h4" data-no-toc>Optimizador, métricas y callbacks de entrenamiento</h4>
-          <p class="blog-paragraph">
-            Utilizaremos el optimizador Adam, que es ampliamente utilizado en tareas de aprendizaje profundo debido a
-            su capacidad para adaptarse a diferentes tasas de aprendizaje durante el entrenamiento. Además, definiremos
-            las funciones de pérdida y las métricas de evaluación para cada tarea.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python">optimizer = keras.optimizers.Adam(learning_rate=1e-4) # Definimos el optimizador Adam con una tasa de aprendizaje de 0.0001
-
-# Compilamos el modelo con múltiples pérdidas y métricas
-model.compile(
-    optimizer=optimizer,
-    loss={"age_output": keras.losses.Huber(delta=5.0), "gender_output": "binary_crossentropy"},
-    loss_weights=loss_weights,
-    metrics={"age_output": "mae", "gender_output": "accuracy"}
-)
-
-# Definimos los callbacks para el entrenamiento
-CALLBACKS = [
-    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.01, patience=10, mode='auto', restore_best_weights=True),
-    tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=7, min_lr=1e-6, verbose=0),
-]</code></pre>
-          </div>
-          <p class="blog-paragraph-end">
-            Los callbacks definidos incluyen <code class="blog-paragraph-code">EarlyStopping</code> para detener el
-            entrenamiento si la pérdida de validación no mejora después de un número determinado de épocas, y
-            <code class="blog-paragraph-code">ReduceLROnPlateau</code> para reducir la tasa de aprendizaje si la
-            pérdida de validación se estanca.
-        </section>
-
-        <section id="implementing-16">
-          <h3 class="blog-paragraph-h3">Entrenamiento del modelo</h3>
-          <p class="blog-paragraph">
-            Ahora sí, estamos listos para entrenar el modelo utilizando los conjuntos de datos de entrenamiento y
-            validación que preparamos anteriormente. El proceso de entrenamiento implicará alimentar las imágenes y
-            etiquetas al modelo en lotes, ajustar los pesos de la red neuronal mediante retropropagación y evaluar el
-            rendimiento del modelo en el conjunto de validación después de cada época.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python"># Entrenamos el modelo
-history = model.fit(train_ds, # Conjunto de datos de entrenamiento
-                    batch_size=BATCH_SIZE, # Tamaño del lote
-                    epochs=EPOCHS, # Número de épocas
-                    callbacks=CALLBACKS, # Callbacks definidos anteriormente
-                    validation_data=val_ds, # Conjunto de datos de validación
-                    verbose=1 # Mostrar el progreso del entrenamiento
-                    )</code></pre>
-          </div>
-        </section>
-
-        </section>
-
-        <section id="implementing-16">
-          <h3 class="blog-paragraph-h3">Guardar el modelo entrenado</h3>
-          <p class="blog-paragraph">
-            Una vez que el modelo ha sido entrenado, es importante guardar los pesos y la arquitectura del modelo para
-            poder reutilizarlos posteriormente sin necesidad de volver a entrenar desde cero. Keras proporciona una
-            manera sencilla de guardar y cargar modelos completos utilizando el formato HDF5 o el formato nativo de
-            TensorFlow.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python"># Creamos un directorio para guardar el modelo si no existe
-if not os.path.exists(FOLDER_MODELS):
-    os.mkdir(FOLDER_MODELS)
-
-model.save(FOLDER_MODELS+'/age-gender.keras') # Guardamos el modelo</code></pre>
-          </div>
-        </section>
-
-        </section>
-
-        <section id="implementing-16">
-          <h3 class="blog-paragraph-h3">Métricas de entrenamiento y validación</h3>
-          <p class="blog-paragraph">
-            Durante el entrenamiento del modelo, es útil visualizar las métricas de rendimiento tanto en el conjunto de
-            entrenamiento como en el conjunto de validación. Esto nos permite monitorear el progreso del modelo y
-            detectar posibles problemas como el sobreajuste (overfitting) o el subajuste (underfitting).
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre class="blog-code-block"><code class="language-python"># Visualizamos las métricas de entrenamiento y validación
-fig = plt.figure(figsize=(15, 10))
-fig.add_subplot(2,2,1)
-plt.plot(history.history['gender_output_loss'], label='train gender loss')
-plt.plot(history.history['val_gender_output_loss'], label='val gender loss')
-plt.legend()
-plt.grid(True)
-plt.ylim([0,1.0])
-plt.xlabel('epoch')
-
-fig.add_subplot(2,2,2)
-plt.plot(history.history['gender_output_accuracy'], label='train gender accuracy')
-plt.plot(history.history['val_gender_output_accuracy'], label='val gender accuracy')
-plt.legend()
-plt.grid(True)
-plt.ylim([0,1.0])
-plt.xlabel('epoch')
-
-fig.add_subplot(2,2,3)
-plt.plot(history.history['age_output_loss'], label='train age loss')
-plt.plot(history.history['val_age_output_loss'], label='val age loss')
-plt.legend()
-plt.grid(True)
-plt.xlabel('epoch')
-
-fig.add_subplot(2,2,4)
-plt.plot(history.history['age_output_mae'], label='train age mae')
-plt.plot(history.history['val_age_output_mae'], label='val age mae')
-plt.legend()
-plt.grid(True)
-plt.xlabel('epoch')</code></pre>
-          </div>
-        </section>
-
-        <section id="implementing-16">
-          <h3 class="blog-paragraph-h3">Evaluación del modelo</h3>
-          <p class="blog-paragraph">
-            Por último, evaluamos el rendimiento del modelo en el conjunto de validación utilizando el método
-            <code class="blog-paragraph-code">model.evaluate()</code>. Esto nos proporciona una evaluación objetiva del
-            modelo en datos no vistos durante el entrenamiento.
-          </p>
-          <div class="blog-code-windows">
-            <div class="blog-code-windows-buttons">
-              <span class="blog-code-block-button-close"></span>
-              <span class="blog-code-block-button-minimize"></span>
-              <span class="blog-code-block-button-maximize"></span>
-              <span class="blog-code-windows-header">python</span>
-            </div>
-            <pre
-              class="blog-code-block"><code class="language-python">print(model.evaluate(val_ds)) # Evaluamos el modelo en el conjunto de validación</code></pre>
-          </div>
         </section>
 
         <section id="demo">
           <h2 class="blog-paragraph-h2">Demo</h2>
+          <p class="blog-paragraph">
+            Explicar el comportamiento de los algoritmos es fundamental, pero observar cómo estos se traducen en una
+            decisión
+            concreta permite cerrar el vínculo entre teoría y práctica. Por ello, se presenta a continuación una demo
+            basada
+            en un conjunto de datos real, donde un modelo de regresión logística previamente entrenado realiza
+            inferencia sobre
+            una nueva muestra.
+          </p>
+          <p class="blog-paragraph">
+            El objetivo de esta demo no es evaluar el desempeño predictivo del modelo, sino ilustrar cómo los parámetros
+            obtenidos mediante distintos métodos de optimización se utilizan para calcular el valor lineal
+            <em>η = x<sup>T</sup>β</em>, transformarlo en una probabilidad mediante la función sigmoide y, finalmente,
+            producir una decisión binaria.
+          </p>
+          <p class="blog-paragraph">
+            Para este ejemplo se emplea el <strong>German Credit Dataset (UCI)</strong> únicamente como vehículo
+            práctico.
+            A partir de las características de una nueva observación, se aplica el mismo proceso de estandarización
+            usado
+            durante el entrenamiento y se evalúa la probabilidad asociada a la clase positiva, evidenciando que la
+            inferencia
+            es computacionalmente sencilla en comparación con el proceso de optimización que permitió estimar los
+            parámetros
+            del modelo.
+          </p>
           <p class="blog-paragraph">
             Debido a que explicarlo esta bien, pero mostrarlo es mejor, he creado una demo interactiva donde puedes
             subir una foto y el modelo entrenado te dirá la edad y género
             estimados. Puedes probarla a continuación:
           </p>
           <p class="mt-4 text-sm text-slate-500 italic border-l-4 border-blue-200 pl-3 bg-blue-50/40 rounded-md mb-4">
-            Las imágenes no se almacenan ni se envían a servidores externos; se procesan en <strong>Hugging
-              Face Space</strong>.
+            La muestra es generada al dar clic corresponde a una observación aleatoria 
+            del German Credit Dataset, ya que en total se requieren 24 características de la persona.</strong>.
           </p>
 
           <div id="modelStatus" class="mb-6 hidden">
             <!-- El contenido se insertará dinámicamente -->
           </div>
-
           <div class="demo-div">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
+              <!-- ===============================
+         PANEL IZQUIERDO: MUESTRA
+    ================================ -->
               <div class="demo-panel-div">
-                <h3 class="blog-paragraph-h3 flex items-center mb-4" data-no-toc>
-                  <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                  </svg>
-                  Subir Imagen
+                <h3 class="blog-paragraph-h3 mb-4" data-no-toc>
+                  Muestra de entrada
                 </h3>
 
-                <div id="dropZone" class="demo-drop-zone">
-                  <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                    </path>
-                  </svg>
-                  <p class="text-gray-600 mb-2">Arrastra una imagen aquí o haz clic para seleccionar</p>
-                  <p class="text-sm text-gray-400">Formatos soportados: JPG, PNG</p>
-                  <input type="file" id="imageInput" accept="image/jpeg,image/png" class="hidden">
-                </div>
+                <p class="text-sm text-slate-600 mb-4">
+                  Selecciona una muestra aleatoria del conjunto de datos y observa cómo el modelo realiza la
+                  inferencia
+                  utilizando los parámetros optimizados por cada método.
+                </p>
 
-                <button id="analyzeBtn"
-                  class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled>
-                  Realizar predicción
+                <!-- Botón cargar muestra -->
+                <button id="loadSampleBtn"
+                  class="w-full bg-slate-700 hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 mb-4">
+                  Cargar muestra aleatoria
                 </button>
+
+                <!-- Panel muestra -->
+                <div id="sampleBox" class="hidden space-y-4">
+
+                  <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm text-slate-500 mb-1">Clase real (1 = Riesgo alto de crédito, 0 = Buen pagador)</p>
+                    <p class="font-mono text-lg text-slate-800">
+                      y = <span id="trueClass">--</span>
+                    </p>
+                  </div>
+
+                  <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm text-slate-500 mb-2">Características de la persona</p>
+                    <pre id="sampleVector"
+                      class="text-xs text-slate-700 bg-white p-3 rounded-lg overflow-x-auto max-h-48">
+          </pre>
+                  </div>
+
+                  <!-- Botón inferencia -->
+                  <button id="predictBtn" disabled
+                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200">
+                    Ejecutar inferencia
+                  </button>
+                </div>
               </div>
 
+              <!-- ===============================
+                  PANEL DERECHO: RESULTADOS
+              ================================ -->
               <div class="demo-panel-div">
-                <h3 class="blog-paragraph-h3 flex items-center mb-4" data-no-toc>
-                  <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                    </path>
-                  </svg>
-                  Vista Previa
+                <h3 class="blog-paragraph-h3 mb-4" data-no-toc>
+                  Resultado de inferencia
                 </h3>
 
-                <div id="imagePreview" class="demo-image-preview-zone">
-                  <div class="text-center text-gray-400">
-                    <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                      </path>
-                    </svg>
-                    <p>La imagen aparecerá aquí</p>
-                  </div>
-                </div>
+                <div id="results" class="hidden space-y-6 transition-all duration-300">
 
-                <div id="results" class="mt-5 hidden transition-all duration-300">
-                  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                    <h4 class="flex items-center text-base font-semibold text-slate-700 mb-4" data-no-toc>
-                      <svg class="w-5 h-5 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                      Resultados de Predicción
-                    </h4>
+                  <!-- ===============================
+                      RESULTADOS POR OPTIMIZADOR
+                  ================================ -->
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    <div class="grid grid-cols-2 gap-4">
-                      <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
-                        <p class="demo-pred-text">Edad</p>
-                        <p id="ageResult" class="text-2xl font-semibold text-slate-800 tracking-tight">--</p>
+
+                    <!-- NEWTON -->
+                    <div class="space-y-4">
+                      <h4 class="text-sm font-semibold text-slate-700">Newton–Raphson</h4>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          η = <span id="eta-newton">--</span>
+                        </p>
                       </div>
 
-                      <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
-                        <p class="demo-pred-text">Género</p>
-                        <p id="genderResult" class="text-2xl font-semibold text-slate-800 tracking-tight">--</p>
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          p = <span id="prob-newton">--</span>
+                        </p>
+
+                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                          <div id="probBar-newton" class="h-full bg-blue-500 w-0 transition-all duration-500"></div>
+                        </div>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                        <p class="text-lg font-semibold text-slate-800">
+                          Predicción: <span id="class-newton">--</span>
+                        </p>
                       </div>
                     </div>
+
+                    <!-- ARMIJO -->
+                    <div class="space-y-4">
+                      <h4 class="text-sm font-semibold text-slate-700">Gradient Descent</h4>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          η = <span id="eta-gradient_descent">--</span>
+                        </p>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          p = <span id="prob-gradient_descent">--</span>
+                        </p>
+
+                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                          <div id="probBar-gradient_descent"
+                            class="h-full bg-emerald-500 w-0 transition-all duration-500"></div>
+                        </div>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                        <p class="text-lg font-semibold text-slate-800">
+                          Predicción: <span id="class-gradient_descent">--</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- BACKTRACKING -->
+                    <div class="space-y-4">
+                      <h4 class="text-sm font-semibold text-slate-700">Gradient Descent (Backtracking)</h4>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          η = <span id="eta-gradient_descent_backtracking">--</span>
+                        </p>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          p = <span id="prob-gradient_descent_backtracking">--</span>
+                        </p>
+
+                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                          <div id="probBar-gradient_descent_backtracking"
+                            class="h-full bg-purple-500 w-0 transition-all duration-500"></div>
+                        </div>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                        <p class="text-lg font-semibold text-slate-800">
+                          Predicción: <span id="class-gradient_descent_backtracking">--</span>
+                        </p>
+                      </div>
+                    </div>
+
                   </div>
+
+                  <!-- ===============================
+         UMBRAL GLOBAL (τ)
+    ================================ -->
+                  <div class="rounded-xl border border-slate-200 bg-white p-4">
+                    <p class="text-sm text-slate-500 mb-2">
+                      Umbral de decisión (τ)
+                    </p>
+
+                    <input id="thresholdInput" type="range" min="0" max="1" step="0.01" value="0.5" class="w-full">
+
+                    <p class="text-xs text-slate-500 mt-2">
+                      τ = <span id="thresholdValue">0.50</span>
+                    </p>
+
+                    <!-- EXPLICACIÓN CLARA DEL UMBRAL -->
+                    <p class="text-xs text-slate-600 mt-3">
+                      Si <strong>p ≥ τ</strong>, la observación se clasifica como
+                      <strong>Riesgo alto de crédito</strong>.
+                    </p>
+
+                    <p class="text-xs text-slate-500 mt-3">
+                      Este control ajusta qué tan estricto es el modelo.
+                    </p>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                      A la izquierda: el modelo es más permisivo y detecta más casos de riesgo.<br>
+                      A la derecha: el modelo es más estricto y solo señala riesgo cuando está muy seguro.
+                    </p>
+
+
+                  </div>
+
+                  <!-- NOTA ACADÉMICA -->
+                  <div class="text-xs text-slate-500 pt-2 border-t border-slate-200">
+                    Los tres resultados comparten la misma función objetivo.
+                    La diferencia observada se debe exclusivamente al método de optimización.
+                    El umbral de decisión se define en inferencia y no forma parte del entrenamiento.
+                  </div>
+
                 </div>
+
 
               </div>
             </div>
-          </div>
+
         </section>
+
         <section id="close">
           <h2 class="blog-paragraph-h2">Cierre</h2>
 
           <p class="blog-paragraph">
-            En este artículo hemos recorrido el proceso completo de construcción y entrenamiento de una
-            <strong>red neuronal convolucional (CNN)</strong> desde cero utilizando <strong>Keras</strong> y
-            <strong>TensorFlow</strong>. A lo largo del desarrollo abordamos la preparación y el preprocesamiento de los
-            datos,
-            la definición de la arquitectura, el entrenamiento del modelo y su evaluación final.
+            En este artículo hemos recorrido de forma integral el proceso de formulación,
+            análisis y resolución de un problema de <strong>optimización</strong> aplicado al
+            contexto de <strong>Aprendizaje de Máquina</strong>, poniendo énfasis en los
+            fundamentos matemáticos y algorítmicos que subyacen a métodos ampliamente utilizados
+            en la práctica.
           </p>
 
           <p class="blog-paragraph">
-            Espero que esta publicación te haya proporcionado una comprensión sólida de cómo construir y entrenar una
-            CNN
-            para tareas de visión por computadora. Te animo a experimentar con diferentes arquitecturas, técnicas de
-            aumento
-            de datos y conjuntos de datos, para explorar cómo cada decisión de diseño impacta en el rendimiento del
-            modelo.
+            A lo largo del desarrollo comparamos distintos <strong>métodos iterativos de
+              optimización</strong>, como <strong>Gradient Descent</strong>,
+            <strong>Gradient Descent con Backtracking</strong> y <strong>Newton-Raphson</strong>,
+            analizando sus diferencias no solo desde el punto de vista computacional, sino
+            también desde su interpretación estadística y su impacto en la convergencia hacia
+            una misma función objetivo.
           </p>
 
           <p class="blog-paragraph">
-            Además, la demo interactiva que acompaña este artículo está soportada en un entorno de
-            <strong>costo cero</strong> gracias al uso de <strong>Hugging Face Spaces</strong>, una plataforma que
-            permite
-            desplegar modelos de aprendizaje profundo de forma gratuita y accesible. Esto demuestra que hoy en día es
-            posible
-            compartir prototipos funcionales y experimentos de Deep Learning sin depender de infraestructura costosa,
-            haciendo la tecnología más cercana a todos.
+            Uno de los objetivos centrales fue evitar el tratamiento de estos algoritmos como
+            una <em>caja negra</em>, mostrando explícitamente cómo surgen la función de pérdida,
+            la gradiente y el Hessiano, y cómo estas cantidades guían el proceso de optimización.
+            Este enfoque permite comprender por qué distintos métodos pueden producir trayectorias
+            diferentes durante el entrenamiento, aun cuando todos convergen al mismo óptimo.
           </p>
 
           <p class="blog-paragraph">
-            Si te interesa seguir aprendiendo sobre los conceptos y casos prácticos de
-            <strong>Machine Learning</strong>, <strong>Deep Learning</strong>, <strong>Computer Vision</strong> y
-            <strong>GenAI</strong>, te invito a conectar por
+            La demo interactiva que acompaña este artículo permite visualizar este comportamiento
+            de forma intuitiva, destacando que el <strong>umbral de decisión</strong> es una
+            elección realizada en inferencia y no forma parte del proceso de entrenamiento.
+            Esto refuerza la separación conceptual entre el aprendizaje del modelo y su uso
+            práctico en escenarios reales.
+          </p>
+
+          <p class="blog-paragraph">
+            Si te interesa profundizar en temas como <strong>Optimización Numérica</strong>,
+            <strong>Estadística Computacional</strong>, <strong>Machine Learning</strong> y
+            <strong>Deep Learning</strong> desde una perspectiva clara y fundamentada, te invito
+            a conectar por
             <a href="https://www.linkedin.com/in/jeffersonangel/" target="_blank"
               class="text-blue-600 hover:underline">LinkedIn</a>
-            y estar atento a las próximas publicaciones y proyectos en mi portafolio. En futuras entregas también
-            exploraremos
-            cómo aplicar estas tecnologías en entornos <strong>cloud</strong>, utilizando servicios de
-            <strong>AWS</strong>, <strong>Google Cloud Platform</strong> y <strong>Microsoft Azure</strong>
-            para la construcción, automatización y despliegue de soluciones de inteligencia artificial a escala.
+            y seguir las próximas publicaciones y proyectos de este portafolio. En futuras
+            entregas exploraremos cómo estos algoritmos se integran en pipelines reales y
+            entornos <strong>cloud</strong>, combinando teoría, implementación y despliegue.
           </p>
 
           <p class="blog-paragraph-end">
-            ¡Gracias por leer y feliz aprendizaje profundo!
+            ¡Gracias por leer y feliz aprendizaje algorítmico!
           </p>
         </section>
 
-
         <footer class="mt-12 py-6 border-t border-slate-200 text-center text-sm text-slate-500">
-          <p id="note-1">
-            [1] Casella & Berger (2002), <em>Statistical Inference</em>, 2nd ed.,
-            sección de distribuciones discretas.
-          </p>
           © <span id="year"></span> Jefferson Angel Areche Rojas
         </footer>
 
