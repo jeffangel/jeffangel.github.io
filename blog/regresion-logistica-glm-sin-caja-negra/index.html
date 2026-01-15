@@ -1555,7 +1555,7 @@
             estimados. Puedes probarla a continuación:
           </p>
           <p class="mt-4 text-sm text-slate-500 italic border-l-4 border-blue-200 pl-3 bg-blue-50/40 rounded-md mb-4">
-            La muestra es generada al dar clic corresponde a una observación aleatoria 
+            La muestra es generada al dar clic corresponde a una observación aleatoria
             del German Credit Dataset, ya que en total se requieren 24 características de la persona.</strong>.
           </p>
 
@@ -1563,33 +1563,32 @@
             <!-- El contenido se insertará dinámicamente -->
           </div>
           <div class="demo-div">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-12">
 
-              <!-- ===============================
-         PANEL IZQUIERDO: MUESTRA
-    ================================ -->
+              <!-- ===================== -->
+              <!-- MUESTRA DE ENTRADA -->
+              <!-- ===================== -->
               <div class="demo-panel-div">
                 <h3 class="blog-paragraph-h3 mb-4" data-no-toc>
                   Muestra de entrada
                 </h3>
 
                 <p class="text-sm text-slate-600 mb-4">
-                  Selecciona una muestra aleatoria del conjunto de datos y observa cómo el modelo realiza la
-                  inferencia
+                  Selecciona una muestra aleatoria del conjunto de datos y observa cómo el modelo realiza la inferencia
                   utilizando los parámetros optimizados por cada método.
                 </p>
 
-                <!-- Botón cargar muestra -->
                 <button id="loadSampleBtn"
                   class="w-full bg-slate-700 hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 mb-4">
                   Cargar muestra aleatoria
                 </button>
 
-                <!-- Panel muestra -->
                 <div id="sampleBox" class="hidden space-y-4">
 
                   <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-sm text-slate-500 mb-1">Clase real (1 = Riesgo alto de crédito, 0 = Buen pagador)</p>
+                    <p class="text-sm text-slate-500 mb-1">
+                      Clase real (1 = Riesgo alto de crédito, 0 = Buen pagador)
+                    </p>
                     <p class="font-mono text-lg text-slate-800">
                       y = <span id="trueClass">--</span>
                     </p>
@@ -1602,7 +1601,6 @@
           </pre>
                   </div>
 
-                  <!-- Botón inferencia -->
                   <button id="predictBtn" disabled
                     class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200">
                     Ejecutar inferencia
@@ -1610,119 +1608,115 @@
                 </div>
               </div>
 
-              <!-- ===============================
-                  PANEL DERECHO: RESULTADOS
-              ================================ -->
+              <!-- ===================== -->
+              <!-- RESULTADOS -->
+              <!-- ===================== -->
               <div class="demo-panel-div">
-                <h3 class="blog-paragraph-h3 mb-4" data-no-toc>
+                <h3 class="blog-paragraph-h3 mb-6" data-no-toc>
                   Resultado de inferencia
                 </h3>
 
-                <div id="results" class="hidden space-y-6 transition-all duration-300">
+                <div id="results" class="hidden space-y-10 transition-all duration-300">
 
-                  <!-- ===============================
-                      RESULTADOS POR OPTIMIZADOR
-                  ================================ -->
-                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <!-- ===== Newton-Raphson ===== -->
+                  <div class="border-l-4 border-blue-500 pl-4 space-y-4">
+                    <h4 class="text-sm font-semibold text-slate-700">
+                      Newton–Raphson
+                    </h4>
 
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                      <p class="font-mono text-lg text-slate-800">
+                        η = <span id="eta-newton">--</span>
+                      </p>
+                    </div>
 
-                    <!-- NEWTON -->
-                    <div class="space-y-4">
-                      <h4 class="text-sm font-semibold text-slate-700">Newton–Raphson</h4>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                      <p class="font-mono text-lg text-slate-800">
+                        p = <span id="prob-newton">--</span>
+                      </p>
 
-                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
-                        <p class="font-mono text-lg text-slate-800">
-                          η = <span id="eta-newton">--</span>
-                        </p>
-                      </div>
-
-                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
-                        <p class="font-mono text-lg text-slate-800">
-                          p = <span id="prob-newton">--</span>
-                        </p>
-
-                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                          <div id="probBar-newton" class="h-full bg-blue-500 w-0 transition-all duration-500"></div>
-                        </div>
-                      </div>
-
-                      <div class="rounded-xl border border-slate-200 bg-white p-4">
-                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
-                        <p class="text-lg font-semibold text-slate-800">
-                          Predicción: <span id="class-newton">--</span>
-                        </p>
+                      <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div id="probBar-newton" class="h-full bg-blue-500 w-0 transition-all duration-500"></div>
                       </div>
                     </div>
 
-                    <!-- ARMIJO -->
-                    <div class="space-y-4">
-                      <h4 class="text-sm font-semibold text-slate-700">Gradient Descent</h4>
-
-                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
-                        <p class="font-mono text-lg text-slate-800">
-                          η = <span id="eta-gradient_descent">--</span>
-                        </p>
-                      </div>
-
-                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
-                        <p class="font-mono text-lg text-slate-800">
-                          p = <span id="prob-gradient_descent">--</span>
-                        </p>
-
-                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                          <div id="probBar-gradient_descent"
-                            class="h-full bg-emerald-500 w-0 transition-all duration-500"></div>
-                        </div>
-                      </div>
-
-                      <div class="rounded-xl border border-slate-200 bg-white p-4">
-                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
-                        <p class="text-lg font-semibold text-slate-800">
-                          Predicción: <span id="class-gradient_descent">--</span>
-                        </p>
-                      </div>
+                    <div class="rounded-xl border border-slate-200 bg-white p-4">
+                      <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                      <p class="text-lg font-semibold text-slate-800">
+                        Predicción: <span id="class-newton">--</span>
+                      </p>
                     </div>
-
-                    <!-- BACKTRACKING -->
-                    <div class="space-y-4">
-                      <h4 class="text-sm font-semibold text-slate-700">Gradient Descent (Backtracking)</h4>
-
-                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
-                        <p class="font-mono text-lg text-slate-800">
-                          η = <span id="eta-gradient_descent_backtracking">--</span>
-                        </p>
-                      </div>
-
-                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
-                        <p class="font-mono text-lg text-slate-800">
-                          p = <span id="prob-gradient_descent_backtracking">--</span>
-                        </p>
-
-                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                          <div id="probBar-gradient_descent_backtracking"
-                            class="h-full bg-purple-500 w-0 transition-all duration-500"></div>
-                        </div>
-                      </div>
-
-                      <div class="rounded-xl border border-slate-200 bg-white p-4">
-                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
-                        <p class="text-lg font-semibold text-slate-800">
-                          Predicción: <span id="class-gradient_descent_backtracking">--</span>
-                        </p>
-                      </div>
-                    </div>
-
                   </div>
 
-                  <!-- ===============================
-         UMBRAL GLOBAL (τ)
-    ================================ -->
+                  <!-- ===== Gradient Descent ===== -->
+                  <div class="border-l-4 border-emerald-500 pl-4 space-y-4">
+                    <h4 class="text-sm font-semibold text-slate-700">
+                      Gradient Descent
+                    </h4>
+
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                      <p class="font-mono text-lg text-slate-800">
+                        η = <span id="eta-gradient_descent">--</span>
+                      </p>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                      <p class="font-mono text-lg text-slate-800">
+                        p = <span id="prob-gradient_descent">--</span>
+                      </p>
+
+                      <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div id="probBar-gradient_descent"
+                          class="h-full bg-emerald-500 w-0 transition-all duration-500"></div>
+                      </div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 bg-white p-4">
+                      <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                      <p class="text-lg font-semibold text-slate-800">
+                        Predicción: <span id="class-gradient_descent">--</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- ===== Gradient Descent Backtracking ===== -->
+                  <div class="border-l-4 border-purple-500 pl-4 space-y-4">
+                    <h4 class="text-sm font-semibold text-slate-700">
+                      Gradient Descent (Backtracking)
+                    </h4>
+
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                      <p class="font-mono text-lg text-slate-800">
+                        η = <span id="eta-gradient_descent_backtracking">--</span>
+                      </p>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                      <p class="font-mono text-lg text-slate-800">
+                        p = <span id="prob-gradient_descent_backtracking">--</span>
+                      </p>
+
+                      <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div id="probBar-gradient_descent_backtracking"
+                          class="h-full bg-purple-500 w-0 transition-all duration-500"></div>
+                      </div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 bg-white p-4">
+                      <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                      <p class="text-lg font-semibold text-slate-800">
+                        Predicción: <span id="class-gradient_descent_backtracking">--</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- ===== UMBRAL ===== -->
                   <div class="rounded-xl border border-slate-200 bg-white p-4">
                     <p class="text-sm text-slate-500 mb-2">
                       Umbral de decisión (τ)
@@ -1734,7 +1728,6 @@
                       τ = <span id="thresholdValue">0.50</span>
                     </p>
 
-                    <!-- EXPLICACIÓN CLARA DEL UMBRAL -->
                     <p class="text-xs text-slate-600 mt-3">
                       Si <strong>p ≥ τ</strong>, la observación se clasifica como
                       <strong>Riesgo alto de crédito</strong>.
@@ -1748,11 +1741,9 @@
                       A la izquierda: el modelo es más permisivo y detecta más casos de riesgo.<br>
                       A la derecha: el modelo es más estricto y solo señala riesgo cuando está muy seguro.
                     </p>
-
-
                   </div>
 
-                  <!-- NOTA ACADÉMICA -->
+                  <!-- NOTA FINAL -->
                   <div class="text-xs text-slate-500 pt-2 border-t border-slate-200">
                     Los tres resultados comparten la misma función objetivo.
                     La diferencia observada se debe exclusivamente al método de optimización.
@@ -1760,10 +1751,10 @@
                   </div>
 
                 </div>
-
-
               </div>
             </div>
+          </div>
+
 
         </section>
 
