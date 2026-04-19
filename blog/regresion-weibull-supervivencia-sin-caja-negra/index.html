@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Blog de JeffAngel</title>
+  <link href="../../output.css" rel="stylesheet">
+  <link rel="icon" href="../../assets/favicon.png" type="image/png">
+  <link rel="icon" href="../../assets/logo-imagen.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js" defer></script>
+  <script src="../common/mathjax.js" defer></script>
+  <script src="../common/reading-time.js" defer></script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-white/70 backdrop-blur-sm shadow mb-8 sticky top-0 z-50 transition duration-300 ease-in-out">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+
+      <div class="grid grid-cols-[auto,1fr] items-center gap-2">
+        <a href="/">
+          <img src="../../assets/logo-imagen.svg" alt="JeffAngel Logo Icon" class="h-14 w-auto">
+        </a>
+        <a href="/" class="hidden md:flex flex-col justify-center">
+          <img href="/" src="../../assets/logo-text.svg" alt="JeffAngel.AR Text" class="h-8 w-auto mb-1">
+          <span class="text-[12px] text-gray-500 leading-none">
+            Data · AI · ML · MLOps · Cloud
+          </span>
+        </a>
+      </div>
+
+      <div class="space-x-4 text-sm">
+        <a href="/" class="text-gray-600 hover:text-blue-600">Portfolio</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem] gap-8">
+    <!-- Contenido principal -->
+    <main id="inicio" class="prose max-w-none">
+      <article class="bg-white rounded-2xl shadow-lg p-8 md:px-10 lg:px-12 space-y-10 prose prose-slate">
+
+        <header>
+          <h1 class="blog-paragraph-h1">Regresión Weibull sin caja negra: verosimilitud, censura y análisis de
+            supervivencia</h1>
+          <div class="text-sm text-gray-500 flex items-center space-x-3">
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 
+                 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <time datetime="2025-09-16">23 de febrero de 2026</time>
+            </span>
+
+            <span>·</span>
+
+            <span id="reading-time" class="flex items-center" data-content="main article" data-wpm="200"
+              data-exclude="#close">
+              <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+          </div>
+        </header>
+
+        <!-- Sección 1 -->
+
+        <section id="overview">
+          <h2 class="blog-paragraph-h2">¿Qué haremos hoy?</h2>
+
+          <p class="blog-paragraph">
+            Imagina que quieres medir cuánto tiempo dura un celular antes de fallar. Esto parece un escenario trivial,
+            pues esperas a que falle y registras el tiempo. Pero en la práctica casi nunca sabemos exactamente cuándo
+            ocurrió la falla. Y si ahora imaginas miles o millones de dispositivos, el problema deja de ser trivial.. Si
+            vienes del artículo anterior, <a target="_blank" class="text-blue-600 hover:underline"
+              href="/blog/regresion-logistica-glm-sin-caja-negra/">Regresión logística sin caja negra: estadística,
+              optimización y algoritmos</a>, allí modelábamos la probabilidad de que ocurra un evento (clasificación
+            binaria). En este artículo daremos un paso más allá: modelaremos el tiempo hasta que ese evento ocurre.
+          </p>
+          </p>
+
+          <p class="blog-paragraph">
+            El desafío es que los datos no siempre están completamente observados. No conocemos el instante exacto en
+            que cada dispositivo falla. A veces solo sabemos que falló entre dos inspecciones, o que aún no ha fallado
+            al finalizar el estudio. Es decir, trabajamos con información parcial.
+          </p>
+
+          <p class="blog-paragraph">
+            Para abordar este tipo de escenarios, es necesario introducir el concepto de <strong>censura</strong>. La
+            censura ocurre cuando no se observa el tiempo exacto de falla para algunos dispositivos, sino que solo se
+            sabe que fallaron dentro de ciertos intervalos de tiempo o que aún no han fallado al momento del análisis.
+            Este fenómeno es común en estudios de supervivencia y análisis de confiabilidad, y requiere técnicas
+            estadísticas específicas para modelar correctamente la información disponible.
+          </p>
+
+          <p class="blog-paragraph">
+            En este post veremos cómo modelar correctamente este tipo de situaciones utilizando la <strong>regresión
+              Weibull</strong>, entendiendo paso a paso cómo se construye la verosimilitud cuando existen <strong>datos
+              censurados</strong> y cómo se estiman los parámetros mediante <strong>máxima verosimilitud</strong>.
+            También, veremos que la verosimilitud no admite una solución cerrada, motivo por el cual usaremos métodos de
+            optimización iterativos como el <strong>descenso del gradiente</strong> y el <strong>método de
+              Newton-Raphson</strong>. Debido a su eficiencia usaremos el método Cuasi-Newton BFGS para encontrar los
+            parámetros óptimos del modelo, además, para no profundizar en la construcción de algoritmos, usaremos la
+            implementación de optimización de SciPy.
+          </p>
+
+          <p class="blog-quote">
+            <strong>Ojo con el dato:</strong> Si te interesa profundizar en la construcción de algoritmos de
+            optimización, puedes revisar el artículo anterior donde se explica detalladamente el descenso del gradiente,
+            el descenso del gradiente con backtracking y el método de Newton-Raphson, además de mostrar las soluciones
+            analiticas y las implementaciones desde cero en Python.
+          </p>
+
+          <p class="blog-paragraph">
+            Partiremos desde la <strong>PDF de la distribución Weibull</strong>, construiremos la función de
+            verosimilitud considerando <strong>censura por intervalos, izquierda y derecha</strong>, derivaremos la CDF
+            y la función de supervivencia, y finalmente analizaremos la inferencia mediante el <strong>perfil de
+              verosimilitud</strong> y el <strong>Teorema de Wilks</strong>.
+          </p>
+
+          <p class="blog-paragraph-end">
+            Antes de continuar, observemos la diferencia entre un escenario con observación completa y uno con censura
+            inducida. Este contraste visual nos ayudará a entender por qué la formulación matemática cambia de manera
+            sustancial.
+          </p>
+
+          <div class="mt-8 flex justify-center mb-5">
+            <img src="../../assets/blog/weibull-regression-survival-no-black-box/observation-scheme.svg"
+              alt="Esquema de observación completa vs censura inducida">
+          </div>
+        </section>
+
+        <!-- Sección 2 -->
+        <section id="theory">
+          <h2 class="blog-paragraph-h2">Un poco de contexto teórico</h2>
+
+          <p class="blog-paragraph-end">
+            Para modelar el tiempo hasta que ocurre un evento necesitamos una herramienta matemática que nos permita
+            describir cómo se comportan esos tiempos. En este artículo utilizaremos la <strong>distribución
+              Weibull</strong>, ya que nos permite modelar tiempos de supervivencia con una variable continua<sup><a
+                href="#ref-1">[1]</a></sup>.
+          </p>
+
+          <h3 class="blog-paragraph-h3">¿Qué funciones vamos a usar?</h3>
+
+          <p class="blog-paragraph">
+            Para poder trabajar correctamente con datos censurados necesitaremos tres ideas básicas:
+          </p>
+
+          <ul class="blog-paragraph-list">
+            <li>
+              La <strong>función de densidad de probabilidad</strong>, que describe cómo se distribuyen los tiempos.
+            </li>
+            <li>
+              La <strong>función de distribución acumulada</strong>, que nos dice la probabilidad de que el evento haya
+              ocurrido hasta cierto momento.
+            </li>
+            <li>
+              La <strong>función de supervivencia</strong>, que indica la probabilidad de que el evento todavía no haya
+              ocurrido.
+            </li>
+          </ul>
+
+          <p class="blog-paragraph-end">
+            Estas funciones serán fundamentales porque, cuando existe censura, no siempre sabemos el tiempo exacto del
+            evento. A veces solo sabemos que ocurrió dentro de un intervalo o que aún no ha ocurrido.
+          </p>
+
+          <h3 class="blog-paragraph-h3">¿Cómo estimaremos el modelo?</h3>
+
+          <p class="blog-paragraph-end">
+            Una vez definido el modelo probabilístico, estimaremos sus parámetros utilizando el principio de
+            <strong>máxima verosimilitud</strong>, que básicamente consiste en encontrar los valores que hacen que el
+            modelo explique mejor los datos observados. Además, debido a que el modelo no se puede resolver con una
+            fórmula directa, emplearemos métodos numéricos de optimización.
+          </p>
+
+          <h3 class="blog-paragraph-h3">¿Cómo evaluaremos los resultados?</h3>
+
+          <p class="blog-paragraph">
+            Para analizar la incertidumbre y evaluar hipótesis existen varias herramientas clásicas en inferencia
+            estadística, como el <strong>test de Wald</strong>, el <strong>test basado en el score</strong> y el
+            <strong>test de razón de verosimilitudes</strong> <sup><a href="#ref-2">[2]</a></sup>.
+          </p>
+
+          <p class="blog-paragraph">
+            Aunque estos métodos son asintóticamente equivalentes bajo ciertas condiciones, pueden comportarse de manera
+            distinta en muestras finitas o en modelos no lineales como el Weibull.
+          </p>
+
+          <p class="blog-paragraph">
+            En este artículo utilizaremos la <strong>razón de verosimilitudes</strong>, fundamentada en el
+            <strong>Teorema de Wilks</strong>, ya que se basa directamente en la forma de la función de verosimilitud y
+            no depende de aproximaciones locales como el método de Wald.
+          </p>
+
+          <p class="blog-paragraph-end">
+            Esto resulta especialmente conveniente cuando el modelo es no lineal o cuando los parámetros presentan
+            cierta asimetría, situaciones frecuentes en análisis de supervivencia.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Incorporando información adicional</h3>
+
+          <p class="blog-paragraph">
+            Hasta ahora hemos hablado del tiempo hasta falla como si todos los dispositivos fueran iguales. Sin embargo,
+            en la práctica casi siempre disponemos de información adicional que puede influir en ese tiempo.
+          </p>
+
+          <p class="blog-paragraph">
+            En nuestro caso de estudio, los celulares estuvieron expuestos a distintos niveles de
+            <strong>temperatura</strong>. Es razonable pensar que la temperatura podría afectar la vida útil del
+            dispositivo.
+          </p>
+
+          <p class="blog-paragraph">
+            Para incorporar este tipo de información utilizaremos <strong>covariables</strong>, es decir, variables
+            explicativas que permiten que el modelo adapte el tiempo esperado de falla según las condiciones del
+            entorno.
+          </p>
+
+          <p class="blog-paragraph-end">
+            En particular, modelaremos el efecto de la temperatura sobre el parámetro de escala del modelo Weibull, lo
+            que nos permitirá cuantificar cómo cambia el tiempo medio de vida bajo distintas condiciones.
+          </p>
+
+          <p class="blog-quote">
+            <strong>Ejemplo:</strong> Supongamos que estudiamos cuánto tiempo tarda una persona en recuperarse después
+            de tomar un medicamento. El tiempo hasta la recuperación no depende únicamente del fármaco, sino también
+            podría verse influenciado por las <strong>horas de descanso</strong>, la edad o el estado general de salud.
+            En este caso, las horas de descanso actuarían como una <strong>covariable</strong> que modifica el tiempo
+            esperado hasta la recuperación.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Estructura de los datos</h3>
+
+          <p class="blog-paragraph">
+            El conjunto de datos que utilizaremos no contiene el tiempo exacto de falla, sino intervalos dentro de los
+            cuales ocurrió el evento. Esto refleja el esquema de inspección discreta mencionado anteriormente y es
+            precisamente lo que introduce la censura.
+          </p>
+          <p class="blog-paragraph">
+            Cada observación contiene:
+          </p>
+
+          <ul class="blog-paragraph-list">
+            <li><strong>ylow:</strong> límite inferior del intervalo observado</li>
+            <li><strong>yupp:</strong> límite superior del intervalo observado</li>
+            <li><strong>temperature:</strong> nivel de temperatura (low / high)</li>
+          </ul>
+
+          <p class="blog-paragraph">
+            Es decir, una muestra aleatoria de 3 dispositivos del conjunto de datos es la siguiente:
+          </p>
+
+          <div class="mt-6 overflow-x-auto">
+            <table class="min-w-full text-sm text-left border border-gray-200 rounded-lg overflow-hidden">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 font-semibold text-gray-700 border-b">ylow</th>
+                  <th class="px-4 py-2 font-semibold text-gray-700 border-b">yupp</th>
+                  <th class="px-4 py-2 font-semibold text-gray-700 border-b">temperature</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white">
+                <tr class="border-b hover:bg-gray-50">
+                  <td class="px-4 py-2">0</td>
+                  <td class="px-4 py-2">50</td>
+                  <td class="px-4 py-2">low</td>
+                </tr>
+                <tr class="border-b hover:bg-gray-50">
+                  <td class="px-4 py-2">200</td>
+                  <td class="px-4 py-2">250</td>
+                  <td class="px-4 py-2">low</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2">350</td>
+                  <td class="px-4 py-2">400</td>
+                  <td class="px-4 py-2">high</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="blog-quote">
+            <strong>Ejemplo:</strong> Si <em>ylow = 200</em> y <em>yupp = 250</em>, significa que el dispositivo falló
+            en algún momento dentro de ese intervalo, aunque no sepamos el instante exacto. Además, si la variable
+            <em>temperature</em> indica <em>high</em>, estaremos considerando que ese tiempo de vida ocurrió bajo
+            condiciones de alta temperatura, lo que nos permitirá analizar si este factor influye en la duración
+            esperada.
+          </p>
+        </section>
+
+        <section id="math">
+          <h2 class="blog-paragraph-h2">Enfoque analítico</h2>
+          <p class="blog-paragraph">
+            En esta sección se desarrolla la formulación analítica del modelo de regresión Weibull bajo el enfoque de
+            máxima verosimilitud. Partiremos desde la función de densidad de probabilidad y construiremos explícitamente
+            la función de verosimilitud y su versión logarítmica, que será optimizada numéricamente.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Función de densidad de probabilidad (PDF)</h3>
+          <p class="blog-paragraph">
+            Sea \( Y_i \) el tiempo hasta falla del dispositivo \( i \). Suponemos que
+            \( Y_i \sim \text{Weibull}(\alpha, \mu_i) \), donde
+            \( \alpha > 0 \) es el parámetro de forma y
+            \( \mu_i > 0 \) es el parámetro de escala.
+          </p>
+
+          <p class="blog-paragraph">
+            La función de densidad de probabilidad está dada por:
+          </p>
+
+          <p class="blog-paragraph" id="eq-weibull-pdf">
+            $$f(y_i ; \alpha, \mu_i) =
+            \frac{\alpha}{\mu_i}
+            \left( \frac{y_i}{\mu_i} \right)^{\alpha - 1}
+            \exp\left[-\left( \frac{y_i}{\mu_i} \right)^\alpha \right],
+            \quad y_i > 0 \tag{1}$$
+          </p>
+
+          <p class="blog-paragraph">
+            Para incorporar el efecto de la temperatura, modelamos el parámetro de escala
+            mediante una estructura log-lineal:
+          </p>
+
+          <p class="blog-paragraph-end">
+            $$\log(\mu_i) = \beta_0 + \beta_1 x_i$$
+          </p>
+
+          <p class="blog-paragraph">
+            donde \( x_i \) es una variable indicadora asociada a la condición experimental.
+            De esta manera, el vector de parámetros del modelo queda definido como:
+          </p>
+
+          <p class="blog-paragraph-end">
+            $$\theta = (\beta_0, \beta_1, \alpha)$$
+          </p>
+
+          <h3 class="blog-paragraph-h3">Función de distribución acumulada (CDF)</h3>
+
+          <p class="blog-paragraph">
+            A partir de la función de densidad Weibull parametrizada por \((\mu_i,\alpha)\),
+            podemos obtener la función de distribución acumulada integrando la PDF.
+            Recordemos que, para \(y>0\),
+          </p>
+
+          <p class="blog-paragraph">
+            Por definición, la CDF es:
+          </p>
+
+          <p class="blog-paragraph-end" id="eq-weibull-cdf">
+            $$F_i(y)=\mathbb{P}(Y_i\le y)=\int_{0}^{y} f(t; \alpha, \mu_i)\,dt \tag{2}$$
+          </p>
+
+          <p class="blog-paragraph">
+            Sustituyendo <a href="#eq-weibull-pdf">(1)</a> en <a href="#eq-weibull-cdf">(2)</a>:
+          </p>
+
+          <p class="blog-paragraph-end">
+            $$F_i(y)=\int_{0}^{y}
+            \frac{\alpha}{\mu_i^\alpha}\,t^{\alpha-1}\,
+            \exp\!\left[-\left(\frac{t}{\mu_i}\right)^\alpha\right]\,dt$$
+          </p>
+
+          <p class="blog-paragraph">
+            Aplicando la técnica de cambio de variable para resolver la integración, se tiene que:
+            $$z=\left(\frac{t}{\mu_i}\right)^\alpha \quad \Rightarrow\quad
+            dz=\frac{\alpha}{\mu_i^\alpha}\,t^{\alpha-1}\,dt$$
+          </p>
+
+          <p class="blog-paragraph">
+            Con este cambio, la parte diferencial se simplifica exactamente. Además, los límites cambian como:
+            $$t=0 \Rightarrow z=0,\qquad t=y \Rightarrow z=\left(\frac{y}{\mu_i}\right)^\alpha.$$
+          </p>
+
+          <p class="blog-paragraph">
+            Entonces la integral se transforma en:
+          </p>
+
+          <p class="blog-paragraph-end">
+            $$F_i(y)=\int_{0}^{(y/\mu_i)^\alpha} e^{-z}\,dz$$
+          </p>
+
+          <p class="blog-paragraph">
+            Finalmente, integrando obtenemos que la función de distribución acumulada para \(y>0\) es:
+          </p>
+
+          <p class="blog-paragraph">
+            $$
+            F_i(y)=\left[-e^{-z}\right]_{0}^{(y/\mu_i)^\alpha}
+            $$
+            $$
+            =-e^{-(y/\mu_i)^\alpha}-(-1)
+            $$
+            $$
+            =1-\exp\!\left[-\left(\frac{y}{\mu_i}\right)^\alpha\right]
+            $$
+          </p>
+
+          <p class="blog-paragraph">
+            Entonces, se tiene que para \(y>0\),
+          </p>
+
+          <p class="blog-paragraph-end" id="eq-weibull-cdf-final">
+            $$F_i(y)=1-\exp\!\left[-\left(\frac{y}{\mu_i}\right)^\alpha\right] \tag{3}$$
+          </p>
+
+          <h3 class="blog-paragraph-h3">Función de supervivencia (SF)</h3>
+
+          <p class="blog-paragraph">
+            La función de supervivencia se define como la probabilidad de que el
+            tiempo de vida exceda un cierto valor \(y\):
+          </p>
+
+          <p class="blog-paragraph-end" id="eq-weibull-sf-def">
+            $$S_i(y)=\mathbb{P}(Y_i>y)=1-F_i(y) \tag{4}$$
+          </p>
+
+          <p class="blog-paragraph">
+            Sustituyendo <a href="#eq-weibull-cdf-final">(3)</a> en
+            <a href="#eq-weibull-sf-def">(4)</a>, obtenemos:
+          </p>
+
+          <p class="blog-paragraph-end" id="eq-weibull-sf">
+            $$S_i(y)=\exp\!\left[-\left(\frac{y}{\mu_i}\right)^\alpha\right],
+            \quad y>0 \tag{5}$$
+          </p>
+
+
+
+          <h3 class="blog-paragraph-h3">Reexpresión en términos del predictor lineal</h3>
+
+          <p class="blog-paragraph">
+            Recordando que el parámetro de escala se modela como
+            \( \mu_i = \exp(\eta_i) \),
+            donde \( \eta_i = \beta_0 + \beta_1 x_i \),
+            es conveniente reescribir ciertos términos de la densidad.
+          </p>
+
+          <p class="blog-paragraph">
+            En particular,
+          </p>
+
+          <p class="blog-paragraph-end">
+            $$\left(\frac{y}{\mu_i}\right)^\alpha
+            =
+            y^\alpha \exp(-\alpha \eta_i)$$
+          </p>
+
+          <p class="blog-paragraph">
+            Definimos entonces la cantidad auxiliar:
+          </p>
+
+          <p class="blog-paragraph-end" id="eq-Ai">
+            $$A_i(y) = \left(\frac{y}{\mu_i}\right)^\alpha \tag{6}$$
+          </p>
+
+          <p class="blog-paragraph">
+            Entonces, reemplazando <a href="#eq-Ai">(6)</a> en <a href="#eq-weibull-pdf">(1)</a>, la función de densidad
+            puede expresarse como:
+          </p>
+
+          <p class="blog-paragraph" id="eq-weibull-pdf-reparam">
+            $$f(y_i)=
+            \alpha\, y_i^{\alpha-1}
+            \exp(-\alpha \eta_i)
+            \exp(-A_i(y_i)) \tag{7}$$
+          </p>
+
+          <p class="blog-paragraph">
+            De manera similar, la función de distribución acumulada y la función de supervivencia se reexpresan como:
+          </p>
+
+          <p class="blog-paragraph-end" id="eq-weibull-cdf-reparam">
+            $$F_i(y)=1-\exp(-A_i(y)) \tag{8}$$
+          </p>
+
+          <p class="blog-paragraph-end" id="eq-weibull-sf-reparam">
+            $$S_i(y)=\exp(-A_i(y)) \tag{9}$$
+          </p>
+
+
+          <h3 class="blog-paragraph-h3">Función de verosimilitud con censura</h3>
+
+          <p class="blog-paragraph">
+            En presencia de censura por intervalo y censura derecha,
+            la contribución individual al likelihood depende del tipo
+            de información observada.
+          </p>
+
+          <p class="blog-paragraph">
+            Teniendo en cuenta las contribuciones individuales, la función de verosimilitud se expresa como:
+          </p>
+
+          <ul class="blog-paragraph-list">
+            <li>Censura izquierda (0, y<sub>upp,i</sub>):</li>
+          </ul>
+
+          <p class="blog-paragraph-end">
+            $$\mathbb{P}(Y_i \le y_{\text{upp},i}) = F_i(y_{\text{upp},i}).$$
+          </p>
+
+          <ul class="blog-paragraph-list">
+            <li>Censura por intervalo (y<sub>low,i</sub>, y<sub>upp,i</sub>):</li>
+          </ul>
+
+          <p class="blog-paragraph-end">
+            $$\mathbb{P}(y_{\text{low},i} \lt Y_i \le y_{\text{upp},i})
+            =
+            F_i(y_{\text{upp},i}) - F_i(y_{\text{low},i})$$
+          </p>
+
+          <ul class="blog-paragraph-list">
+            <li>Censura derecha (y<sub>low,i</sub>, ∞):</li>
+          </ul>
+
+          <p class="blog-paragraph-end">
+            $$\mathbb{P}(Y_i > y_{\text{low},i})
+            =
+            1 - F_i(y_{\text{low},i})$$
+          </p>
+
+          <p class="blog-paragraph">
+            Definiendo indicadores apropiados para cada tipo de censura,
+            la función de verosimilitud total se expresa como:
+          </p>
+
+          <p class="blog-paragraph-end">
+            $$L(\beta_0,\beta_1,\alpha)
+            =
+            \prod_{i=1}^{n}
+            F_i(y_{\text{upp},i})^{\mathbf{1}_{(lc_i=1,rc_i=0)}}
+            $$
+            $$
+            \times
+            \left[
+            F_i(y_{\text{upp},i}) - F_i(y_{\text{low},i})
+            \right]^{\mathbf{1}_{(lc_i=0,rc_i=0)}}
+            $$
+            $$
+            \times
+            \left[
+            1 - F_i(y_{\text{low},i})
+            \right]^{\mathbf{1}_{(lc_i=0,rc_i=1)}}
+            $$
+          </p>
+
+          <p class="blog-paragraph">
+            Reemplazando en base a <a href="#eq-weibull-cdf-reparam">(8)</a>, cada término de la verosimilitud se puede
+            reescribir en función de \(A_i(y)\):
+          </p>
+
+          <p class="blog-paragraph-end" id="verosimilitud">
+            $$
+            L(\beta_0,\beta_1,\alpha)
+            =
+            \prod_{i=1}^{n}
+            \left[
+            1-\exp(-A_i(y_{\text{upp},i}))
+            \right]^{\mathbf{1}_{(lc_i=1,rc_i=0)}}
+            $$
+            $$
+            \times
+            \left[
+            \exp(-A_i(y_{\text{low},i}))
+            -
+            \exp(-A_i(y_{\text{upp},i}))
+            \right]^{\mathbf{1}_{(lc_i=0,rc_i=0)}}
+            $$
+            $$
+            \times
+            \left[
+            \exp(-A_i(y_{\text{low},i}))
+            \right]^{\mathbf{1}_{(lc_i=0,rc_i=1)}}
+            \tag{10}
+            $$
+
+          <p class="blog-quote">
+            <strong>Nota:</strong> Los indicadores <em>lc<sub>i</sub></em> (left censoring) y
+            <em>rc<sub>i</sub></em> (right censoring) identifican el tipo de censura asociado
+            a la observación <em>i</em>. En particular,
+            <em>lc<sub>i</sub>=1</em> indica censura izquierda,
+            <em>rc<sub>i</sub>=1</em> indica censura derecha,
+            y cuando <em>lc<sub>i</sub>=0</em> y <em>rc<sub>i</sub>=0</em> se trata de censura
+            por intervalo. Estos indicadores permiten escribir la función de verosimilitud
+            en forma compacta mediante potencias que activan únicamente la contribución
+            correspondiente a cada tipo de observación.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Función de log-verosimilitud</h3>
+          <p class="blog-paragraph">
+            En la práctica, rara vez trabajamos directamente con la función de verosimilitud. Al tratarse de un producto
+            de muchas probabilidades, su valor puede volverse extremadamente pequeño a medida que aumenta el número de
+            observaciones, lo que dificulta su interpretación y cálculo numérico.
+          </p>
+
+          <p class="blog-paragraph">
+            Para evitar este problema, es común trabajar con la log-verosimilitud. Al aplicar el logaritmo, el producto
+            de probabilidades se transforma en una suma, lo que simplifica los cálculos y hace más estable el proceso de
+            optimización, sin alterar el valor del parámetro que maximiza la función.
+          </p>
+
+          <p class="blog-paragraph">
+            Es decir, la función de log-verosimilitud se define como el logaritmo de la función de verosimilitud:
+            $$
+            \ell(\beta_0,\beta_1,\alpha) = \log L(\beta_0,\beta_1,\alpha)
+            $$
+          </p>
+
+          <p class="blog-paragraph">
+            Reemplazando en base a <a href="#verosimilitud">(10)</a> en la definición de log-verosimilitud, obtenemos:
+            $$
+            \ell(\beta_0,\beta_1,\alpha)
+            =
+            \sum_{i \in \mathcal{L}}
+            \log\!\left(1-\exp\!\left[-A_i(y_{\text{upp},i})\right]\right)
+            $$
+
+            $$
+            +
+            \sum_{i \in \mathcal{I}}
+            \log\!\left(
+            \exp\!\left[-A_i(y_{\text{low},i})\right]
+            -
+            \exp\!\left[-A_i(y_{\text{upp},i})\right]
+            \right)
+            $$
+
+            $$
+            -
+            \sum_{i \in \mathcal{R}}
+            A_i(y_{\text{low},i})
+            $$
+          </p>
+
+          <p class="blog-paragraph">
+            Donde los conjuntos \(\mathcal{L}\), \(\mathcal{I}\) y \(\mathcal{R}\) corresponden a los índices de las
+            observaciones con censura izquierda, censura por intervalo y censura derecha, respectivamente. Es decir,
+            $$
+            \mathcal{L}=\{i: l_{c,i}=1,\ r_{c,i}=0\}
+            $$
+            $$
+            \mathcal{I}=\{i: l_{c,i}=0,\ r_{c,i}=0\}
+            $$
+            $$
+            \mathcal{R}=\{i: l_{c,i}=0,\ r_{c,i}=1\}
+            $$
+          </p>
+
+          <h3 class="blog-paragraph-h3">Verosimilitud</h3>
+
+          <p class="blog-paragraph">
+            Cuando construimos un modelo estadístico, lo que realmente queremos es
+            encontrar los valores de sus parámetros que mejor expliquen los datos que hemos observado.
+          </p>
+
+          <p class="blog-paragraph">
+            La verosimilitud es justamente la herramienta que nos ayuda a hacer eso.
+            Nos dice qué tan bien un conjunto específico de parámetros se ajusta a los datos.
+          </p>
+
+          <p class="blog-paragraph">
+            Podemos pensar en ella como una medida de qué tan “compatible” es el modelo
+            (con ciertos parámetros) con la información que tenemos.
+            Si la verosimilitud es alta, significa que esos parámetros hacen que los datos observados
+            sean más coherentes con el modelo.
+          </p>
+
+          <p class="blog-paragraph">
+            El objetivo entonces es elegir los parámetros que hagan que la verosimilitud
+            sea lo más grande posible. A este procedimiento se le conoce como
+            <strong>estimación por máxima verosimilitud</strong>.
+          </p>
+
+          <p class="blog-paragraph">
+            Si suena algo abstracto, veamos un ejemplo:
+          </p>
+          <p class="blog-paragraph">
+            Imagina que tienes un pequeño negocio de delivery de café. Notas que mientras más lejos está el cliente,
+            más tiempo tarda el pedido en llegar.
+          </p>
+
+          <p class="blog-paragraph">
+            Decides modelar el tiempo de entrega con una regla muy simple:
+          </p>
+
+          <p class="blog-paragraph">
+            $$
+            \text{Tiempo} = \beta_0 + \beta_1 \times \text{Distancia}
+            $$
+
+            Donde:
+          </p>
+
+          <ul class="blog-paragraph-list">
+            <li>\( \beta_0 \) es el tiempo base (preparar el café, salir del local, etc.)</li>
+            <li>\( \beta_1 \) es cuánto aumenta el tiempo por cada kilómetro adicional.</li>
+          </ul>
+          <p class="blog-paragraph">
+            Para hacer inferencia o crear predicciones necesitaremos encontrar los valores de \( \beta_0 \) y \( \beta_1
+            \) que mejor expliquen los tiempos de entrega que has observado en tus pedidos anteriores.
+          </p>
+          <p class="blog-paragraph">
+            Para hacer esto, calcularemos la verosimilitud de los datos observados para cada combinación de valores de \(
+            \beta_0 \) y \( \beta_1 \), y seleccionaremos los valores que maximizan esa verosimilitud.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Intervalos de confianza</h3>
+          <p class="blog-paragraph">
+            Para analizar la incertidumbre asociada a los parámetros estimados, es común construir intervalos de
+            confianza
+            basados en el perfil de verosimilitud. Este método se fundamenta en el Teorema de Wilks, que establece
+            que
+            bajo ciertas condiciones, la razón de verosimilitudes sigue una distribución chi-cuadrado asintótica.
+          </p>
+          <p class="blog-paragraph">
+            Antes profundizar en la construcción de intervalos de confianza, entendamos dos términos claves, que son
+            el
+            nivel de confianza y el nivel de significancia.
+          </p>
+          <p class="blog-paragraph">
+            El <strong>nivel de confianza</strong> es la probabilidad de que el intervalo de confianza contenga el
+            valor
+            verdadero del parámetro.
+          </p>
+          <p class="blog-quote">
+            Por ejemplo, un nivel de confianza del 95% significa que si repitiéramos el
+            experimento muchas veces, aproximadamente el 95% de los intervalos construidos a partir de esas muestras
+            incluirían el valor real del parámetro.
+          </p>
+          <p class="blog-paragraph">
+            El <strong>nivel de significancia</strong>, por otro lado, es la probabilidad de rechazar la hipótesis
+            nula
+            cuando esta es verdadera. En el contexto de intervalos de confianza, un nivel de significancia del 5% se
+            relaciona con un nivel de confianza del 95%, ya que el intervalo se construye para incluir el valor del
+            parámetro con una probabilidad del 95%, dejando un 5% de probabilidad para que el valor quede fuera del
+            intervalo.
+          </p>
+          <p class="blog-paragraph">
+            Matematicamente, el nivel de confianza y el nivel de significancia están relacionados por la siguiente
+            expresión:
+            $$\text{Nivel de confianza} = 1 - \text{Nivel de significancia}$$
+          </p>
+
+          <p class="blog-paragraph">
+            $$
+            \widehat{\theta}
+            =
+            (\widehat{\beta}_0,\widehat{\beta}_1,\widehat{\alpha})
+            =
+            \arg\max_{\beta_0,\beta_1,\alpha}
+            \ell(\beta_0,\beta_1,\alpha)
+            $$
+          </p>
+
+          <p class="blog-paragraph">
+            $$
+            \text{Para } \beta_0:
+            \qquad
+            PL(\beta_0)
+            =
+            \max_{\beta_1,\alpha}
+            \ell(\beta_0,\beta_1,\alpha)
+            $$
+
+            $$
+            \left(\widehat{b}_1(\beta_0),\widehat{\alpha}(\beta_0)\right)
+            =
+            \arg\max_{\beta_1,\alpha}
+            \ell(\beta_0,\beta_1,\alpha)
+            $$
+          </p>
+
+          <p class="blog-paragraph">
+            $$
+            D_P(\beta_0)
+            =
+            2\left(
+            \ell(\widehat{\theta})
+            -
+            PL(\beta_0)
+            \right)
+            \;\sim\;
+            \chi^2_{1}
+            $$
+          </p>
+
+          <p class="blog-paragraph">
+            $$
+            \mathbb{P}\!\left(
+            D_P(\beta_0)
+            \le
+            \chi^2_{1,1-\gamma}
+            \right)
+            =
+            1-\gamma
+            $$
+
+            $$
+            \Longrightarrow
+            \quad
+            C_{\gamma}
+            =
+            \left\{
+            \beta_0 :
+            D_P(\beta_0)
+            \le
+            \chi^2_{1,1-\gamma}
+            \right\}
+            $$
+          </p>
+
+          <p class="blog-paragraph">
+            $$
+            \beta_0 :
+            D_P(\beta_0)
+            \le
+            \chi^2_{1,1-\gamma}
+            \quad
+            \Longleftrightarrow
+            \quad
+            PL(\beta_0)
+            \ge
+            \ell(\widehat{\theta})
+            -
+            \frac{1}{2}
+            \chi^2_{1,1-\gamma}
+            $$
+          </p>
+
+          <h3 class="blog-paragraph-h3">Referencias</h3>
+          <ol class="blog-paragraph text-sm">
+            <li id="ref-1">
+              Casella, G., & Berger, R. L. (2002).
+              <em>Statistical Inference</em> (2nd ed.).
+              Duxbury Press.
+              Sección de distribuciones discretas.
+              <a href="https://pages.stat.wisc.edu/~shao/stat610/Casella_Berger_Statistical_Inference.pdf"
+                target="_blank">[PDF]</a>
+            </li>
+            <li id="ref-2">
+              Klein, J. P., & Moeschberger, M. L. (2003).
+              <em>Survival Analysis: Techniques for Censored and Truncated Data</em> (2nd ed.).
+              Springer.
+              <a href="https://link.springer.com/book/10.1007/b97377" target="_blank">[Springer]</a>
+            </li>
+          </ol>
+
+        </section>
+        <!-- Sección 3 -->
+        <section id="algorithm">
+          <h2 class="blog-paragraph-h2">Algoritmos de optimización</h2>
+          <p class="blog-paragraph">
+            En esta sección mostraremos los algoritmos en pseudocódigo para cada uno de los métodos de optimización.
+          </p>
+          <h3 class="blog-paragraph-h3">Newton-Raphson</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">pseudocodigo</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-pseudocode"> Entrada:
+    - Parámetros iniciales: β^(0)
+    - Tolerancia de convergencia: ε
+    - Máximo de iteraciones: max_iter
+  Salida:
+    - Parámetros estimados: β^(*)
+  Algoritmo:
+    1. Establecer t = 0
+    2. Repetir hasta la convergencia o t >= max_iter:
+        a. Calcular gradiente: g^(t) = ∇L(β^(t))
+        b. Calcular Hessiano: H^(t) = H(β^(t))
+        c. Actualizar parámetros:
+           delta = (H^(t))^(-1) * g^(t)
+           β^(t+1) = β^(t) - delta
+        d. Verificar convergencia:
+           Si ||β^(t+1) - β^(t)|| < ε, entonces salir
+        e. Incrementar t: t = t + 1
+    3. Retornar β^(*) = β^(t)</code></pre>
+          </div>
+          <h3 class="blog-paragraph-h3">Descenso de Gradiente</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">pseudocodigo</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-pseudocode"> Entrada:
+    - Parámetros iniciales: β^(0)
+    - Tasa de aprendizaje: α
+    - Tolerancia de convergencia: ε
+    - Máximo de iteraciones: max_iter
+  Salida:
+    - Parámetros estimados: β^(*)
+  Algoritmo:
+    1. Establecer t = 0
+    2. Repetir hasta la convergencia o t >= max_iter:
+        a. Calcular gradiente: g^(t) = ∇L(β^(t))
+        b. Actualizar parámetros:
+           β^(t+1) = β^(t) - α * g^(t)
+        c. Verificar convergencia: 
+           Si ||β^(t+1) - β^(t)|| < ε, entonces salir
+        d. Incrementar t: t = t + 1
+    3. Retornar β^(*) = β^(t)</code></pre>
+          </div>
+          <h3 class="blog-paragraph-h3">Descenso de Gradiente con Backtracking</h3>
+          <div class="blog-code-windows">
+            <div class="blog-code-windows-buttons">
+              <span class="blog-code-block-button-close"></span>
+              <span class="blog-code-block-button-minimize"></span>
+              <span class="blog-code-block-button-maximize"></span>
+              <span class="blog-code-windows-header">pseudocodigo</span>
+            </div>
+            <pre class="blog-code-block"><code class="language-pseudocode"> Entrada:
+    - Parámetros iniciales: β^(0)
+    - Tasa de aprendizaje inicial: α_0
+    - Parámetro de disminución suficiente: c (0 < c < 1)
+    - Factor de reducción del tamaño del paso: ω (0 < ω < 1)
+    - Tolerancia de convergencia: ε
+    - Máximo de iteraciones: max_iter
+  Salida:
+    - Parámetros estimados: β^(*)
+  Algoritmo:
+    1. Establecer t = 0
+    2. Repetir hasta la convergencia o t >= max_iter:
+        a. Calcular gradiente: g^(t) = ∇L(β^(t))
+        b. Establecer α = α_0
+        c. Mientras L(β^(t) - α * g^(t)) > L(β^(t)) - c * α * ||g^(t)||^2:
+            α = ω * α
+        d. Actualizar parámetros:
+           β^(t+1) = β^(t) - α * g^(t)
+        e. Verificar convergencia: 
+           Si ||β^(t+1) - β^(t)|| < ε, entonces salir
+        f. Incrementar t:
+           t = t + 1
+    3. Retornar β^(*) = β^(t)</code></pre>
+          </div>
+
+        </section>
+        <section id="implementing">
+          <h2 class="blog-paragraph-h2">Implementación en Python</h2>
+          <p class="blog-paragraph">
+            A continuación, se presenta una implementación práctica de los algoritmos de optimización discutidos
+            anteriormente utilizando Python. Utilizaremos bibliotecas populares como NumPy para las operaciones
+            numéricas y Matplotlib para la visualización de resultados.
+          </p>
+          <p class="blog-paragraph">
+            A fin de no expandir demasiado este artículo, el código de la implementación completa está disponible desde
+            Google Colab en el siguiente enlace:
+            <a href="https://colab.research.google.com/github/jeffangel/logistic-regression-no-black-box/blob/main/notebooks/es/optimizacion_desde_cero.ipynb"
+              target="_blank" class="blog-paragraph-link">Implementación de Algoritmos de Optimización en Python</a>
+          </p>
+        </section>
+        <section id="Comparison">
+          <h2 class="blog-paragraph-h2">Comparación de complejidad</h2>
+          <p class="blog-paragraph">
+            En esta sección se presenta una comparación entre los métodos de optimización implementados desde el punto
+            de vista del costo computacional. Primero, se analiza la complejidad temporal a partir del
+            comportamiento observado durante la ejecución del notebook. Posteriormente, se abordará la complejidad
+            espacial mediante un
+            análisis teórico.
+          </p>
+
+          <h3 class="blog-paragraph-h3">Complejidad temporal</h3>
+          <p class="blog-paragraph">
+            La figura siguiente presenta una comparación empírica de los métodos de optimización analizados, combinando
+            la
+            evolución de la función de pérdida con distintas métricas de costo computacional. En conjunto, estas
+            visualizaciones
+            permiten evaluar no solo la velocidad de convergencia, sino también la complejidad temporal efectiva de cada
+            método.
+          </p>
+          <figure class="mt-10 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="text-center">
+                <img src="../../assets/blog/logistic-regression-no-black-box/convergence.png" alt="Convergence Plot"
+                  class="mx-auto">
+                <figcaption class="text-sm text-gray-600 mt-2">(a) Convergencia de la función de pérdida</figcaption>
+              </div>
+
+              <div class="text-center">
+                <img src="../../assets/blog/logistic-regression-no-black-box/computational_cost_per_iteration.png"
+                  alt="Computational Cost Per Iteration Plot" class="mx-auto">
+                <figcaption class="text-sm text-gray-600 mt-2">(b) Costo computacional por iteración</figcaption>
+              </div>
+
+              <div class="text-center">
+                <img
+                  src="../../assets/blog/logistic-regression-no-black-box/cumulative_execution_time_per_iteration.png"
+                  alt="Cumulative Execution Time Plot" class="mx-auto">
+                <figcaption class="text-sm text-gray-600 mt-2">(c) Tiempo de ejecución acumulado</figcaption>
+              </div>
+
+              <div class="text-center">
+                <img src="../../assets/blog/logistic-regression-no-black-box/total_execution_time.png"
+                  alt="Total Execution Time Plot" class="mx-auto">
+                <figcaption class="text-sm text-gray-600 mt-2">(d) Tiempo total hasta convergencia</figcaption>
+              </div>
+            </div>
+            <figcaption class="text-center text-sm text-gray-700 mt-6">
+              <strong>Figura 2.</strong> Comparación empírica de la complejidad temporal de los métodos de optimización.
+              La subfigura (a) muestra la convergencia en términos de iteraciones, mientras que (b), (c) y (d)
+              incorporan el costo computacional real asociado a cada método.
+            </figcaption>
+          </figure>
+
+          <p class="blog-paragraph">
+            En la subfigura <strong>(a)</strong> se observa que el método de Newton–Raphson alcanza un valor estable de
+            la función
+            de pérdida en un número reducido de iteraciones, lo que refleja su rápida convergencia local. Sin embargo,
+            esta
+            métrica por sí sola no captura el costo computacional real del método.
+          </p>
+          <p class="blog-paragraph">
+            Por otro lado, la subfigura <strong>(b)</strong> muestra que el costo computacional por iteración de
+            Newton–Raphson es
+            considerablemente mayor que el de los métodos basados en gradiente, debido al cálculo del Hessiano y la
+            resolución
+            de un sistema lineal en cada paso. Este comportamiento se refleja de forma acumulativa en la subfigura
+            <strong>(c)</strong>, donde el tiempo de ejecución total crece más rápidamente para Newton–Raphson, a pesar
+            de
+            requerir menos iteraciones.
+          </p>
+          <p class="blog-paragraph">
+            Finalmente, la subfigura <strong>(d)</strong> resume el tiempo total de ejecución hasta alcanzar la
+            convergencia,
+            evidenciando que, en este experimento, los métodos basados en gradiente ofrecen un mejor compromiso entre
+            estabilidad
+            y costo computacional, especialmente cuando se consideran escenarios de mayor escala.
+          </p>
+          <p class="blog-paragraph-end">
+            En conclusión, aunque el método de Newton-Raphson converge rápidamente en términos de iteraciones, su alto
+            costo
+            computacional por iteración lo hace menos eficiente en la práctica en comparación con los métodos de
+            descenso de gradiente, especialmente en problemas de gran escala.
+          </p>
+          <h3 class="blog-paragraph-h3">Complejidad espacial</h3>
+          <p class="blog-paragraph">
+            Desde el punto de vista teórico, la complejidad espacial de cada método de optimización puede analizarse en
+            función de las estructuras de datos que deben almacenarse durante la ejecución del algoritmo.
+          </p>
+          <p class="blog-paragraph">
+            En el caso del método de Newton-Raphson, es necesario almacenar el Hessiano de la función de pérdida, que es
+            una matriz de tamaño \( p \times p \), donde \( p \) es el número de parámetros del modelo. Esto implica una
+            complejidad espacial de \( \mathcal{O}(p^2) \). Además, se deben almacenar el gradiente y los parámetros, lo
+            que añade una
+            complejidad adicional de \( \mathcal{O}(p) \). Por lo tanto, la complejidad espacial total del método de
+            Newton-Raphson es:
+            $$
+            \mathcal{O}(p^2) + \mathcal{O}(p) = \mathcal{O}(p^2)
+            $$
+          </p>
+          <p class="blog-paragraph">
+            En contraste, los métodos de descenso de gradiente y descenso de gradiente con backtracking solo requieren
+            almacenar el gradiente y los parámetros, ambos de tamaño \( p \). Por lo tanto, la complejidad espacial de
+            estos
+            métodos es:
+            $$
+            \mathcal{O}(p) + \mathcal{O}(p) = \mathcal{O}(p)
+            $$
+          </p>
+          <p class="blog-paragraph-end">
+            En resumen, desde el punto de vista de la complejidad espacial, los métodos basados en gradiente son más
+            eficientes que el
+            método de Newton-Raphson, especialmente cuando el número de parámetros \( p \) es grande.
+          </p>
+        </section>
+
+        <section id="demo">
+          <h2 class="blog-paragraph-h2">Demo</h2>
+          <p class="blog-paragraph">
+            Explicar el comportamiento de los algoritmos es fundamental, pero observar cómo estos se traducen en una
+            decisión
+            concreta permite cerrar el vínculo entre teoría y práctica. Por ello, se presenta a continuación una demo
+            basada
+            en un conjunto de datos real, donde un modelo de regresión logística previamente entrenado realiza
+            inferencia sobre
+            una nueva muestra.
+          </p>
+          <p class="blog-paragraph">
+            El objetivo de esta demo no es evaluar el desempeño predictivo del modelo, sino ilustrar cómo los parámetros
+            obtenidos mediante distintos métodos de optimización se utilizan para calcular el valor lineal
+            <em>η = x<sup>T</sup>β</em>, transformarlo en una probabilidad mediante la función sigmoide y, finalmente,
+            producir una decisión binaria.
+          </p>
+          <p class="blog-paragraph">
+            Para este ejemplo se emplea el <strong>German Credit Dataset (UCI)</strong> únicamente como vehículo
+            práctico.
+            A partir de las características de una nueva observación, se aplica el mismo proceso de estandarización
+            usado
+            durante el entrenamiento y se evalúa la probabilidad asociada a la clase positiva, evidenciando que la
+            inferencia
+            es computacionalmente sencilla en comparación con el proceso de optimización que permitió estimar los
+            parámetros
+            del modelo.
+          </p>
+          <p class="blog-paragraph">
+            Debido a que explicarlo esta bien, pero mostrarlo es mejor, he creado una demo interactiva donde puedes
+            subir una foto y el modelo entrenado te dirá la edad y género
+            estimados. Puedes probarla a continuación:
+          </p>
+          <p class="mt-4 text-sm text-slate-500 italic border-l-4 border-blue-200 pl-3 bg-blue-50/40 rounded-md mb-4">
+            La muestra es generada al dar clic corresponde a una observación aleatoria
+            del German Credit Dataset, ya que en total se requieren 24 características de la persona.</strong>.
+          </p>
+
+          <div id="modelStatus" class="mb-6 hidden">
+            <!-- El contenido se insertará dinámicamente -->
+          </div>
+          <div class="demo-div">
+            <div class="space-y-12">
+
+              <!-- ===================== -->
+              <!-- MUESTRA DE ENTRADA -->
+              <!-- ===================== -->
+              <div class="demo-panel-div">
+                <h3 class="blog-paragraph-h3 mb-4" data-no-toc>
+                  Muestra de entrada
+                </h3>
+
+                <p class="text-sm text-slate-600 mb-4">
+                  Selecciona una muestra aleatoria del conjunto de datos y observa cómo el modelo realiza la inferencia
+                  utilizando los parámetros optimizados por cada método.
+                </p>
+
+                <button id="loadSampleBtn"
+                  class="w-full bg-slate-700 hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 mb-4">
+                  Cargar muestra aleatoria
+                </button>
+
+                <div id="sampleBox" class="hidden space-y-4">
+
+                  <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm text-slate-500 mb-1">
+                      Clase real (1 = Riesgo alto de crédito, 0 = Buen pagador)
+                    </p>
+                    <p class="font-mono text-lg text-slate-800">
+                      y = <span id="trueClass">--</span>
+                    </p>
+                  </div>
+
+                  <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm text-slate-500 mb-2">Características de la persona</p>
+                    <pre id="sampleVector"
+                      class="text-xs text-slate-700 bg-white p-3 rounded-lg overflow-x-auto max-h-48">
+          </pre>
+                  </div>
+
+                  <button id="predictBtn" disabled
+                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200">
+                    Ejecutar inferencia
+                  </button>
+                </div>
+              </div>
+
+              <!-- ===================== -->
+              <!-- RESULTADOS -->
+              <!-- ===================== -->
+              <div class="demo-panel-div">
+                <h3 class="blog-paragraph-h3 mb-6" data-no-toc>
+                  Resultado de inferencia
+                </h3>
+
+                <div id="results" class="hidden space-y-8 transition-all duration-300">
+
+                  <!-- GRID DE RESULTADOS -->
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Newton -->
+                    <div class="space-y-4">
+                      <h4 class="text-sm font-semibold text-slate-700">
+                        Newton–Raphson
+                      </h4>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          η = <span id="eta-newton">--</span>
+                        </p>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          p = <span id="prob-newton">--</span>
+                        </p>
+                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                          <div id="probBar-newton" class="h-full bg-blue-500 w-0 transition-all duration-500"></div>
+                        </div>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                        <p class="text-lg font-semibold text-slate-800">
+                          Predicción: <span id="class-newton">--</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Gradient Descent -->
+                    <div class="space-y-4">
+                      <h4 class="text-sm font-semibold text-slate-700">
+                        Gradient Descent
+                      </h4>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          η = <span id="eta-gradient_descent">--</span>
+                        </p>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          p = <span id="prob-gradient_descent">--</span>
+                        </p>
+                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                          <div id="probBar-gradient_descent"
+                            class="h-full bg-emerald-500 w-0 transition-all duration-500"></div>
+                        </div>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                        <p class="text-lg font-semibold text-slate-800">
+                          Predicción: <span id="class-gradient_descent">--</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Backtracking -->
+                    <div class="space-y-4">
+                      <h4 class="text-sm font-semibold text-slate-700">
+                        Gradient Descent (Backtracking)
+                      </h4>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Combinación lineal</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          η = <span id="eta-gradient_descent_backtracking">--</span>
+                        </p>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm text-slate-500 mb-1">Probabilidad estimada</p>
+                        <p class="font-mono text-lg text-slate-800">
+                          p = <span id="prob-gradient_descent_backtracking">--</span>
+                        </p>
+                        <div class="mt-3 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                          <div id="probBar-gradient_descent_backtracking"
+                            class="h-full bg-purple-500 w-0 transition-all duration-500"></div>
+                        </div>
+                      </div>
+
+                      <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <p class="text-sm text-slate-500 mb-1">Decisión binaria</p>
+                        <p class="text-lg font-semibold text-slate-800">
+                          Predicción: <span id="class-gradient_descent_backtracking">--</span>
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- UMBRAL -->
+                  <div class="rounded-xl border border-slate-200 bg-white p-4">
+                    <p class="text-sm text-slate-500 mb-2">Umbral de decisión (τ)</p>
+                    <input id="thresholdInput" type="range" min="0" max="1" step="0.01" value="0.5" class="w-full">
+
+
+                    <p class="text-xs text-slate-600 mt-3">
+                      Si <strong>p ≥ τ</strong>, la observación se clasifica como
+                      <strong>Riesgo alto de crédito</strong>.
+                    </p>
+
+                    <p class="text-xs text-slate-500 mt-3">
+                      Este control ajusta qué tan estricto es el modelo.
+                    </p>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                      A la izquierda: el modelo es más permisivo y detecta más casos de riesgo.<br>
+                      A la derecha: el modelo es más estricto y solo señala riesgo cuando está muy seguro.
+                    </p>
+                  </div>
+
+                  <!-- NOTA -->
+                  <div class="text-xs text-slate-500 pt-2 border-t border-slate-200">
+                    Los tres resultados comparten la misma función objetivo.
+                    La diferencia observada se debe exclusivamente al método de optimización.
+                    El umbral de decisión se define en inferencia y no forma parte del entrenamiento.
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </section>
+
+        <section id="close">
+          <h2 class="blog-paragraph-h2">Cierre</h2>
+
+          <p class="blog-paragraph">
+            En este artículo hemos recorrido de forma integral el proceso de formulación,
+            análisis y resolución de un problema de <strong>optimización</strong> aplicado al
+            contexto de <strong>Aprendizaje de Máquina</strong>, poniendo énfasis en los
+            fundamentos matemáticos y algorítmicos que subyacen a métodos ampliamente utilizados
+            en la práctica.
+          </p>
+
+          <p class="blog-paragraph">
+            A lo largo del desarrollo comparamos distintos <strong>métodos iterativos de
+              optimización</strong>, como <strong>Gradient Descent</strong>,
+            <strong>Gradient Descent con Backtracking</strong> y <strong>Newton-Raphson</strong>,
+            analizando sus diferencias no solo desde el punto de vista computacional, sino
+            también desde su interpretación estadística y su impacto en la convergencia hacia
+            una misma función objetivo.
+          </p>
+
+          <p class="blog-paragraph">
+            Uno de los objetivos centrales fue evitar el tratamiento de estos algoritmos como
+            una <em>caja negra</em>, mostrando explícitamente cómo surgen la función de pérdida,
+            la gradiente y el Hessiano, y cómo estas cantidades guían el proceso de optimización.
+            Este enfoque permite comprender por qué distintos métodos pueden producir trayectorias
+            diferentes durante el entrenamiento, aun cuando todos convergen al mismo óptimo.
+          </p>
+
+          <p class="blog-paragraph">
+            La demo interactiva que acompaña este artículo permite visualizar este comportamiento
+            de forma intuitiva, destacando que el <strong>umbral de decisión</strong> es una
+            elección realizada en inferencia y no forma parte del proceso de entrenamiento.
+            Esto refuerza la separación conceptual entre el aprendizaje del modelo y su uso
+            práctico en escenarios reales.
+          </p>
+
+          <p class="blog-paragraph">
+            Si te interesa profundizar en temas como <strong>Optimización Numérica</strong>,
+            <strong>Estadística Computacional</strong>, <strong>Machine Learning</strong> y
+            <strong>Deep Learning</strong> desde una perspectiva clara y fundamentada, te invito
+            a conectar por
+            <a href="https://www.linkedin.com/in/jeffersonangel/" target="_blank"
+              class="text-blue-600 hover:underline">LinkedIn</a>
+            y seguir las próximas publicaciones y proyectos de este portafolio. En futuras
+            entregas exploraremos cómo estos algoritmos se integran en pipelines reales y
+            entornos <strong>cloud</strong>, combinando teoría, implementación y despliegue.
+          </p>
+
+          <p class="blog-paragraph-end">
+            ¡Gracias por leer y feliz aprendizaje algorítmico!
+          </p>
+        </section>
+
+        <footer class="mt-12 py-6 border-t border-slate-200 text-center text-sm text-slate-500">
+          © <span id="year"></span> Jefferson Angel Areche Rojas
+        </footer>
+
+        <script>
+          document.getElementById('year').textContent = new Date().getFullYear();
+        </script>
+
+      </article>
+    </main>
+
+    <!-- Slider de navegación -->
+    <aside id="sidebar-toc"
+      class="hidden lg:block h-fit sticky top-28 bg-white shadow-md rounded-lg border border-gray-200">
+      <div class="bg-black text-white font-semibold px-4 py-2 rounded-t-lg flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z" />
+        </svg>
+        <span>En esta página</span>
+      </div>
+      <nav id="toc-list" class="list-none m-0 space-y-1 divide-y divide-gray-200"></nav>
+    </aside>
+
+  </div>
+
+  <script src="../common/toc.js" defer></script>
+  <script src="demo.js" defer></script>
+
+</body>
+
+</html>
